@@ -3,6 +3,7 @@
 import * as React from "react";
 
 type Role = "user" | "assistant";
+type Lang = "ar" | "en" | "fi";
 
 type Msg = {
     id: string;
@@ -10,27 +11,139 @@ type Msg = {
     content: string;
 };
 
-function detectLang(text: string): "ar" | "en" {
+function detectLang(text: string): Lang {
     const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
-    return arabicRegex.test(text) ? "ar" : "en";
+    if (arabicRegex.test(text)) return "ar";
+
+    // Finnish hints
+    const fiRegex = /[äöå]/i;
+    const fiWords =
+        /\b(hei|moi|kiitos|tarvitsen|haluan|sivusto|verkkosivu|yhteys|paketit|hinta|tarjous|apua)\b/i;
+    if (fiRegex.test(text) || fiWords.test(text)) return "fi";
+
+    return "en";
+}
+
+function initialLangFromBrowser(): Lang {
+    const nav = (typeof navigator !== "undefined" ? navigator.language : "en").toLowerCase();
+    if (nav.startsWith("fi")) return "fi";
+    if (nav.startsWith("ar")) return "ar";
+    return "en";
+}
+
+function t(lang: Lang) {
+    if (lang === "ar") {
+        return {
+            init: "أهلًا 👋 أنا مساعد ZIVRA. محتاج إيه النهارده؟ (موقع / تطبيق / شات بوت / أوتوميشن)",
+            title: "اختيارات سريعة:",
+            website: "موقع / لاندنج",
+            webapp: "تطبيق / داشبورد",
+            chatbot: "شات بوت",
+            automation: "أوتوميشن (n8n)",
+            choose: "ساعدني أختار",
+            whatsapp: "واتساب (أسرع)",
+            placeholder: "اكتب رسالتك...",
+            send: "إرسال",
+            typing: "يكتب الآن…",
+            enter: "اضغط Enter للإرسال",
+            errServer: (d: string) =>
+                `⚠️ حصلت مشكلة في الاتصال بالسيرفر: ${d}\nجرّب تعمل Restart للسيرفر (Ctrl+C ثم npm run dev).`,
+            errConn: "⚠️ حصل خطأ في الاتصال. جرّب تاني أو استخدم WhatsApp.",
+            fallback: "تمام ✅ قولّي محتاج إيه بالظبط؟",
+            waText: "مرحبًا ZIVRA! محتاج مساعدة بخصوص موقع/تطبيق/شات بوت/أوتوميشن.",
+            quickWebsite: "أنا محتاج موقع/لاندنج. اسألني سؤال واحد يوضح المطلوب.",
+            quickWebApp: "أنا محتاج تطبيق/داشبورد. اسألني سؤال واحد يوضح المطلوب.",
+            quickChatbot: "أنا محتاج شات بوت للموقع/واتساب. اسألني سؤال واحد يوضح الهدف.",
+            quickAutomation: "أنا محتاج أوتوميشن (ليدز/CRM/واتساب). اسألني سؤال واحد يوضح الفلو.",
+            quickChoose: "أنا محتار. اسألني سؤال واحد يساعدك تختارلي أفضل حل.",
+        };
+    }
+
+    if (lang === "fi") {
+        return {
+            init: "Hei 👋 Olen ZIVRA AI -avustaja. Mitä tarvitset tänään: verkkosivut, web-sovellus, chatbot vai automaatio?",
+            title: "Pikavalinnat:",
+            website: "Verkkosivut / Landing",
+            webapp: "Web-app / Dashboard",
+            chatbot: "AI Chatbot",
+            automation: "Automaatio (n8n)",
+            choose: "Auta valitsemaan",
+            whatsapp: "WhatsApp (nopeampi)",
+            placeholder: "Kirjoita viestisi...",
+            send: "Lähetä",
+            typing: "Kirjoittaa…",
+            enter: "Paina Enter lähettääksesi",
+            errServer: (d: string) =>
+                `⚠️ Yhteysvirhe palvelimeen: ${d}\nKokeile käynnistää dev-serveri uudelleen (Ctrl+C sitten npm run dev).`,
+            errConn: "⚠️ Yhteysvirhe. Kokeile uudelleen tai käytä WhatsAppia.",
+            fallback: "Selvä ✅ Kerro tarkemmin mitä tarvitset?",
+            waText: "Hei ZIVRA! Haluaisin kysyä verkkosivuista, sovelluksesta, chatbotista tai automaatiosta.",
+            quickWebsite: "Tarvitsen verkkosivun/landing-sivun. Kysy 1 selventävä kysymys.",
+            quickWebApp: "Tarvitsen web-sovelluksen/dashboardin. Kysy 1 selventävä kysymys.",
+            quickChatbot: "Tarvitsen chatbotin verkkosivulle/WhatsAppiin. Kysy 1 selventävä kysymys.",
+            quickAutomation: "Haluan automaation (liidit/CRM/WhatsApp). Kysy 1 selventävä kysymys.",
+            quickChoose: "En ole varma. Kysy 1 kysymys ja ehdota paras vaihtoehto.",
+        };
+    }
+
+    // English
+    return {
+        init: "Hi 👋 I’m ZIVRA AI Assistant. What do you need today: Website, Web App, AI Chatbot, or Automation?",
+        title: "Quick options:",
+        website: "Website / Landing",
+        webapp: "Web App / Dashboard",
+        chatbot: "AI Chatbot",
+        automation: "Automation (n8n)",
+        choose: "Help me choose",
+        whatsapp: "WhatsApp (faster)",
+        placeholder: "Type your message...",
+        send: "Send",
+        typing: "Typing…",
+        enter: "Press Enter to send",
+        errServer: (d: string) =>
+            `⚠️ Connection issue: ${d}\nTry restarting the dev server (Ctrl+C then npm run dev).`,
+        errConn: "⚠️ Sorry, connection error. Please try again or use WhatsApp.",
+        fallback: "Got it ✅ Tell me what you need exactly.",
+        waText: "Hi ZIVRA! I want to ask about building a website, app, chatbot, or automation.",
+        quickWebsite: "I need a website/landing page. Ask me 1 question to clarify the requirements.",
+        quickWebApp: "I need a web app or dashboard. Ask me 1 question to clarify the requirements.",
+        quickChatbot: "I need an AI chatbot for website/WhatsApp. Ask me 1 question to clarify the goal.",
+        quickAutomation: "I want automation with n8n (leads/CRM/WhatsApp). Ask me 1 question to clarify the workflow.",
+        quickChoose: "I’m not sure. Ask me 1 question that helps you choose the best option.",
+    };
 }
 
 export default function ChatWidget() {
     const [open, setOpen] = React.useState(false);
     const [input, setInput] = React.useState("");
     const [loading, setLoading] = React.useState(false);
-    const [lang, setLang] = React.useState<"ar" | "en">("en");
 
+    // ✅ 3 languages
+    const [lang, setLang] = React.useState<Lang>("en");
+
+    // ✅ init text depends on lang (we update it on mount)
     const [messages, setMessages] = React.useState<Msg[]>([
         {
             id: "init",
             role: "assistant",
-            content:
-                "Hi 👋 I’m ZIVRA AI Assistant. What do you need today: Website, Web App, AI Chatbot, or Automation?",
+            content: "…",
         },
     ]);
 
     const listRef = React.useRef<HTMLDivElement | null>(null);
+
+    // ✅ set default language from browser once
+    React.useEffect(() => {
+        const l = initialLangFromBrowser();
+        setLang(l);
+        setMessages([
+            {
+                id: "init",
+                role: "assistant",
+                content: t(l).init,
+            },
+        ]);
+    }, []);
 
     React.useEffect(() => {
         if (!open) return;
@@ -41,18 +154,12 @@ export default function ChatWidget() {
     }, [messages, open]);
 
     function addMsg(role: Role, content: string) {
-        setMessages((prev) => [
-            ...prev,
-            { id: crypto.randomUUID(), role, content },
-        ]);
+        setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content }]);
     }
 
     function getWhatsAppLink() {
         const phoneNumber = "358401604442"; // بدون 00 وبدون +
-        const text =
-            lang === "ar"
-                ? "مرحبًا ZIVRA! محتاج مساعدة بخصوص موقع/تطبيق/شات بوت/أوتوميشن."
-                : "Hi ZIVRA! I want to ask about building a website, app, chatbot, or automation.";
+        const text = t(lang).waText;
         const message = encodeURIComponent(text);
         return `https://wa.me/${phoneNumber}?text=${message}`;
     }
@@ -61,11 +168,20 @@ export default function ChatWidget() {
         const text = (customText ?? input).trim();
         if (!text || loading) return;
 
+        // ✅ detect language from user text
         const nextLang = detectLang(text);
         setLang(nextLang);
 
-        const userMsg: Msg = { id: crypto.randomUUID(), role: "user", content: text };
-        setMessages((prev) => [...prev, userMsg]);
+        const userMsg: Msg = {
+            id: crypto.randomUUID(),
+            role: "user",
+            content: text,
+        };
+
+        // ✅ avoid stale state
+        const nextMessages = [...messages, userMsg];
+
+        setMessages(nextMessages);
         setInput("");
         setLoading(true);
 
@@ -74,7 +190,8 @@ export default function ChatWidget() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    messages: [...messages, userMsg].map((m) => ({
+                    // only role/content to API
+                    messages: nextMessages.map((m) => ({
                         role: m.role,
                         content: m.content,
                     })),
@@ -84,7 +201,6 @@ export default function ChatWidget() {
             const data = await res.json().catch(() => ({}));
 
             if (!res.ok) {
-                // لو 405 أو 500 أو غيره
                 const details =
                     typeof data?.details === "string"
                         ? data.details
@@ -92,29 +208,13 @@ export default function ChatWidget() {
                             ? data.error
                             : `Request failed (${res.status})`;
 
-                addMsg(
-                    "assistant",
-                    nextLang === "ar"
-                        ? `⚠️ حصلت مشكلة في الاتصال بالسيرفر: ${details}\nجرّب تعمل Restart للسيرفر (Ctrl+C ثم npm run dev).`
-                        : `⚠️ Connection issue: ${details}\nTry restarting the dev server (Ctrl+C then npm run dev).`
-                );
+                addMsg("assistant", t(nextLang).errServer(details));
                 return;
             }
 
-            addMsg(
-                "assistant",
-                data?.reply ||
-                (nextLang === "ar"
-                    ? "تمام ✅ قولّي محتاج إيه بالظبط؟"
-                    : "Got it ✅ Tell me what you need exactly.")
-            );
+            addMsg("assistant", (typeof data?.reply === "string" && data.reply.trim()) || t(nextLang).fallback);
         } catch {
-            addMsg(
-                "assistant",
-                nextLang === "ar"
-                    ? "⚠️ Sorry، حصل خطأ في الاتصال. جرّب تاني أو استخدم WhatsApp."
-                    : "⚠️ Sorry, connection error. Please try again or use WhatsApp."
-            );
+            addMsg("assistant", t(lang).errConn);
         } finally {
             setLoading(false);
         }
@@ -124,19 +224,7 @@ export default function ChatWidget() {
         if (e.key === "Enter") sendMessage();
     }
 
-    const quick = {
-        title: lang === "ar" ? "اختيارات سريعة:" : "Quick options:",
-        website: lang === "ar" ? "موقع / لاندنج" : "Website / Landing",
-        webapp: lang === "ar" ? "تطبيق / داشبورد" : "Web App / Dashboard",
-        chatbot: lang === "ar" ? "شات بوت" : "AI Chatbot",
-        automation: lang === "ar" ? "أوتوميشن (n8n)" : "Automation (n8n)",
-        choose: lang === "ar" ? "ساعدني أختار" : "Help me choose",
-        whatsapp: lang === "ar" ? "واتساب (أسرع)" : "WhatsApp (faster)",
-        placeholder: lang === "ar" ? "اكتب رسالتك..." : "Type your message...",
-        send: lang === "ar" ? "إرسال" : "Send",
-        typing: lang === "ar" ? "يكتب الآن…" : "Typing…",
-        enter: lang === "ar" ? "اضغط Enter للإرسال" : "Press Enter to send",
-    };
+    const ui = t(lang);
 
     return (
         <>
@@ -147,9 +235,7 @@ export default function ChatWidget() {
                     <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                         <div className="flex items-center gap-2">
                             <span className="h-2 w-2 rounded-full bg-green-400" />
-                            <span className="text-sm font-semibold text-white">
-                                ZIVRA AI Assistant
-                            </span>
+                            <span className="text-sm font-semibold text-white">ZIVRA AI Assistant</span>
                         </div>
                         <button
                             onClick={() => setOpen(false)}
@@ -178,72 +264,64 @@ export default function ChatWidget() {
                             ))}
 
                             {loading && (
-                                <div className="mr-auto rounded-2xl bg-white/5 px-3 py-2 text-white/50">
-                                    {quick.typing}
-                                </div>
+                                <div className="mr-auto rounded-2xl bg-white/5 px-3 py-2 text-white/50">{ui.typing}</div>
                             )}
                         </div>
                     </div>
 
                     {/* Quick options */}
                     <div className="border-t border-white/10 px-4 py-3">
-                        <div className="mb-2 text-[11px] text-white/40">{quick.title}</div>
+                        <div className="mb-2 text-[11px] text-white/40">{ui.title}</div>
 
                         <div className="flex flex-wrap gap-2">
                             <button
                                 type="button"
-                                onClick={() => sendMessage("I need a website/landing page. Ask me 1 question to clarify the requirements.")}
+                                onClick={() => sendMessage(ui.quickWebsite)}
                                 className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {quick.website}
+                                {ui.website}
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => sendMessage("I need a web app or dashboard. Ask me 1 question to clarify the requirements.")}
+                                onClick={() => sendMessage(ui.quickWebApp)}
                                 className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {quick.webapp}
+                                {ui.webapp}
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => sendMessage("I need an AI chatbot for website/WhatsApp. Ask me 1 question to clarify the goal.")}
+                                onClick={() => sendMessage(ui.quickChatbot)}
                                 className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {quick.chatbot}
+                                {ui.chatbot}
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => sendMessage("I want automation with n8n (leads/CRM/WhatsApp). Ask me 1 question to clarify the workflow.")}
+                                onClick={() => sendMessage(ui.quickAutomation)}
                                 className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {quick.automation}
+                                {ui.automation}
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() =>
-                                    sendMessage(
-                                        lang === "ar"
-                                            ? "أنا محتار. اسألني سؤال واحد يساعدك تختارلي أفضل حل."
-                                            : "I’m not sure. Ask me 1 question that helps you choose the best option."
-                                    )
-                                }
+                                onClick={() => sendMessage(ui.quickChoose)}
                                 className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {quick.choose}
+                                {ui.choose}
                             </button>
 
-                            {/* WhatsApp opens WhatsApp ONLY */}
+                            {/* WhatsApp */}
                             <a
                                 href={getWhatsAppLink()}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="rounded-full bg-green-500/20 px-3 py-1 text-xs text-white hover:bg-green-500/30"
                             >
-                                {quick.whatsapp}
+                                {ui.whatsapp}
                             </a>
                         </div>
                     </div>
@@ -255,7 +333,7 @@ export default function ChatWidget() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={onKeyDown}
-                                placeholder={quick.placeholder}
+                                placeholder={ui.placeholder}
                                 className="flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none placeholder:text-white/40"
                             />
                             <button
@@ -264,11 +342,11 @@ export default function ChatWidget() {
                                 type="button"
                                 className="rounded-xl bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/15 disabled:opacity-50"
                             >
-                                {quick.send}
+                                {ui.send}
                             </button>
                         </div>
 
-                        <div className="mt-2 text-[11px] text-white/40">{quick.enter}</div>
+                        <div className="mt-2 text-[11px] text-white/40">{ui.enter}</div>
                     </div>
                 </div>
             )}
