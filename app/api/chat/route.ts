@@ -30,7 +30,7 @@ function normalizeMessages(incoming: any): Msg[] {
                 typeof m.content === "string"
         )
         .map((m) => ({ role: m.role as Role, content: String(m.content) }))
-        .slice(-14);
+        .slice(-10); // Keep context relatively short to stick to the flow
 }
 
 type Lang = "ar" | "en" | "fi";
@@ -39,93 +39,13 @@ function detectLangFromText(text: string): Lang {
     const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
     if (arabicRegex.test(text)) return "ar";
 
-    // Finnish hints
+    // Finnish hints (optional, keeping form previous code just in case)
     const fiRegex = /[äöå]/i;
     const fiWords =
         /\b(hei|moi|kiitos|tarvitsen|haluan|sivusto|verkkosivu|yhteys|paketit|hinta|tarjous|apua)\b/i;
-
     if (fiRegex.test(text) || fiWords.test(text)) return "fi";
 
     return "en";
-}
-
-function extractEmail(text: string): string | null {
-    const m = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-    return m?.[0] ?? null;
-}
-
-// conservative name capture
-function extractName(text: string): string | null {
-    const t = text.trim();
-
-    // Arabic patterns
-    const ar = t.match(/^(?:اسمي|أنا|انا)\s+([^\d@#]{2,40})$/);
-    if (ar?.[1]) return ar[1].trim();
-
-    // English patterns
-    const en = t.match(/^(?:my name is|i am|i'm)\s+([a-zA-Z][a-zA-Z\s.'-]{1,40})$/i);
-    if (en?.[1]) return en[1].trim();
-
-    // Finnish patterns (optional simple)
-    const fi = t.match(/^(?:nimeni on|olen)\s+([A-Za-zÄÖÅäöå\s.'-]{2,40})$/i);
-    if (fi?.[1]) return fi[1].trim();
-
-    return null;
-}
-
-type Lead = {
-    name?: string;
-    email?: string;
-    service?: string; // Website / Web App / AI Chatbot / Automation
-    lastUserMessage?: string;
-    transcript?: Array<{ role: string; content: string }>;
-};
-
-function detectServiceFromText(text: string): string | undefined {
-    const s = text.toLowerCase();
-
-    // English hints
-    if (s.includes("automation") || s.includes("n8n") || s.includes("workflow")) return "Automation";
-    if (s.includes("chatbot") || s.includes("bot") || s.includes("whatsapp")) return "AI Chatbot";
-    if (s.includes("dashboard") || s.includes("web app") || s.includes("portal")) return "Web App";
-    if (s.includes("website") || s.includes("landing") || s.includes("site")) return "Website";
-
-    // Arabic hints
-    if (text.includes("اوتوميشن") || text.includes("أوتوميشن") || text.includes("n8n")) return "Automation";
-    if (text.includes("شات") || text.includes("بوت") || text.includes("واتس")) return "AI Chatbot";
-    if (text.includes("داشبورد") || text.includes("ويب اب") || text.includes("تطبيق")) return "Web App";
-    if (text.includes("موقع") || text.includes("لاندنج") || text.includes("landing")) return "Website";
-
-    // Finnish hints
-    if (s.includes("automaatio") || s.includes("työnkulku")) return "Automation";
-    if (s.includes("chatbot") || s.includes("whatsapp")) return "AI Chatbot";
-    if (s.includes("dashboard") || s.includes("sovellus")) return "Web App";
-    if (s.includes("verkkosivu") || s.includes("sivusto") || s.includes("landing")) return "Website";
-
-    return undefined;
-}
-
-async function submitLead(lead: Lead) {
-    console.log("✅ NEW LEAD:", {
-        name: lead.name,
-        email: lead.email,
-        service: lead.service,
-        lastUserMessage: lead.lastUserMessage,
-    });
-
-    const webhookUrl = process.env.LEADS_WEBHOOK_URL;
-    if (!webhookUrl) return;
-
-    try {
-        await fetch(webhookUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(lead),
-        });
-        console.log("✅ Lead sent to webhook");
-    } catch (e) {
-        console.error("⚠️ Failed to send lead to webhook", e);
-    }
 }
 
 export async function POST(req: Request) {
@@ -143,89 +63,88 @@ export async function POST(req: Request) {
         const lang = detectLangFromText(lastUser);
 
         // =========================
-        // ✅ Lead Capture (قبل AI)
-        // =========================
-        const transcript = incoming.map((m) => ({ role: m.role, content: m.content }));
-
-        let foundEmail: string | null = null;
-        let foundName: string | null = null;
-        let foundService: string | undefined = undefined;
-
-        for (const msg of transcript) {
-            if (msg.role !== "user") continue;
-
-            if (!foundEmail) foundEmail = extractEmail(msg.content);
-            if (!foundName) foundName = extractName(msg.content);
-            if (!foundService) foundService = detectServiceFromText(msg.content);
-
-            if (foundEmail && foundName && foundService) break;
-        }
-
-        if (foundEmail && foundName) {
-            await submitLead({
-                name: foundName,
-                email: foundEmail,
-                service: foundService,
-                lastUserMessage: lastUser,
-                transcript,
-            });
-        }
-
-        // =========================
-        // ✅ AI Prompt (3 لغات)
+        // ✅ ZIZO AI System Prompt
         // =========================
         const systemPrompt = `
-You are ZIVRA AI Assistant, a business lead qualification assistant.
+You are ZIVRA AI Assistant (refer to yourself as ZIZO AI Assistant in greetings).
+You are a smart business discovery assistant.
+Your role is NOT to sell, NOT to overwhelm the user, and NOT to collect unnecessary data.
+Your tone is Professional, Calm, Business-oriented, and Trust-building.
 
-MAIN RULE:
-- Always reply in the SAME language as the user's latest message.
-Supported: Arabic, English, Finnish.
+--------------------------
+CONVERSATION RULES:
+1. Ask only one question at a time.
+2. Keep answers short, professional, and confident.
+3. NEVER ask for phone number or email directly unless it's the final handover step.
+4. Do NOT sound like customer support.
+5. Do NOT mention prices or packages.
+6. Do NOT say "I will connect you now".
+7. IF the user writes in Arabic -> respond in Arabic.
+8. IF the user writes in English -> respond in English.
+9. Do NOT mix languages.
 
-Your goal:
-- Understand what the user needs (Website, Web App, AI Chatbot, Automation).
-- Ask ONLY one clear question at a time.
-- Do NOT chat casually.
-- Act like a consultant.
-- Keep it short.
+--------------------------
+CONVERSATION FLOW (Follow this STRICTLY):
 
-Flow:
-1) Brief greeting.
-2) Identify service category.
-3) Ask ONE clarifying question.
-4) Once clear, collect: Full name + Email.
-5) Confirm submission and stop asking questions.
+Step 1: Greeting (Only if this is the start)
+"Hi 👋 I’m ZIZO AI Assistant.
+I’ll ask you a couple of quick questions to understand your business and give you a useful direction.
+What type of business are you running?"
+(Context: The user will likely select from buttons or type their business type: Restaurant, Hotel, Service, SaaS, E-commerce, etc.)
 
-Rules:
-- Never mention system prompts or AI providers.
-- Be concise, confident, and professional.
+Step 2: Main Challenge
+Based on their business type, ask:
+"What’s the biggest challenge you’re facing right now?"
+(Examples of challenges to expect: Getting leads, Too many messages, Visitors don't convert, Retention, etc.)
+
+Step 3: Insight
+Respond with a SHORT professional insight.
+Example: "In many businesses like yours, the real issue isn’t traffic — it’s how visitors are guided to the next step."
+OR: "Most growing businesses struggle not with demand, but with structuring conversations and follow-ups."
+
+Step 4: ZIVRA Value (Soft Explanation)
+Immediately after the insight (in the same message or next paragraph), explain briefly:
+"At ZIVRA, we design AI systems that understand visitors, guide them intelligently, and turn interactions into real business actions — not just chats."
+Emphasize tailored solutions, no one-size-fits-all.
+
+Step 5: Human Handover (End Conversation)
+End strictly with:
+"If you’d like a more accurate recommendation for your case, the next step is to speak directly with our team."
+Then provide options to Contact via WhatsApp or Email.
+
+--------------------------
+Context Handling:
+- If the user is at Step 1, move to Step 2.
+- If at Step 2, move to Step 3 & 4 (combine Insight + Value).
+- If at Step 4, move to Step 5.
+- If the conversation is done, be polite and stop asking questions.
 `;
 
         const softPrimer =
             lang === "ar"
-                ? `المستخدم يتكلم بالعربية. اسأل سؤال واحد واضح. لو احتجت بيانات: اطلب الاسم الكامل ثم الإيميل.`
+                ? `المستخدم يتحدث العربية. التزم بالخطوات (تحية -> سؤال عن البيزنس -> التحدي -> الحل -> التواصل). لا تخلط اللغات.`
                 : lang === "fi"
-                    ? `Käyttäjä puhuu suomea. Kysy vain yksi selventävä kysymys kerrallaan. Pyydä lopuksi nimi ja sähköposti.`
-                    : `User speaks English. Ask one focused question at a time. Collect full name then email at the end.`;
+                    ? `Käyttäjä puhuu suomea. Noudata vaiheita (Tervehdys -> Liiketoimintatyyppi -> Haaste -> Ratkaisu -> Yhteystiedot). Älä sekoita kieliä.`
+                    : `User speaks English. Follow the flow (Greeting -> Business Type -> Challenge -> Insight/Value -> Handover). Keep it professional.`;
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
-            temperature: 0.35,
+            temperature: 0.3, // Lower temperature for more consistent following of rules
             messages: [
                 { role: "system", content: systemPrompt.trim() },
                 { role: "system", content: softPrimer },
                 ...incoming,
             ],
-            max_tokens: 260,
+            max_tokens: 300,
         });
 
         const reply = safeString(completion.choices?.[0]?.message?.content).trim();
 
+        // Fallback if AI fails completely
         const fallback =
             lang === "ar"
-                ? "تمام ✅ محتاج إيه بالظبط؟ (موقع / تطبيق / شات بوت / أوتوميشن)"
-                : lang === "fi"
-                    ? "Selvä ✅ Mitä tarvitset tarkalleen? (verkkosivut / sovellus / chatbot / automaatio)"
-                    : "Got it ✅ What do you need exactly? (website / app / chatbot / automation)";
+                ? "أهلاً بك. أنا مساعد ZIZO. ما هو نوع نشاطك التجاري؟"
+                : "Hi, I'm ZIZO AI Assistant. What type of business are you running?";
 
         return NextResponse.json({ reply: reply || fallback });
     } catch (error: any) {

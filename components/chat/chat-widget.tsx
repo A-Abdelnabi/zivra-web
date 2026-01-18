@@ -34,82 +34,76 @@ function initialLangFromBrowser(): Lang {
 function t(lang: Lang) {
     if (lang === "ar") {
         return {
-            init: "أهلًا 👋 أنا مساعد ZIVRA. محتاج إيه النهارده؟ (موقع / تطبيق / شات بوت / أوتوميشن)",
-            title: "اختيارات سريعة:",
-            website: "موقع / لاندنج",
-            webapp: "تطبيق / داشبورد",
-            chatbot: "شات بوت",
-            automation: "أوتوميشن (n8n)",
-            choose: "ساعدني أختار",
-            whatsapp: "واتساب (أسرع)",
+            init: "أهلاً 👋 أنا مساعد ZIZO. سأسألك بعض الأسئلة السريعة لفهم نشاطك وتوجيهك بشكل صحيح. ما هو نوع نشاطك التجاري؟",
+            title: "نوع العمل:",
+            opts: {
+                rest: "مطعم / كافيه",
+                hotel: "فندق / سياحة",
+                service: "خدمات / شركة",
+                saas: "SaaS / شركة ناشئة",
+                ecom: "تجارية إلكترونية",
+                notsure: "لست متأكدًا بعد",
+            },
+            whatsapp: "واتساب",
             placeholder: "اكتب رسالتك...",
             send: "إرسال",
             typing: "يكتب الآن…",
             enter: "اضغط Enter للإرسال",
             errServer: (d: string) =>
-                `⚠️ حصلت مشكلة في الاتصال بالسيرفر: ${d}\nجرّب تعمل Restart للسيرفر (Ctrl+C ثم npm run dev).`,
-            errConn: "⚠️ حصل خطأ في الاتصال. جرّب تاني أو استخدم WhatsApp.",
-            fallback: "تمام ✅ قولّي محتاج إيه بالظبط؟",
-            waText: "مرحبًا ZIVRA! محتاج مساعدة بخصوص موقع/تطبيق/شات بوت/أوتوميشن.",
-            quickWebsite: "أنا محتاج موقع/لاندنج. اسألني سؤال واحد يوضح المطلوب.",
-            quickWebApp: "أنا محتاج تطبيق/داشبورد. اسألني سؤال واحد يوضح المطلوب.",
-            quickChatbot: "أنا محتاج شات بوت للموقع/واتساب. اسألني سؤال واحد يوضح الهدف.",
-            quickAutomation: "أنا محتاج أوتوميشن (ليدز/CRM/واتساب). اسألني سؤال واحد يوضح الفلو.",
-            quickChoose: "أنا محتار. اسألني سؤال واحد يساعدك تختارلي أفضل حل.",
+                `⚠️ مشكلة في الاتصال: ${d}`,
+            errConn: "⚠️ خطأ في الاتصال. حاول مرة أخرى.",
+            fallback: "تمام، أخبرني المزيد.",
+            waText: "مرحبًا ZIVRA! أريد استشارة بخصوص الحلول التقنية.",
         };
     }
 
     if (lang === "fi") {
         return {
-            init: "Hei 👋 Olen ZIVRA AI -avustaja. Mitä tarvitset tänään: verkkosivut, web-sovellus, chatbot vai automaatio?",
-            title: "Pikavalinnat:",
-            website: "Verkkosivut / Landing",
-            webapp: "Web-app / Dashboard",
-            chatbot: "AI Chatbot",
-            automation: "Automaatio (n8n)",
-            choose: "Auta valitsemaan",
-            whatsapp: "WhatsApp (nopeampi)",
+            init: "Hei 👋 Olen ZIZO AI -avustaja. Kysyn pari nopeaa kysymystä ymmärtääkseni liiketoimintaasi paremmin. Minkä tyyppistä liiketoimintaa pyörität?",
+            title: "Valitse toimiala:",
+            opts: {
+                rest: "Ravintola / Kahvila",
+                hotel: "Hotelli / Matkailu",
+                service: "Palveluyritys",
+                saas: "SaaS / Startup",
+                ecom: "Verkkokauppa",
+                notsure: "En ole varma",
+            },
+            whatsapp: "WhatsApp",
             placeholder: "Kirjoita viestisi...",
             send: "Lähetä",
             typing: "Kirjoittaa…",
             enter: "Paina Enter lähettääksesi",
             errServer: (d: string) =>
-                `⚠️ Yhteysvirhe palvelimeen: ${d}\nKokeile käynnistää dev-serveri uudelleen (Ctrl+C sitten npm run dev).`,
-            errConn: "⚠️ Yhteysvirhe. Kokeile uudelleen tai käytä WhatsAppia.",
-            fallback: "Selvä ✅ Kerro tarkemmin mitä tarvitset?",
-            waText: "Hei ZIVRA! Haluaisin kysyä verkkosivuista, sovelluksesta, chatbotista tai automaatiosta.",
-            quickWebsite: "Tarvitsen verkkosivun/landing-sivun. Kysy 1 selventävä kysymys.",
-            quickWebApp: "Tarvitsen web-sovelluksen/dashboardin. Kysy 1 selventävä kysymys.",
-            quickChatbot: "Tarvitsen chatbotin verkkosivulle/WhatsAppiin. Kysy 1 selventävä kysymys.",
-            quickAutomation: "Haluan automaation (liidit/CRM/WhatsApp). Kysy 1 selventävä kysymys.",
-            quickChoose: "En ole varma. Kysy 1 kysymys ja ehdota paras vaihtoehto.",
+                `⚠️ Palvelinvirhe: ${d}`,
+            errConn: "⚠️ Yhteysvirhe. Kokeile uudelleen.",
+            fallback: "Selvä, kerro lisää.",
+            waText: "Hei ZIVRA! Haluaisin keskustella teknologiaratkaisuista.",
         };
     }
 
     // English
     return {
-        init: "Hi 👋 I’m ZIVRA AI Assistant. What do you need today: Website, Web App, AI Chatbot, or Automation?",
-        title: "Quick options:",
-        website: "Website / Landing",
-        webapp: "Web App / Dashboard",
-        chatbot: "AI Chatbot",
-        automation: "Automation (n8n)",
-        choose: "Help me choose",
-        whatsapp: "WhatsApp (faster)",
+        init: "Hi 👋 I’m ZIZO AI Assistant. I’ll ask you a couple of quick questions to understand your business and give you a useful direction. What type of business are you running?",
+        title: "Business Type:",
+        opts: {
+            rest: "Restaurant / Café",
+            hotel: "Hotel / Tourism",
+            service: "Service Business",
+            saas: "SaaS / Startup",
+            ecom: "E-commerce",
+            notsure: "Not sure yet",
+        },
+        whatsapp: "WhatsApp",
         placeholder: "Type your message...",
         send: "Send",
         typing: "Typing…",
         enter: "Press Enter to send",
         errServer: (d: string) =>
-            `⚠️ Connection issue: ${d}\nTry restarting the dev server (Ctrl+C then npm run dev).`,
-        errConn: "⚠️ Sorry, connection error. Please try again or use WhatsApp.",
-        fallback: "Got it ✅ Tell me what you need exactly.",
-        waText: "Hi ZIVRA! I want to ask about building a website, app, chatbot, or automation.",
-        quickWebsite: "I need a website/landing page. Ask me 1 question to clarify the requirements.",
-        quickWebApp: "I need a web app or dashboard. Ask me 1 question to clarify the requirements.",
-        quickChatbot: "I need an AI chatbot for website/WhatsApp. Ask me 1 question to clarify the goal.",
-        quickAutomation: "I want automation with n8n (leads/CRM/WhatsApp). Ask me 1 question to clarify the workflow.",
-        quickChoose: "I’m not sure. Ask me 1 question that helps you choose the best option.",
+            `⚠️ Connection issue: ${d}`,
+        errConn: "⚠️ Connection error. Please try again.",
+        fallback: "Got it, tell me more.",
+        waText: "Hi ZIVRA! I'd like to discuss tech solutions for my business.",
     };
 }
 
@@ -121,7 +115,6 @@ export default function ChatWidget() {
     // ✅ 3 languages
     const [lang, setLang] = React.useState<Lang>("en");
 
-    // ✅ init text depends on lang (we update it on mount)
     const [messages, setMessages] = React.useState<Msg[]>([
         {
             id: "init",
@@ -158,7 +151,7 @@ export default function ChatWidget() {
     }
 
     function getWhatsAppLink() {
-        const phoneNumber = "358401604442"; // بدون 00 وبدون +
+        const phoneNumber = "358401604442";
         const text = t(lang).waText;
         const message = encodeURIComponent(text);
         return `https://wa.me/${phoneNumber}?text=${message}`;
@@ -276,53 +269,51 @@ export default function ChatWidget() {
                         <div className="flex flex-wrap gap-2">
                             <button
                                 type="button"
-                                onClick={() => sendMessage(ui.quickWebsite)}
+                                onClick={() => sendMessage(ui.opts.rest)}
                                 className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {ui.website}
+                                {ui.opts.rest}
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => sendMessage(ui.quickWebApp)}
+                                onClick={() => sendMessage(ui.opts.hotel)}
                                 className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {ui.webapp}
+                                {ui.opts.hotel}
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => sendMessage(ui.quickChatbot)}
+                                onClick={() => sendMessage(ui.opts.service)}
                                 className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {ui.chatbot}
+                                {ui.opts.service}
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => sendMessage(ui.quickAutomation)}
+                                onClick={() => sendMessage(ui.opts.saas)}
                                 className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {ui.automation}
+                                {ui.opts.saas}
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => sendMessage(ui.quickChoose)}
+                                onClick={() => sendMessage(ui.opts.ecom)}
                                 className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {ui.choose}
+                                {ui.opts.ecom}
                             </button>
 
-                            {/* WhatsApp */}
-                            <a
-                                href={getWhatsAppLink()}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="rounded-full bg-green-500/20 px-3 py-1 text-xs text-white hover:bg-green-500/30"
+                            <button
+                                type="button"
+                                onClick={() => sendMessage(ui.opts.notsure)}
+                                className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
                             >
-                                {ui.whatsapp}
-                            </a>
+                                {ui.opts.notsure}
+                            </button>
                         </div>
                     </div>
 
@@ -346,7 +337,17 @@ export default function ChatWidget() {
                             </button>
                         </div>
 
-                        <div className="mt-2 text-[11px] text-white/40">{ui.enter}</div>
+                        <div className="mt-2 flex items-center justify-between text-[11px] text-white/40">
+                            <span>{ui.enter}</span>
+                            <a
+                                href={getWhatsAppLink()}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-green-400"
+                            >
+                                {ui.whatsapp}
+                            </a>
+                        </div>
                     </div>
                 </div>
             )}
