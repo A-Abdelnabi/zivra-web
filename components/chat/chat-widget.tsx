@@ -44,16 +44,16 @@ function t(lang: Lang) {
     if (lang === "ar") {
         return {
             // Gulf-neutral / Professional / Short
-            init: "هلا بك 👋 معك زيزو (ZIZO)، مساعدك الذكي من زيفرا. بأسألك كم سؤال عشان نفهم احتياجك ونعطيك أنسب حل. وش نوع مشروعك؟",
+            init: "مرحبًا 👋 أنا مساعد ZIZO الذكي. أقدر أساعدك نفهم مشروعك ونرشّح لك الحل الأنسب. وش نوع مشروعك؟",
             title: "خيارات سريعة:",
             // Initial Business Types
             initialOptions: [
                 "مطعم / كافيه",
                 "فندق / سياحة",
-                "خدمات / شركة",
-                "SaaS / شركة تقنية",
+                "شركة خدمات",
                 "متجر إلكتروني",
-                "لست متأكد"
+                "SaaS / Startup",
+                "غير متأكد بعد"
             ],
             whatsapp: "واتساب",
             placeholder: "اكتب هنا...",
@@ -75,8 +75,8 @@ function t(lang: Lang) {
                 "Ravintola / Kahvila",
                 "Hotelli / Matkailu",
                 "Palveluyritys",
-                "SaaS / Startup",
                 "Verkkokauppa",
+                "SaaS / Startup",
                 "En ole varma"
             ],
             whatsapp: "WhatsApp",
@@ -99,8 +99,8 @@ function t(lang: Lang) {
             "Restaurant / Café",
             "Hotel / Tourism",
             "Service Business",
-            "SaaS / Startup",
             "E-commerce",
+            "SaaS / Startup",
             "Not sure yet"
         ],
         whatsapp: "WhatsApp",
@@ -263,8 +263,8 @@ export default function ChatWidget() {
                                     key={m.id}
                                     className={
                                         m.role === "user"
-                                            ? "max-w-[85%] rounded-2xl bg-white/10 px-3 py-2 text-white self-end text-start"
-                                            : "max-w-[85%] rounded-2xl bg-white/5 px-3 py-2 text-white/90 self-start text-start"
+                                            ? "max-w-[85%] rounded-2xl bg-white/10 px-3 py-2 text-white self-end text-start whitespace-pre-wrap"
+                                            : "max-w-[85%] rounded-2xl bg-white/5 px-3 py-2 text-white/90 self-start text-start whitespace-pre-wrap"
                                     }
                                 >
                                     {m.content}
@@ -286,29 +286,43 @@ export default function ChatWidget() {
                         )}
 
                         <div className="flex flex-wrap gap-2">
-                            {options.map((opt) => (
-                                <button
-                                    key={opt}
-                                    type="button"
-                                    onClick={() => sendMessage(opt)}
-                                    className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15 transition-colors"
-                                >
-                                    {opt}
-                                </button>
-                            ))}
-
-                            {/* Always show WhatsApp if options are empty or as a permanent extra ? 
-                                The user requested to keep it. We'll put it at the end of the list if user hasn't selected it,
-                                OR just keep it as a standalone link. 
-                                Let's keep it in the row for easy access. */}
-                            <a
-                                href={getWhatsAppLink()}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="rounded-full bg-green-500/20 px-3 py-1 text-xs text-secondary-foreground hover:bg-green-500/30 text-green-400"
-                            >
-                                {ui.whatsapp}
-                            </a>
+                            {options.map((opt) => {
+                                // Smart Rendering for Final CTA Buttons
+                                if (opt === "WhatsApp") {
+                                    return (
+                                        <a
+                                            key={opt}
+                                            href={getWhatsAppLink()}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="rounded-full bg-green-500/20 px-3 py-1 text-xs text-green-400 border border-green-500/30 hover:bg-green-500/30 transition-colors"
+                                        >
+                                            {opt}
+                                        </a>
+                                    )
+                                }
+                                if (opt === "Email") {
+                                    return (
+                                        <a
+                                            key={opt}
+                                            href="mailto:info@zivra.co"
+                                            className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15 transition-colors"
+                                        >
+                                            {opt}
+                                        </a>
+                                    )
+                                }
+                                return (
+                                    <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => sendMessage(opt)}
+                                        className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15 transition-colors"
+                                    >
+                                        {opt}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
