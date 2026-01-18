@@ -11,6 +11,15 @@ type Msg = {
     content: string;
 };
 
+// Response from the API
+type ApiResponse = {
+    reply: string;
+    options?: string[]; // Dynamic options provided by AI
+    leadCaptured?: boolean;
+    error?: string;
+    details?: string;
+};
+
 function detectLang(text: string): Lang {
     const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
     if (arabicRegex.test(text)) return "ar";
@@ -34,26 +43,27 @@ function initialLangFromBrowser(): Lang {
 function t(lang: Lang) {
     if (lang === "ar") {
         return {
-            init: "أهلاً 👋 أنا مساعد ZIZO. سأسألك بعض الأسئلة السريعة لفهم نشاطك وتوجيهك بشكل صحيح. ما هو نوع نشاطك التجاري؟",
-            title: "نوع العمل:",
-            opts: {
-                rest: "مطعم / كافيه",
-                hotel: "فندق / سياحة",
-                service: "خدمات / شركة",
-                saas: "SaaS / شركة ناشئة",
-                ecom: "تجارية إلكترونية",
-                notsure: "لست متأكدًا بعد",
-            },
+            // Gulf-neutral / Professional / Short
+            init: "هلا بك 👋 معك زيزو (ZIZO)، مساعدك الذكي من زيفرا. بأسألك كم سؤال عشان نفهم احتياجك ونعطيك أنسب حل. وش نوع مشروعك؟",
+            title: "خيارات سريعة:",
+            // Initial Business Types
+            initialOptions: [
+                "مطعم / كافيه",
+                "فندق / سياحة",
+                "خدمات / شركة",
+                "SaaS / شركة تقنية",
+                "متجر إلكتروني",
+                "لست متأكد"
+            ],
             whatsapp: "واتساب",
-            placeholder: "اكتب رسالتك...",
+            placeholder: "اكتب هنا...",
             send: "إرسال",
-            typing: "يكتب الآن…",
+            typing: "جاري الكتابة...",
             enter: "اضغط Enter للإرسال",
-            errServer: (d: string) =>
-                `⚠️ مشكلة في الاتصال: ${d}`,
-            errConn: "⚠️ خطأ في الاتصال. حاول مرة أخرى.",
-            fallback: "تمام، أخبرني المزيد.",
-            waText: "مرحبًا ZIVRA! أريد استشارة بخصوص الحلول التقنية.",
+            errServer: (d: string) => `⚠️ مشكلة بالاتصال: ${d}`,
+            errConn: "⚠️ خطأ في الاتصال. تأكد من النت وحاول مرة ثانية.",
+            fallback: "تمام، كمل معي.",
+            waText: "هلا زيفرا! أبي أستفسر عن الحلول الذكية لمشروعي.",
         };
     }
 
@@ -61,21 +71,20 @@ function t(lang: Lang) {
         return {
             init: "Hei 👋 Olen ZIZO AI -avustaja. Kysyn pari nopeaa kysymystä ymmärtääkseni liiketoimintaasi paremmin. Minkä tyyppistä liiketoimintaa pyörität?",
             title: "Valitse toimiala:",
-            opts: {
-                rest: "Ravintola / Kahvila",
-                hotel: "Hotelli / Matkailu",
-                service: "Palveluyritys",
-                saas: "SaaS / Startup",
-                ecom: "Verkkokauppa",
-                notsure: "En ole varma",
-            },
+            initialOptions: [
+                "Ravintola / Kahvila",
+                "Hotelli / Matkailu",
+                "Palveluyritys",
+                "SaaS / Startup",
+                "Verkkokauppa",
+                "En ole varma"
+            ],
             whatsapp: "WhatsApp",
             placeholder: "Kirjoita viestisi...",
             send: "Lähetä",
             typing: "Kirjoittaa…",
             enter: "Paina Enter lähettääksesi",
-            errServer: (d: string) =>
-                `⚠️ Palvelinvirhe: ${d}`,
+            errServer: (d: string) => `⚠️ Palvelinvirhe: ${d}`,
             errConn: "⚠️ Yhteysvirhe. Kokeile uudelleen.",
             fallback: "Selvä, kerro lisää.",
             waText: "Hei ZIVRA! Haluaisin keskustella teknologiaratkaisuista.",
@@ -85,22 +94,21 @@ function t(lang: Lang) {
     // English
     return {
         init: "Hi 👋 I’m ZIZO AI Assistant. I’ll ask you a couple of quick questions to understand your business and give you a useful direction. What type of business are you running?",
-        title: "Business Type:",
-        opts: {
-            rest: "Restaurant / Café",
-            hotel: "Hotel / Tourism",
-            service: "Service Business",
-            saas: "SaaS / Startup",
-            ecom: "E-commerce",
-            notsure: "Not sure yet",
-        },
+        title: "Quick Options:",
+        initialOptions: [
+            "Restaurant / Café",
+            "Hotel / Tourism",
+            "Service Business",
+            "SaaS / Startup",
+            "E-commerce",
+            "Not sure yet"
+        ],
         whatsapp: "WhatsApp",
         placeholder: "Type your message...",
         send: "Send",
         typing: "Typing…",
         enter: "Press Enter to send",
-        errServer: (d: string) =>
-            `⚠️ Connection issue: ${d}`,
+        errServer: (d: string) => `⚠️ Connection issue: ${d}`,
         errConn: "⚠️ Connection error. Please try again.",
         fallback: "Got it, tell me more.",
         waText: "Hi ZIVRA! I'd like to discuss tech solutions for my business.",
@@ -112,32 +120,27 @@ export default function ChatWidget() {
     const [input, setInput] = React.useState("");
     const [loading, setLoading] = React.useState(false);
 
-    // ✅ 3 languages
     const [lang, setLang] = React.useState<Lang>("en");
 
+    // Dynamic options state (initially null until set by lang/effect)
+    const [options, setOptions] = React.useState<string[]>([]);
+
     const [messages, setMessages] = React.useState<Msg[]>([
-        {
-            id: "init",
-            role: "assistant",
-            content: "…",
-        },
+        { id: "init", role: "assistant", content: "…" },
     ]);
 
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
-    // ✅ set default language from browser once
+    // Initialize Language & Options
     React.useEffect(() => {
         const l = initialLangFromBrowser();
         setLang(l);
-        setMessages([
-            {
-                id: "init",
-                role: "assistant",
-                content: t(l).init,
-            },
-        ]);
+        const dict = t(l);
+        setMessages([{ id: "init", role: "assistant", content: dict.init }]);
+        setOptions(dict.initialOptions);
     }, []);
 
+    // Scroll to bottom
     React.useEffect(() => {
         if (!open) return;
         listRef.current?.scrollTo({
@@ -161,9 +164,13 @@ export default function ChatWidget() {
         const text = (customText ?? input).trim();
         if (!text || loading) return;
 
-        // ✅ detect language from user text
-        const nextLang = detectLang(text);
-        setLang(nextLang);
+        // Detect language switch from user input if they type manually
+        if (!customText) {
+            const nextLang = detectLang(text);
+            if (nextLang !== lang) {
+                setLang(nextLang);
+            }
+        }
 
         const userMsg: Msg = {
             id: crypto.randomUUID(),
@@ -171,19 +178,18 @@ export default function ChatWidget() {
             content: text,
         };
 
-        // ✅ avoid stale state
         const nextMessages = [...messages, userMsg];
-
         setMessages(nextMessages);
         setInput("");
         setLoading(true);
+        // Clear options while waiting for AI to give new ones
+        setOptions([]);
 
         try {
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    // only role/content to API
                     messages: nextMessages.map((m) => ({
                         role: m.role,
                         content: m.content,
@@ -191,21 +197,26 @@ export default function ChatWidget() {
                 }),
             });
 
-            const data = await res.json().catch(() => ({}));
+            const data: ApiResponse = await res.json().catch(() => ({}));
 
             if (!res.ok) {
-                const details =
-                    typeof data?.details === "string"
-                        ? data.details
-                        : typeof data?.error === "string"
-                            ? data.error
-                            : `Request failed (${res.status})`;
-
-                addMsg("assistant", t(nextLang).errServer(details));
+                const details = data.details || data.error || `Error (${res.status})`;
+                addMsg("assistant", t(lang).errServer(details));
                 return;
             }
 
-            addMsg("assistant", (typeof data?.reply === "string" && data.reply.trim()) || t(nextLang).fallback);
+            // 1. Add AI Response
+            const replyText = data.reply || t(lang).fallback;
+            addMsg("assistant", replyText);
+
+            // 2. Update Options if provided by API, otherwise keep empty (user has to type)
+            // If the API returns options, we show them.
+            if (data.options && Array.isArray(data.options) && data.options.length > 0) {
+                setOptions(data.options);
+            } else {
+                setOptions([]);
+            }
+
         } catch {
             addMsg("assistant", t(lang).errConn);
         } finally {
@@ -218,12 +229,16 @@ export default function ChatWidget() {
     }
 
     const ui = t(lang);
+    const isRtl = lang === "ar";
 
     return (
         <>
             {/* ================= Chat Panel ================= */}
             {open && (
-                <div className="fixed bottom-24 right-5 z-[99999] w-[380px] max-w-[calc(100vw-40px)] overflow-hidden rounded-2xl border border-white/10 bg-black/70 backdrop-blur-xl shadow-2xl">
+                <div
+                    dir={isRtl ? "rtl" : "ltr"}
+                    className="fixed bottom-24 right-5 z-[99999] w-[380px] max-w-[calc(100vw-40px)] overflow-hidden rounded-2xl border border-white/10 bg-black/70 backdrop-blur-xl shadow-2xl transition-all"
+                >
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -248,8 +263,8 @@ export default function ChatWidget() {
                                     key={m.id}
                                     className={
                                         m.role === "user"
-                                            ? "ml-auto max-w-[85%] rounded-2xl bg-white/10 px-3 py-2 text-white"
-                                            : "mr-auto max-w-[85%] rounded-2xl bg-white/5 px-3 py-2 text-white/90"
+                                            ? "max-w-[85%] rounded-2xl bg-white/10 px-3 py-2 text-white self-end text-start"
+                                            : "max-w-[85%] rounded-2xl bg-white/5 px-3 py-2 text-white/90 self-start text-start"
                                     }
                                 >
                                     {m.content}
@@ -257,63 +272,43 @@ export default function ChatWidget() {
                             ))}
 
                             {loading && (
-                                <div className="mr-auto rounded-2xl bg-white/5 px-3 py-2 text-white/50">{ui.typing}</div>
+                                <div className="max-w-[85%] rounded-2xl bg-white/5 px-3 py-2 text-white/50 self-start">
+                                    {ui.typing}
+                                </div>
                             )}
                         </div>
                     </div>
 
-                    {/* Quick options */}
-                    <div className="border-t border-white/10 px-4 py-3">
-                        <div className="mb-2 text-[11px] text-white/40">{ui.title}</div>
+                    {/* Quick options (Dynamic) */}
+                    <div className="border-t border-white/10 px-4 py-3 bg-white/5">
+                        {options.length > 0 && (
+                            <div className="mb-2 text-[11px] text-white/40">{ui.title}</div>
+                        )}
 
                         <div className="flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                onClick={() => sendMessage(ui.opts.rest)}
-                                className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
-                            >
-                                {ui.opts.rest}
-                            </button>
+                            {options.map((opt) => (
+                                <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => sendMessage(opt)}
+                                    className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15 transition-colors"
+                                >
+                                    {opt}
+                                </button>
+                            ))}
 
-                            <button
-                                type="button"
-                                onClick={() => sendMessage(ui.opts.hotel)}
-                                className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
+                            {/* Always show WhatsApp if options are empty or as a permanent extra ? 
+                                The user requested to keep it. We'll put it at the end of the list if user hasn't selected it,
+                                OR just keep it as a standalone link. 
+                                Let's keep it in the row for easy access. */}
+                            <a
+                                href={getWhatsAppLink()}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="rounded-full bg-green-500/20 px-3 py-1 text-xs text-secondary-foreground hover:bg-green-500/30 text-green-400"
                             >
-                                {ui.opts.hotel}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => sendMessage(ui.opts.service)}
-                                className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
-                            >
-                                {ui.opts.service}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => sendMessage(ui.opts.saas)}
-                                className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
-                            >
-                                {ui.opts.saas}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => sendMessage(ui.opts.ecom)}
-                                className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
-                            >
-                                {ui.opts.ecom}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => sendMessage(ui.opts.notsure)}
-                                className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15"
-                            >
-                                {ui.opts.notsure}
-                            </button>
+                                {ui.whatsapp}
+                            </a>
                         </div>
                     </div>
 
@@ -325,7 +320,7 @@ export default function ChatWidget() {
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={onKeyDown}
                                 placeholder={ui.placeholder}
-                                className="flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none placeholder:text-white/40"
+                                className={`flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none placeholder:text-white/40 ${isRtl ? "text-right" : "text-left"}`}
                             />
                             <button
                                 onClick={() => sendMessage()}
@@ -333,7 +328,7 @@ export default function ChatWidget() {
                                 type="button"
                                 className="rounded-xl bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/15 disabled:opacity-50"
                             >
-                                {ui.send}
+                                {isRtl ? <span className="rotate-180 block">➤</span> : <span>➤</span>}
                             </button>
                         </div>
 
@@ -355,7 +350,7 @@ export default function ChatWidget() {
             {/* ================= Floating Button ================= */}
             <button
                 onClick={() => setOpen((v) => !v)}
-                className="fixed bottom-5 right-5 z-[99999] grid h-14 w-14 place-items-center rounded-full bg-green-500 text-white shadow-xl hover:opacity-95"
+                className="fixed bottom-5 right-5 z-[99999] grid h-14 w-14 place-items-center rounded-full bg-green-500 text-white shadow-xl hover:opacity-95 transition-transform hover:scale-105"
                 aria-label={open ? "Close chat" : "Open chat"}
                 type="button"
             >
