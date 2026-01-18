@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 
 type Role = "user" | "assistant";
 type Lang = "ar" | "en" | "fi";
@@ -242,7 +243,14 @@ export default function ChatWidget() {
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                         <div className="flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-green-400" />
+                            <div className="relative h-8 w-8 rounded-full overflow-hidden mr-2 border border-white/10">
+                                <Image
+                                    src="/images/zivra-logo.jpg"
+                                    alt="Agent"
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
                             <span className="text-sm font-semibold text-white">ZIVRA AI Assistant</span>
                         </div>
                         <button
@@ -368,7 +376,20 @@ export default function ChatWidget() {
                 aria-label={open ? "Close chat" : "Open chat"}
                 type="button"
             >
-                <span className="text-xl">{open ? "✕" : "💬"}</span>
+                <span className="text-xl flex items-center justify-center w-full h-full">
+                    {open ? (
+                        "✕"
+                    ) : (
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                            <Image
+                                src="/images/zivra-logo.jpg"
+                                alt="Chat"
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                    )}
+                </span>
             </button>
         </>
     );

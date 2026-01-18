@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Disc } from 'lucide-react'
 
 export function Footer() {
@@ -7,7 +8,14 @@ export function Footer() {
             <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div>
                     <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tighter">
-                        <Disc className="h-6 w-6 text-primary" />
+                        <div className="relative w-6 h-6 md:w-7 md:h-7 rounded-full overflow-hidden shrink-0">
+                            <Image
+                                src="/images/zivra-logo.jpg"
+                                alt="ZIVRA Logo"
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
                         ZIVRA.dev
                     </Link>
                     <p className="text-sm text-muted-foreground mt-2">

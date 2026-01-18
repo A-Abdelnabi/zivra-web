@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Disc, Menu, Globe } from 'lucide-react'
 import {
@@ -19,7 +20,14 @@ export function Navbar() {
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tighter">
-                    <Disc className="h-6 w-6 text-primary" />
+                    <div className="relative w-[28px] h-[28px] md:w-[36px] md:h-[36px] rounded-full overflow-hidden shrink-0">
+                        <Image
+                            src="/images/zivra-logo.jpg"
+                            alt="ZIVRA Logo"
+                            fill
+                            className="object-cover"
+                        />
+                    </div>
                     ZIVRA
                 </Link>
 
@@ -54,8 +62,8 @@ export function Navbar() {
                             <Menu className="h-5 w-5" />
                         </Button>
                     </SheetTrigger>
-                   <SheetContent side="right">
-<h2 className="sr-only">Navigation</h2>
+                    <SheetContent side="right">
+                        <h2 className="sr-only">Navigation</h2>
                         <div className="flex flex-col gap-8 mt-8">
                             {navLinks.map((link) => (
                                 <Link
