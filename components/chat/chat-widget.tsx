@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 
 type Role = "user" | "assistant";
-type Lang = "ar" | "en" | "fi";
+type Lang = "ar" | "en";
 
 type Msg = {
     id: string;
@@ -21,31 +21,12 @@ type ApiResponse = {
     details?: string;
 };
 
-function detectLang(text: string): Lang {
-    const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
-    if (arabicRegex.test(text)) return "ar";
-
-    // Finnish hints
-    const fiRegex = /[äöå]/i;
-    const fiWords =
-        /\b(hei|moi|kiitos|tarvitsen|haluan|sivusto|verkkosivu|yhteys|paketit|hinta|tarjous|apua)\b/i;
-    if (fiRegex.test(text) || fiWords.test(text)) return "fi";
-
-    return "en";
-}
-
-function initialLangFromBrowser(): Lang {
-    const nav = (typeof navigator !== "undefined" ? navigator.language : "en").toLowerCase();
-    if (nav.startsWith("fi")) return "fi";
-    if (nav.startsWith("ar")) return "ar";
-    return "en";
-}
-
 function t(lang: Lang) {
     if (lang === "ar") {
         return {
-            // Gulf-neutral / Professional / Short
-            init: "مرحبًا 👋 أنا مساعد ZIZO الذكي. أقدر أساعدك نفهم مشروعك ونرشّح لك الحل الأنسب. وش نوع مشروعك؟",
+            welcome: "مرحبًا بك في ZIVRA",
+            selectLang: "اختر لغتك للمتابعة",
+            init: "مرحبًا 👋 أنا مساعد ZIZO الذكي. عشان أساعدك صح، وش نوع مشروعك؟",
             title: "خيارات سريعة:",
             // Initial Business Types
             initialOptions: [
@@ -68,33 +49,11 @@ function t(lang: Lang) {
         };
     }
 
-    if (lang === "fi") {
-        return {
-            init: "Hei 👋 Olen ZIZO AI -avustaja. Kysyn pari nopeaa kysymystä ymmärtääkseni liiketoimintaasi paremmin. Minkä tyyppistä liiketoimintaa pyörität?",
-            title: "Valitse toimiala:",
-            initialOptions: [
-                "Ravintola / Kahvila",
-                "Hotelli / Matkailu",
-                "Palveluyritys",
-                "Verkkokauppa",
-                "SaaS / Startup",
-                "En ole varma"
-            ],
-            whatsapp: "WhatsApp",
-            placeholder: "Kirjoita viestisi...",
-            send: "Lähetä",
-            typing: "Kirjoittaa…",
-            enter: "Paina Enter lähettääksesi",
-            errServer: (d: string) => `⚠️ Palvelinvirhe: ${d}`,
-            errConn: "⚠️ Yhteysvirhe. Kokeile uudelleen.",
-            fallback: "Selvä, kerro lisää.",
-            waText: "Hei ZIVRA! Haluaisin keskustella teknologiaratkaisuista.",
-        };
-    }
-
-    // English
+    // English (Default)
     return {
-        init: "Hi 👋 I’m ZIZO AI Assistant. I’ll ask you a couple of quick questions to understand your business and give you a useful direction. What type of business are you running?",
+        welcome: "Welcome to ZIVRA",
+        selectLang: "Select your language to continue",
+        init: "Hi 👋 I’m ZIZO AI Assistant. To help you best, what type of business are you running?",
         title: "Quick Options:",
         initialOptions: [
             "Restaurant / Café",
@@ -118,27 +77,32 @@ function t(lang: Lang) {
 
 export default function ChatWidget() {
     const [open, setOpen] = React.useState(false);
+    const [lang, setLang] = React.useState<Lang | null>(null);
     const [input, setInput] = React.useState("");
     const [loading, setLoading] = React.useState(false);
-
-    const [lang, setLang] = React.useState<Lang>("en");
-
-    // Dynamic options state (initially null until set by lang/effect)
     const [options, setOptions] = React.useState<string[]>([]);
 
-    const [messages, setMessages] = React.useState<Msg[]>([
-        { id: "init", role: "assistant", content: "…" },
-    ]);
+    // Messages state
+    const [messages, setMessages] = React.useState<Msg[]>([]);
 
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
-    // Initialize Language & Options
-    React.useEffect(() => {
-        const l = initialLangFromBrowser();
-        setLang(l);
-        const dict = t(l);
+    // Initialize/Reset Chat Flow
+    const startChat = React.useCallback((selectedLang: Lang) => {
+        setLang(selectedLang);
+        const dict = t(selectedLang);
         setMessages([{ id: "init", role: "assistant", content: dict.init }]);
         setOptions(dict.initialOptions);
+        setLoading(false);
+    }, []);
+
+    // Reset Language Selection
+    const resetChat = React.useCallback(() => {
+        setLang(null);
+        setMessages([]);
+        setOptions([]);
+        setInput("");
+        setLoading(false);
     }, []);
 
     // Scroll to bottom
@@ -148,30 +112,26 @@ export default function ChatWidget() {
             top: listRef.current.scrollHeight,
             behavior: "smooth",
         });
-    }, [messages, open]);
+    }, [messages, open, lang]); // Added lang dependency to scroll on switch
 
     function addMsg(role: Role, content: string) {
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content }]);
     }
 
     function getWhatsAppLink() {
+        // Safe default if lang not selected, though unlikely here
+        const currentLang = lang || "en";
         const phoneNumber = "358401604442";
-        const text = t(lang).waText;
+        const text = t(currentLang).waText;
         const message = encodeURIComponent(text);
         return `https://wa.me/${phoneNumber}?text=${message}`;
     }
 
     async function sendMessage(customText?: string) {
+        if (!lang) return; // Guard clause
+
         const text = (customText ?? input).trim();
         if (!text || loading) return;
-
-        // Detect language switch from user input if they type manually
-        if (!customText) {
-            const nextLang = detectLang(text);
-            if (nextLang !== lang) {
-                setLang(nextLang);
-            }
-        }
 
         const userMsg: Msg = {
             id: crypto.randomUUID(),
@@ -183,7 +143,6 @@ export default function ChatWidget() {
         setMessages(nextMessages);
         setInput("");
         setLoading(true);
-        // Clear options while waiting for AI to give new ones
         setOptions([]);
 
         try {
@@ -195,6 +154,7 @@ export default function ChatWidget() {
                         role: m.role,
                         content: m.content,
                     })),
+                    lang: lang, // STRICT LANGUAGE PASSING
                 }),
             });
 
@@ -206,12 +166,9 @@ export default function ChatWidget() {
                 return;
             }
 
-            // 1. Add AI Response
             const replyText = data.reply || t(lang).fallback;
             addMsg("assistant", replyText);
 
-            // 2. Update Options if provided by API, otherwise keep empty (user has to type)
-            // If the API returns options, we show them.
             if (data.options && Array.isArray(data.options) && data.options.length > 0) {
                 setOptions(data.options);
             } else {
@@ -229,19 +186,20 @@ export default function ChatWidget() {
         if (e.key === "Enter") sendMessage();
     }
 
-    const ui = t(lang);
     const isRtl = lang === "ar";
+    // If no lang selected yet, UI defaults to LTR for the selection screen usually
+    const currentDir = lang === "ar" ? "rtl" : "ltr";
 
     return (
         <>
             {/* ================= Chat Panel ================= */}
             {open && (
                 <div
-                    dir={isRtl ? "rtl" : "ltr"}
-                    className="fixed bottom-24 right-5 z-[99999] w-[380px] max-w-[calc(100vw-40px)] overflow-hidden rounded-2xl border border-white/10 bg-black/70 backdrop-blur-xl shadow-2xl transition-all"
+                    dir={currentDir}
+                    className="fixed bottom-24 right-5 z-[99999] w-[380px] max-w-[calc(100vw-40px)] overflow-hidden rounded-2xl border border-white/10 bg-black/70 backdrop-blur-xl shadow-2xl transition-all flex flex-col h-[500px]"
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 shrink-0 bg-black/50">
                         <div className="flex items-center gap-2">
                             <div className="relative h-8 w-8 rounded-full overflow-hidden mr-2 border border-white/10">
                                 <Image
@@ -251,128 +209,158 @@ export default function ChatWidget() {
                                     className="object-cover"
                                 />
                             </div>
-                            <span className="text-sm font-semibold text-white">ZIVRA AI Assistant</span>
+                            <span className="text-sm font-semibold text-white">ZIVRA AI</span>
                         </div>
-                        <button
-                            onClick={() => setOpen(false)}
-                            className="rounded-md px-2 py-1 text-xs text-white/70 hover:bg-white/10"
-                            aria-label="Close chat"
-                            type="button"
-                        >
-                            ✕
-                        </button>
-                    </div>
 
-                    {/* Messages */}
-                    <div ref={listRef} className="h-72 overflow-y-auto px-4 py-3 text-sm">
-                        <div className="flex flex-col gap-2">
-                            {messages.map((m) => (
-                                <div
-                                    key={m.id}
-                                    className={
-                                        m.role === "user"
-                                            ? "max-w-[85%] rounded-2xl bg-white/10 px-3 py-2 text-white self-end text-start whitespace-pre-wrap"
-                                            : "max-w-[85%] rounded-2xl bg-white/5 px-3 py-2 text-white/90 self-start text-start whitespace-pre-wrap"
-                                    }
+                        <div className="flex items-center gap-3">
+                            {/* Language Switcher in Header */}
+                            {lang && (
+                                <button
+                                    onClick={resetChat}
+                                    className="text-[10px] font-bold text-white/60 hover:text-white border border-white/10 rounded px-2 py-1 uppercase tracking-wider transition-colors"
+                                    title="Switch Language"
                                 >
-                                    {m.content}
-                                </div>
-                            ))}
-
-                            {loading && (
-                                <div className="max-w-[85%] rounded-2xl bg-white/5 px-3 py-2 text-white/50 self-start">
-                                    {ui.typing}
-                                </div>
+                                    {lang === 'en' ? 'AR' : 'EN'}
+                                </button>
                             )}
-                        </div>
-                    </div>
 
-                    {/* Quick options (Dynamic) */}
-                    <div className="border-t border-white/10 px-4 py-3 bg-white/5">
-                        {options.length > 0 && (
-                            <div className="mb-2 text-[11px] text-white/40">{ui.title}</div>
-                        )}
-
-                        <div className="flex flex-wrap gap-2">
-                            {options.map((opt) => {
-                                // Smart Rendering for Final CTA Buttons
-                                if (opt === "WhatsApp") {
-                                    return (
-                                        <a
-                                            key={opt}
-                                            href={getWhatsAppLink()}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="rounded-full bg-green-500/20 px-3 py-1 text-xs text-green-400 border border-green-500/30 hover:bg-green-500/30 transition-colors"
-                                        >
-                                            {opt}
-                                        </a>
-                                    )
-                                }
-                                if (opt === "Email") {
-                                    return (
-                                        <a
-                                            key={opt}
-                                            href="mailto:info@zivra.co"
-                                            className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15 transition-colors"
-                                        >
-                                            {opt}
-                                        </a>
-                                    )
-                                }
-                                return (
-                                    <button
-                                        key={opt}
-                                        type="button"
-                                        onClick={() => sendMessage(opt)}
-                                        className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15 transition-colors"
-                                    >
-                                        {opt}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Input */}
-                    <div className="border-t border-white/10 p-3">
-                        <div className="flex gap-2">
-                            <input
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={onKeyDown}
-                                placeholder={ui.placeholder}
-                                className={`flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none placeholder:text-white/40 ${isRtl ? "text-right" : "text-left"}`}
-                            />
                             <button
-                                onClick={() => sendMessage()}
-                                disabled={loading}
+                                onClick={() => setOpen(false)}
+                                className="rounded-md px-2 py-1 text-xs text-white/70 hover:bg-white/10"
+                                aria-label="Close chat"
                                 type="button"
-                                className="rounded-xl bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/15 disabled:opacity-50"
                             >
-                                {isRtl ? <span className="rotate-180 block">➤</span> : <span>➤</span>}
+                                ✕
                             </button>
                         </div>
-
-                        <div className="mt-2 flex items-center justify-between text-[11px] text-white/40">
-                            <span>{ui.enter}</span>
-                            <a
-                                href={getWhatsAppLink()}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:text-green-400"
-                            >
-                                {ui.whatsapp}
-                            </a>
-                        </div>
                     </div>
+
+                    {/* Content Area */}
+                    {!lang ? (
+                        // ============ Language Selection Screen ============
+                        <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-8 animate-in fade-in duration-500">
+                            <div className="text-center space-y-2">
+                                <h3 className="text-xl font-bold text-white">Welcome / مرحبًا</h3>
+                                <p className="text-white/50 text-sm">Please select your language<br />اختر لغتك للمتابعة</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 w-full gap-4">
+                                <button
+                                    onClick={() => startChat('en')}
+                                    className="group relative flex items-center justify-between w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all active:scale-[0.98]"
+                                >
+                                    <span className="text-lg font-medium text-white group-hover:text-primary transition-colors">English</span>
+                                    <span className="text-2xl">🇬🇧</span>
+                                </button>
+
+                                <button
+                                    onClick={() => startChat('ar')}
+                                    className="group relative flex items-center justify-between w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all active:scale-[0.98]"
+                                >
+                                    <span className="text-lg font-medium text-white group-hover:text-primary transition-colors">العربية</span>
+                                    <span className="text-2xl">🇸🇦</span>
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        // ============ Conversation Screen ============
+                        <>
+                            <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 text-sm scroll-smooth">
+                                <div className="flex flex-col gap-2 min-h-full justify-start">
+                                    {messages.map((m) => (
+                                        <div
+                                            key={m.id}
+                                            className={
+                                                m.role === "user"
+                                                    ? "max-w-[85%] rounded-2xl rounded-tr-sm bg-primary/20 border border-primary/20 px-3 py-2 text-white self-end text-start whitespace-pre-wrap animate-in slide-in-from-right-2 duration-300"
+                                                    : "max-w-[85%] rounded-2xl rounded-tl-sm bg-white/10 border border-white/5 px-3 py-2 text-white/90 self-start text-start whitespace-pre-wrap animate-in slide-in-from-left-2 duration-300"
+                                            }
+                                        >
+                                            {m.content}
+                                        </div>
+                                    ))}
+
+                                    {loading && (
+                                        <div className="max-w-[85%] rounded-2xl bg-white/5 px-3 py-2 text-white/50 self-start animate-pulse">
+                                            {t(lang).typing}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Quick options (Dynamic) */}
+                            <div className="shrink-0 border-t border-white/10 px-4 py-3 bg-black/40">
+                                {options.length > 0 && (
+                                    <div className="mb-2 text-[11px] text-white/40">{t(lang).title}</div>
+                                )}
+
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                    {options.map((opt) => {
+                                        if (opt === "WhatsApp") {
+                                            return (
+                                                <a
+                                                    key={opt}
+                                                    href={getWhatsAppLink()}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="rounded-full bg-green-500/20 px-3 py-1 text-xs text-green-400 border border-green-500/30 hover:bg-green-500/30 transition-colors"
+                                                >
+                                                    {opt}
+                                                </a>
+                                            )
+                                        }
+                                        if (opt === "Email") {
+                                            return (
+                                                <a
+                                                    key={opt}
+                                                    href="mailto:info@zivra.co"
+                                                    className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15 transition-colors"
+                                                >
+                                                    {opt}
+                                                </a>
+                                            )
+                                        }
+                                        return (
+                                            <button
+                                                key={opt}
+                                                type="button"
+                                                onClick={() => sendMessage(opt)}
+                                                className="rounded-full bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/15 transition-colors"
+                                            >
+                                                {opt}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Input */}
+                                <div className="flex gap-2">
+                                    <input
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        onKeyDown={onKeyDown}
+                                        placeholder={t(lang).placeholder}
+                                        className={`flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-white/30 focus:border-white/20 transition-colors ${isRtl ? "text-right" : "text-left"}`}
+                                    />
+                                    <button
+                                        onClick={() => sendMessage()}
+                                        disabled={loading}
+                                        type="button"
+                                        className="rounded-xl bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20 disabled:opacity-50 transition-colors"
+                                    >
+                                        {isRtl ? <span className="rotate-180 block">➤</span> : <span>➤</span>}
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
 
             {/* ================= Floating Button ================= */}
             <button
                 onClick={() => setOpen((v) => !v)}
-                className="fixed bottom-5 right-5 z-[99999] grid h-14 w-14 place-items-center rounded-full bg-green-500 text-white shadow-xl hover:opacity-95 transition-transform hover:scale-105"
+                className="fixed bottom-5 right-5 z-[99999] grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 border border-white/20 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
                 aria-label={open ? "Close chat" : "Open chat"}
                 type="button"
             >
