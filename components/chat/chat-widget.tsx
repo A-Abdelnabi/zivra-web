@@ -62,6 +62,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
+    // Initial hydration/persistence
     React.useEffect(() => {
         const saved = localStorage.getItem("zivra_lead_context");
         if (saved) setLead(JSON.parse(saved));
@@ -76,12 +77,13 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         }
     }, [lead]);
 
+    // This effects ensures the chat is initialized correctly without being unmounted
     React.useEffect(() => {
-        if (open && messages.length === 0) {
+        if (messages.length === 0) {
             setMessages([{ id: "init", role: "assistant", content: dict.step0 }]);
             setOptions(dict.bizTypes);
         }
-    }, [open, messages.length, dict]);
+    }, [dict, messages.length]);
 
     React.useEffect(() => {
         if (listRef.current) {
@@ -158,7 +160,6 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
     const handleOption = async (opt: string) => {
         if (converted || loading) return;
-
         addMsg("user", opt);
 
         if (step === 0) {
@@ -214,13 +215,20 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
     return (
         <>
-            {open && (
-                <div
-                    dir={isRtl ? "rtl" : "ltr"}
-                    className="fixed bottom-24 right-5 z-[9999] w-[400px] max-w-[calc(100vw-40px)] rounded-3xl border border-white/10 bg-black/80 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col h-[600px] animate-in slide-in-from-bottom-5 duration-500 ease-out overflow-hidden pointer-events-auto"
-                >
-                    {/* Header Overlay - Purely visual shadow if any, but keeping it simple */}
-                    <div className="flex items-center justify-between border-b border-white/5 px-6 py-5 bg-white/5 relative z-20">
+            {/* Main Chat Modal Holder */}
+            <div
+                dir={isRtl ? "rtl" : "ltr"}
+                className={`fixed bottom-24 right-5 z-[9999] w-[400px] max-w-[calc(100vw-40px)] h-[600px] transition-all duration-500 ease-out 
+                    ${open ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'}`}
+            >
+                {/* 1. Visual/Background Layer: Purely decorative, no interaction */}
+                <div className="absolute inset-0 z-0 rounded-3xl border border-white/10 bg-black/80 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-none" />
+
+                {/* 2. Interactive/Content Layer: All buttons and clicks happen here */}
+                <div className="relative z-50 flex flex-col h-full overflow-hidden rounded-3xl pointer-events-auto">
+
+                    {/* Header */}
+                    <div className="flex items-center justify-between border-b border-white/5 px-6 py-5 bg-white/5 pointer-events-auto relative z-[60]">
                         <div className="flex items-center gap-4">
                             <div className="relative h-11 w-11 rounded-full overflow-hidden border border-white/10 ring-2 ring-indigo-500/20">
                                 <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
@@ -236,7 +244,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                         <button
                             type="button"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(false); }}
-                            className="h-8 w-8 flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-all cursor-pointer relative z-30"
+                            className="h-8 w-8 flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-all cursor-pointer pointer-events-auto"
                         >
                             <span className="text-lg">✕</span>
                         </button>
@@ -245,18 +253,18 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                     {/* Messages Area */}
                     <div
                         ref={listRef}
-                        className="flex-1 overflow-y-auto px-6 py-8 space-y-6 scroll-smooth relative z-10 overscroll-contain"
+                        className="flex-1 overflow-y-auto px-6 py-8 space-y-6 scroll-smooth relative z-40 overscroll-contain pointer-events-auto"
                     >
                         {messages.map((m) => (
                             <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2`}>
                                 {m.isContactCard ? (
-                                    <div className="w-full max-w-[85%] bg-white/10 rounded-2xl p-5 border border-white/5 backdrop-blur-md shadow-lg relative z-20">
+                                    <div className="w-full max-w-[85%] bg-white/10 rounded-2xl p-5 border border-white/5 backdrop-blur-md shadow-lg relative pointer-events-auto z-50">
                                         <p className="text-sm font-semibold text-white/90 mb-4">{m.content}</p>
-                                        <div className="space-y-3">
+                                        <div className="space-y-3 pointer-events-auto">
                                             <button
                                                 type="button"
                                                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCTA("whatsapp"); }}
-                                                className="w-full flex items-center gap-3 bg-white/5 hover:bg-indigo-500/20 border border-white/10 rounded-xl p-3 transition-all group cursor-pointer relative z-30"
+                                                className="w-full flex items-center gap-3 bg-white/5 hover:bg-indigo-500/20 border border-white/10 rounded-xl p-3 transition-all group cursor-pointer pointer-events-auto"
                                             >
                                                 <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
                                                     <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
@@ -270,7 +278,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                             <button
                                                 type="button"
                                                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCTA("email"); }}
-                                                className="w-full flex items-center gap-3 bg-white/5 hover:bg-indigo-500/20 border border-white/10 rounded-xl p-3 transition-all group cursor-pointer relative z-30"
+                                                className="w-full flex items-center gap-3 bg-white/5 hover:bg-indigo-500/20 border border-white/10 rounded-xl p-3 transition-all group cursor-pointer pointer-events-auto"
                                             >
                                                 <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
                                                     <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
@@ -302,24 +310,22 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                     </div>
 
                     {/* Interactive Footer */}
-                    <div className="p-6 bg-black/40 border-t border-white/5 relative z-20">
-                        {options.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-6">
-                                {options.map((opt) => (
-                                    <button
-                                        key={opt}
-                                        type="button"
-                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleOption(opt); }}
-                                        className="rounded-full bg-white/10 px-5 py-2.5 text-xs font-semibold text-white/80 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-purple-600 hover:text-white hover:scale-105 transition-all border border-white/10 active:scale-95 cursor-pointer relative z-30"
-                                    >
-                                        {opt}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                    <div className="p-6 bg-black/40 border-t border-white/5 relative z-50 pointer-events-auto">
+                        <div className="flex flex-wrap gap-2 mb-6 pointer-events-auto">
+                            {options.map((opt) => (
+                                <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleOption(opt); }}
+                                    className="rounded-full bg-white/10 px-5 py-2.5 text-xs font-semibold text-white/80 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-purple-600 hover:text-white hover:scale-105 transition-all border border-white/10 active:scale-95 cursor-pointer pointer-events-auto"
+                                >
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
 
                         {!converted && (
-                            <div className="relative flex items-center gap-3 z-30">
+                            <div className="relative flex items-center gap-3 pointer-events-auto">
                                 <input
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
@@ -331,7 +337,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                     type="button"
                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); sendMessage(); }}
                                     disabled={loading || !input.trim()}
-                                    className="h-12 w-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-20 disabled:grayscale cursor-pointer"
+                                    className="h-12 w-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-20 disabled:grayscale cursor-pointer pointer-events-auto"
                                 >
                                     <span className={`text-lg transition-transform ${isRtl ? 'rotate-180' : ''}`}>➤</span>
                                 </button>
@@ -339,9 +345,9 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                         )}
                     </div>
                 </div>
-            )}
+            </div>
 
-            {/* Float Trigger */}
+            {/* Float Trigger Button */}
             <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(!open); }}
