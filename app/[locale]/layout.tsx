@@ -9,6 +9,8 @@ import { Locale, locales, getDirection } from "@/lib/i18n";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const cairo = Cairo({ subsets: ["arabic", "latin"], variable: "--font-cairo" });
+import { getDictionary } from "@/lib/i18n";
+import { StickyCTA } from "@/components/visual/sticky-cta";
 
 export async function generateStaticParams() {
     return locales.map((locale) => ({ locale }));
@@ -82,6 +84,7 @@ export default async function LocaleLayout({
                     <WhatsAppButton locale={locale} />
                     <ChatWidget key={`chat-${locale}`} locale={locale} />
                     <LeadCapture locale={locale} />
+                    <StickyCTA locale={locale} label={(await getDictionary(locale)).hero.ctaPrimary} />
                 </Providers>
             </body>
         </html>

@@ -117,16 +117,10 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                    <Button size="lg" className="h-12 px-8 text-lg rounded-full group transition-transform hover:scale-[1.02] active:scale-[0.98]" asChild>
+                    <Button size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] shadow-lg shadow-primary/20 bg-primary text-white" asChild>
                         <a href="#pricing">
                             {dict.hero.ctaPrimary}
-                            <ChevronRight className={`transition-transform duration-300 group-hover:translate-x-1 ${locale === 'ar' ? 'mr-2 rotate-180 group-hover:-translate-x-1' : 'ml-2'} h-4 w-4`} />
-                        </a>
-                    </Button>
-                    <Button size="lg" variant="secondary" className="h-12 px-8 text-lg rounded-full backdrop-blur-sm bg-white/5 hover:bg-white/10 transition-all hover:scale-[1.02] active:scale-[0.98] border border-white/5 hover:border-white/20" asChild>
-                        <a href="#ai-chat-trigger">
-                            <Bot className={`${locale === 'ar' ? 'ml-2' : 'mr-2'} h-5 w-5`} />
-                            {dict.hero.ctaSecondary}
+                            <ChevronRight className={`transition-transform duration-300 group-hover:translate-x-1 ${locale === 'ar' ? 'mr-2 rotate-180 group-hover:-translate-x-1' : 'ml-2'} h-5 w-5`} />
                         </a>
                     </Button>
                 </motion.div>
