@@ -104,13 +104,27 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
     // Initial setup & Reset on Locale change
     React.useEffect(() => {
-        setMessages([{ id: "init", role: "assistant", content: dict.step0 }]);
-        setOptions(BIZ_OPTIONS[lang]);
+        const path = window.location.pathname;
+        let welcomeMsg = dict.step0;
+        let initialOptions = BIZ_OPTIONS[lang];
+
+        if (path.includes('/restaurants')) {
+            welcomeMsg = lang === 'ar' ? "أهلًا 👋 تبغى تأتمت طلبات مطعمك أو المنيو؟" : "Hi 👋 Want to automate your restaurant orders or menu?";
+            initialOptions = lang === 'ar' ? ["أتمتة الطلبات", "حجز طاولات", "استفسارات المنيو"] : ["Order Automation", "Table Booking", "Menu Inquiries"];
+        } else if (path.includes('/clinics')) {
+            welcomeMsg = lang === 'ar' ? "أهلًا 👋 حاب تأتمت حجوزات العيادة ومواعيد المرضى؟" : "Hi 👋 Want to automate clinic bookings and patient appointments?";
+            initialOptions = lang === 'ar' ? ["حجز مواعيد", "تنبيهات المرضى", "استفسارات عامة"] : ["Book Appointments", "Patient Reminders", "General Inquiries"];
+        } else if (path.includes('/services')) {
+            welcomeMsg = lang === 'ar' ? "أهلًا 👋 محتاج فريق المبيعات يفرز العملاء آلياً؟" : "Hi 👋 Need your sales team to qualify leads automatically?";
+            initialOptions = lang === 'ar' ? ["فرز العملاء", "ربط CRM", "أتمتة الواتساب"] : ["Lead Qualification", "CRM Sync", "WhatsApp Automation"];
+        }
+
+        setMessages([{ id: "init", role: "assistant", content: welcomeMsg }]);
+        setOptions(initialOptions);
         setStep(0);
         setInput("");
         setLoading(false);
         setMounted(true);
-        // Ensure chat is closed on locale change for a clean feel
         setOpen(false);
     }, [locale, lang, dict.step0]);
 

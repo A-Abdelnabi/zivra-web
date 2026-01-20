@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { Check } from "lucide-react";
 import { Locale, Dictionary } from '@/lib/i18n';
-import { PRICING_DATA, formatPrice, formatSetup } from '@/lib/pricing';
+import { getPricing, formatPrice, formatSetup, VerticalType } from '@/lib/pricing';
 import { motion } from 'framer-motion';
 import { Reveal, RevealList, RevealItem } from '@/components/motion/Reveal';
 import { trackEvent } from '@/lib/analytics';
@@ -12,8 +12,9 @@ import { useEffect } from 'react';
 
 const WHATSAPP_LINK = "https://wa.me/358401604442";
 
-function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
-    const pricing = PRICING_DATA[plan.id as keyof typeof PRICING_DATA];
+function PlanCard({ plan, locale, vertical = 'general' }: { plan: any; locale: Locale; vertical?: VerticalType }) {
+    const pricingData = getPricing(vertical);
+    const pricing = pricingData[plan.id as keyof typeof pricingData];
 
     const priceText = pricing ? formatPrice(pricing.monthlyEUR, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
     const setupText = pricing ? formatSetup(pricing.setupEUR, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
@@ -103,7 +104,7 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
     );
 }
 
-export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictionary }) {
+export default function Pricing({ locale, dict, vertical = 'general' }: { locale: Locale; dict: Dictionary; vertical?: VerticalType }) {
     useEffect(() => {
         trackEvent('pricing_view', { language: locale });
     }, [locale]);
@@ -128,7 +129,7 @@ export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictio
             <RevealList delay={0.2}>
                 <div className="mt-10 grid gap-6 md:grid-cols-3">
                     {dict.pricing.plans.map((p: any) => (
-                        <PlanCard key={p.name} plan={p} locale={locale} />
+                        <PlanCard key={p.name} plan={p} locale={locale} vertical={vertical} />
                     ))}
                 </div>
             </RevealList>
