@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Locale } from "@/lib/i18n";
+import { MessageCircle, Mail } from "lucide-react";
 
 type Role = "user" | "assistant";
 type Lang = "ar" | "en";
@@ -17,75 +18,48 @@ type LeadData = {
     businessType?: string;
     selectedService?: string;
     goal?: string;
-    platforms?: string[];
     lastUserMessage?: string;
 };
 
 function t(lang: Lang) {
     if (lang === "ar") {
         return {
-            welcome: "ZIVRA AI",
+            welcome: "ZIZO AI",
             step0: "هلا 👋 أنا مساعد ZIZO. بس بسألك سؤال سريع وبعدين أعرض لك خدماتنا. وش نوع نشاطك؟",
             step1: "تمام. هذه خدماتنا - اختر اللي يناسبك، أو تواصل معنا ونرتّب لك أفضل خيار.",
-            step2: "عشان نعطيك اقتراح مناسب وتسعير سريع، تواصل معنا:\n\n✅ واتساب: https://wa.me/358401604442\n✅ إيميل: hello@zivra.dev\n\nوبالرسالة اكتب:\n1) نوع النشاط\n2) الهدف اللي تبيه\n3) أفضل وقت نتواصل معك",
-            consultReq: "إيش المزايا؟ / باقة الأنسب لي؟",
+            step2: "تمام شكرا جزيلا👍\nأسرع طريقة نقدر نخدمك فيها بشكل صحيح هي إننا نكمّل التواصل مباشرة.\n\nاختر الطريقة اللي تناسبك:",
             goalQuestion: "وش أهم هدف لك الحين؟",
-            whatsapp: "واتساب 💬",
-            email: "إيميل ✉️",
             placeholder: "أكتب استفسارك هنا...",
-            typing: "المساعد يكتب...",
+            typing: "ZIZO يكتب...",
             bizTypes: ["مطعم / كافيه", "عيادة / طبي", "فندق / سياحة", "شركة خدمات", "متجر إلكتروني", "Startup / SaaS", "غير متأكد بعد"],
             services: ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth Engine", "ساعدوني في الاختيار"],
             goals: ["زيادة المبيعات", "زيادة العملاء", "توفير الوقت / أتمتة", "تحسين الخدمة", "إطلاق سريع"],
-            emailSubject: "استفسار مشروع - ZIVRA"
+            consultReq: "إيش المزايا؟",
+            whatsapp: "واتساب",
+            email: "إيميل"
         };
     }
 
     return {
-        welcome: "ZIVRA AI",
+        welcome: "ZIZO AI",
         step0: "Hi 👋 I’m ZIZO AI Assistant. I’ll ask 1 quick question, then I’ll show you our services. What type of business are you?",
         step1: "Perfect. Here’s what we can help you with. Pick anything, or just contact us and we’ll guide you.",
-        step2: "To give you a precise recommendation and a quick quote, please contact us:\n\n✅ WhatsApp: https://wa.me/358401604442\n✅ Email: hello@zivra.dev\n\nWhen you message us, tell us:\n1) Your business type\n2) What you want to achieve\n3) Best time to contact you",
-        consultReq: "What are the benefits? / Help me choose.",
+        step2: "Perfect 👍\nThe fastest way to help you properly is to continue the conversation directly.\n\nPlease choose what works best for you:",
         goalQuestion: "What’s your main goal right now?",
-        whatsapp: "WhatsApp 💬",
-        email: "Email ✉️",
         placeholder: "Type your message...",
         typing: "ZIZO is typing...",
         bizTypes: ["Restaurant / Café", "Clinic / Medical", "Hotel / Tourism", "Service Business", "E-commerce", "Startup / SaaS", "Not sure yet"],
         services: ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth Engine", "Help me choose"],
         goals: ["Increase sales", "Get more leads", "Save time / automate", "Improve support", "Launch fast"],
-        emailSubject: "Project Inquiry - ZIVRA"
+        consultReq: "What are the benefits?",
+        whatsapp: "WhatsApp",
+        email: "Email"
     };
-}
-
-function buildContactMessage(lead: LeadData, lang: Lang) {
-    const isAr = lang === 'ar';
-    const lines = [];
-
-    if (isAr) {
-        lines.push("هلا زيفرا! (zivra.dev)");
-        if (lead.businessType) lines.push(`نوع النشاط: ${lead.businessType}`);
-        if (lead.selectedService) lines.push(`الخدمة المطلوبة: ${lead.selectedService}`);
-        if (lead.goal) lines.push(`الهدف الأساسي: ${lead.goal}`);
-        lines.push("");
-        lines.push("حاب أعرف تفاصيل أكثر عن الباقات المتاحة وكيف نبدأ.");
-        lines.push("أرسلت بواسطة دردشة الموقع.");
-    } else {
-        lines.push("Hi ZIVRA! (zivra.dev)");
-        if (lead.businessType) lines.push(`Business Type: ${lead.businessType}`);
-        if (lead.selectedService) lines.push(`Service Interested: ${lead.selectedService}`);
-        if (lead.goal) lines.push(`Main Goal: ${lead.goal}`);
-        lines.push("");
-        lines.push("I'd like to get more details on your packages and how to start.");
-        lines.push("Sent from zivra.dev chat.");
-    }
-
-    return lines.join("\n");
 }
 
 export default function ChatWidget({ locale }: { locale: Locale }) {
     const [open, setOpen] = React.useState(false);
+    const [converted, setConverted] = React.useState(false);
     const lang: Lang = (locale as Lang) || "en";
     const dict = t(lang);
 
@@ -94,16 +68,17 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
     const [loading, setLoading] = React.useState(false);
     const [input, setInput] = React.useState("");
 
-    // State for discovery flow
     const [lead, setLead] = React.useState<LeadData>({});
     const [step, setStep] = React.useState(0);
 
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
-    // Persist lead to localStorage
     React.useEffect(() => {
         const saved = localStorage.getItem("zivra_lead_context");
         if (saved) setLead(JSON.parse(saved));
+
+        const isConv = localStorage.getItem("zivra_converted");
+        if (isConv === "true") setConverted(true);
     }, []);
 
     React.useEffect(() => {
@@ -112,7 +87,6 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         }
     }, [lead]);
 
-    // Initialize flow
     React.useEffect(() => {
         if (open && messages.length === 0) {
             setMessages([{ id: "init", role: "assistant", content: dict.step0 }]);
@@ -128,9 +102,6 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content }]);
     };
 
-    /**
-     * Sends lead data to webhook without modifying chat UI
-     */
     const syncLead = async (update: Partial<LeadData>, type: string = "lead_update") => {
         const newLead = { ...lead, ...update };
         setLead(newLead);
@@ -153,42 +124,28 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         } catch (e) { /* silent */ }
     };
 
-    /**
-     * Handles WhatsApp/Email CTA clicks immediately
-     */
     const handleCTA = async (method: "whatsapp" | "email") => {
-        const message = buildContactMessage(lead, lang);
+        if (converted) return;
 
-        // Log the click
-        await syncLead({ lastUserMessage: `Clicked ${method} CTA` }, "contact_click");
+        setConverted(true);
+        localStorage.setItem("zivra_converted", "true");
+
+        await syncLead({ lastUserMessage: `Clicked ${method} CTA FINAL` }, "contact_click_final");
 
         if (method === "whatsapp") {
-            const waUrl = `https://wa.me/358401604442?text=${encodeURIComponent(message)}`;
-            const win = window.open(waUrl, "_blank", "noopener,noreferrer");
-            if (!win) {
-                window.location.href = waUrl;
-            }
+            window.location.href = "https://wa.me/358401604442";
         } else {
-            const mailtoUrl = `mailto:hello@zivra.dev?subject=${encodeURIComponent(dict.emailSubject)}&body=${encodeURIComponent(message)}`;
-            window.location.href = mailtoUrl;
+            window.location.href = "mailto:hello@zivra.dev";
         }
     };
 
     const handleOption = async (opt: string) => {
-        // 1. Check if it's a direct CTA (Should not happen if UI is correctly mapped, but for safety)
-        const isWhatsApp = opt.includes("WhatsApp") || opt.includes("واتساب");
-        const isEmail = opt.includes("Email") || opt.includes("إيميل");
-        if (isWhatsApp || isEmail) {
-            await handleCTA(isWhatsApp ? "whatsapp" : "email");
-            return;
-        }
+        if (converted) return;
 
-        // 2. Regular Option Handling (Discovery Flow)
         addMsg("user", opt);
         setOptions([]);
 
         if (step === 0) {
-            // Step 0 -> Step 1: Business Type chosen
             setStep(1);
             await syncLead({ businessType: opt });
             setLoading(true);
@@ -198,24 +155,20 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                 setOptions(dict.services);
             }, 600);
         } else if (step === 1) {
-            // Step 1 -> Step 2 OR Mode B: Service/Consultation chosen
             await syncLead({ selectedService: opt });
-            if (opt.includes("choose") || opt.includes("اختيار") || opt === dict.consultReq) {
+            if (opt.includes("choose") || opt.includes("اختيار") || opt.includes("المزايا") || opt.includes("benefits")) {
                 handleAskConsultation();
             } else {
                 setLoading(true);
                 setTimeout(() => {
                     setLoading(false);
                     addMsg("assistant", dict.step2);
-                    setOptions([dict.whatsapp, dict.email, dict.consultReq]);
+                    setOptions(["__CTA__"]); // Special flag for the final CTA buttons
                 }, 600);
             }
         } else if (step === 3) {
-            // Mode B: Goal chosen -> Ask AI
             await syncLead({ goal: opt });
             sendMessage(opt);
-        } else if (opt === dict.consultReq) {
-            handleAskConsultation();
         }
     };
 
@@ -231,7 +184,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
     const sendMessage = async (override?: string) => {
         const text = (override ?? input).trim();
-        if (!text || loading) return;
+        if (!text || loading || converted) return;
 
         if (!override) addMsg("user", text);
         setInput("");
@@ -252,12 +205,13 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
             const data = await res.json();
             if (res.ok) {
                 addMsg("assistant", data.reply);
-                // Ensure CTAs are always available if AI closes
-                if (data.options && data.options.length > 0) {
-                    setOptions(data.options);
-                } else {
-                    setOptions([dict.whatsapp, dict.email]);
-                }
+                // After AI explanation, force CTA
+                setLoading(true);
+                setTimeout(() => {
+                    setLoading(false);
+                    addMsg("assistant", dict.step2);
+                    setOptions(["__CTA__"]);
+                }, 1000);
             }
         } catch (e) {
             addMsg("assistant", lang === 'ar' ? 'عفواً، واجهت مشكلة.' : 'Sorry, something went wrong.');
@@ -271,78 +225,102 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
     return (
         <>
             {open && (
-                <div dir={isRtl ? "rtl" : "ltr"} className="fixed bottom-24 right-5 z-[9999] w-[400px] max-w-[calc(100vw-40px)] rounded-2xl border border-white/10 bg-black/80 backdrop-blur-2xl shadow-2xl flex flex-col h-[600px] animate-in slide-in-from-bottom-5 duration-300">
+                <div dir={isRtl ? "rtl" : "ltr"} className="fixed bottom-24 right-5 z-[9999] w-[400px] max-w-[calc(100vw-40px)] rounded-3xl border border-white/10 bg-black/80 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col h-[600px] animate-in slide-in-from-bottom-5 duration-500 ease-out overflow-hidden">
                     {/* Header */}
-                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-4 bg-white/5">
-                        <div className="flex items-center gap-3">
-                            <div className="relative h-10 w-10 rounded-full overflow-hidden border border-white/20">
+                    <div className="flex items-center justify-between border-b border-white/5 px-6 py-5 bg-white/5">
+                        <div className="flex items-center gap-4">
+                            <div className="relative h-11 w-11 rounded-full overflow-hidden border border-white/10 ring-2 ring-indigo-500/20">
                                 <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-white leading-tight">ZIZO Assistant</h3>
-                                <div className="flex items-center gap-1.5 text-[10px] text-green-400 font-medium tracking-wider uppercase">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                                    {isRtl ? 'متصل الآن' : 'Online Now'}
+                                <h3 className="text-sm font-bold text-white tracking-tight">ZIZO Assistant</h3>
+                                <div className="flex items-center gap-1.5 text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                                    {isRtl ? 'نشط الآن' : 'Active Now'}
                                 </div>
                             </div>
                         </div>
-                        <button onClick={() => setOpen(false)} className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white transition-colors">✕</button>
+                        <button onClick={() => setOpen(false)} className="h-8 w-8 flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-all">
+                            <span className="text-lg">✕</span>
+                        </button>
                     </div>
 
-                    {/* Chat Messages */}
-                    <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth">
+                    {/* Messages */}
+                    <div ref={listRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6 scroll-smooth">
                         {messages.map((m) => (
-                            <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                                <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap shadow-sm ${m.role === "user" ? "bg-primary text-white rounded-tr-sm" : "bg-white/10 text-white/90 rounded-tl-sm border border-white/5"
+                            <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2`}>
+                                <div className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${m.role === "user"
+                                        ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-tr-none"
+                                        : "bg-white/10 text-white/90 border border-white/5 rounded-tl-none backdrop-blur-md"
                                     }`}>
                                     {m.content}
                                 </div>
                             </div>
                         ))}
-                        {loading && <div className="text-xs text-white/30 italic px-2">{dict.typing}</div>}
+                        {loading && (
+                            <div className="flex justify-start">
+                                <div className="bg-white/5 rounded-2xl rounded-tl-none px-4 py-2 text-indigo-400 text-[10px] font-bold tracking-widest uppercase animate-pulse">
+                                    {dict.typing}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Interactive Area */}
-                    <div className="p-4 bg-white/5 border-t border-white/10">
+                    {/* Interactive Footer */}
+                    <div className="p-6 bg-gradient-to-b from-transparent to-black/40 border-t border-white/5">
                         {options.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                {options.map((opt) => {
-                                    const isWhatsApp = opt.includes("WhatsApp") || opt.includes("واتساب");
-                                    const isEmail = opt.includes("Email") || opt.includes("إيميل");
-
-                                    return (
+                            <div className={`flex flex-wrap gap-2 mb-6 ${options[0] === "__CTA__" ? "justify-center gap-10" : ""}`}>
+                                {options[0] === "__CTA__" ? (
+                                    <>
+                                        {/* WhatsApp Button */}
+                                        <button
+                                            onClick={() => handleCTA("whatsapp")}
+                                            className="group relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all hover:scale-110 hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] active:scale-95"
+                                        >
+                                            <MessageCircle className="h-7 w-7 text-white" />
+                                            <span className="absolute -inset-1 rounded-full bg-indigo-500/20 blur-sm group-hover:bg-indigo-500/40 transition-all animate-pulse" />
+                                        </button>
+                                        {/* Email Button */}
+                                        <button
+                                            onClick={() => handleCTA("email")}
+                                            className="group relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all hover:scale-110 hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] active:scale-95"
+                                        >
+                                            <Mail className="h-7 w-7 text-white" />
+                                            <span className="absolute -inset-1 rounded-full bg-indigo-500/20 blur-sm group-hover:bg-indigo-500/40 transition-all animate-pulse" />
+                                        </button>
+                                    </>
+                                ) : (
+                                    options.map((opt) => (
                                         <button
                                             key={opt}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                if (isWhatsApp || isEmail) {
-                                                    handleCTA(isWhatsApp ? "whatsapp" : "email");
-                                                } else {
-                                                    handleOption(opt);
-                                                }
-                                            }}
-                                            className={`rounded-full px-4 py-2 text-xs font-medium transition-all border ${isWhatsApp || isEmail
-                                                    ? "bg-primary/20 border-primary/40 text-primary-foreground hover:bg-primary/30"
-                                                    : "bg-white/10 border-white/10 text-white hover:bg-white/20"
-                                                } hover:scale-105 active:scale-95`}
+                                            onClick={() => handleOption(opt)}
+                                            className="rounded-full bg-white/10 px-5 py-2.5 text-xs font-semibold text-white/80 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-purple-600 hover:text-white hover:scale-105 transition-all border border-white/10 active:scale-95"
                                         >
                                             {opt}
                                         </button>
-                                    );
-                                })}
+                                    ))
+                                )}
                             </div>
                         )}
-                        <div className="flex items-center gap-2">
-                            <input
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                                placeholder={dict.placeholder}
-                                className="flex-1 h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white focus:border-primary/50 outline-none"
-                            />
-                            <button onClick={() => sendMessage()} disabled={loading} className="h-11 w-11 flex items-center justify-center rounded-xl bg-primary text-white transition-transform active:scale-95">➤</button>
-                        </div>
+
+                        {!converted && (
+                            <div className="relative flex items-center gap-3">
+                                <input
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                                    placeholder={dict.placeholder}
+                                    className="flex-1 h-12 rounded-2xl border border-white/5 bg-white/5 px-5 text-sm text-white placeholder:text-white/20 focus:border-indigo-500/50 outline-none transition-all focus:bg-white/10"
+                                />
+                                <button
+                                    onClick={() => sendMessage()}
+                                    disabled={loading || !input.trim()}
+                                    className="h-12 w-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-20 disabled:grayscale"
+                                >
+                                    <span className={`text-lg transition-transform ${isRtl ? 'rotate-180' : ''}`}>➤</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
@@ -350,15 +328,20 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
             {/* Float Trigger */}
             <button
                 onClick={() => setOpen(!open)}
-                className="fixed bottom-6 right-6 z-[9999] h-16 w-16 rounded-full bg-primary text-white shadow-2xl hover:scale-110 transition-all flex items-center justify-center"
+                className="fixed bottom-6 right-6 z-[9999] h-18 w-18 md:h-20 md:w-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-[0_10px_40px_rgba(99,102,241,0.4)] hover:scale-110 hover:shadow-[0_15px_50px_rgba(99,102,241,0.6)] active:scale-90 transition-all duration-500 flex items-center justify-center group overflow-hidden"
             >
-                {open ? <span className="text-xl">✕</span> : (
-                    <div className="relative h-11 w-11 rounded-full overflow-hidden border-2 border-white/20">
-                        <Image src="/images/zivra-logo.jpg" alt="Chat" fill className="object-cover" />
+                {open ? (
+                    <span className="text-2xl font-light">✕</span>
+                ) : (
+                    <div className="relative h-full w-full flex items-center justify-center">
+                        <div className="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors" />
+                        <div className="relative h-[70%] w-[70%] rounded-full overflow-hidden border-2 border-white/20 group-hover:border-white/50 transition-all">
+                            <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
+                        </div>
                     </div>
                 )}
-                {!open && messages.length === 0 && (
-                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-blue-500 rounded-full border-2 border-[#0a0a0c] flex items-center justify-center text-[10px] font-bold">1</span>
+                {!open && messages.length === 0 && !converted && (
+                    <span className="absolute top-2 right-2 h-4 w-4 bg-red-500 rounded-full border-2 border-black animate-bounce" />
                 )}
             </button>
         </>
