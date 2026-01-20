@@ -14,8 +14,6 @@ type Msg = {
 };
 
 type LeadData = {
-    name?: string;
-    email?: string;
     businessType?: string;
     selectedService?: string;
     goal?: string;
@@ -36,12 +34,9 @@ function t(lang: Lang) {
             email: "إيميل ✉️",
             placeholder: "أكتب استفسارك هنا...",
             typing: "المساعد يكتب...",
-            whatsappLink: "https://wa.me/358401604442",
-            emailAddr: "hello@zivra.dev",
             bizTypes: ["مطعم / كافيه", "عيادة / طبي", "فندق / سياحة", "شركة خدمات", "متجر إلكتروني", "Startup / SaaS", "غير متأكد بعد"],
             services: ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth Engine", "ساعدوني في الاختيار"],
             goals: ["زيادة المبيعات", "زيادة العملاء", "توفير الوقت / أتمتة", "تحسين الخدمة", "إطلاق سريع"],
-            errPopup: "يبدو أن المتصفح حظر فتح النافذة. فضلاً اضغط هنا للواتساب: ",
             emailSubject: "استفسار مشروع - ZIVRA"
         };
     }
@@ -57,12 +52,9 @@ function t(lang: Lang) {
         email: "Email ✉️",
         placeholder: "Type your message...",
         typing: "ZIZO is typing...",
-        whatsappLink: "https://wa.me/358401604442",
-        emailAddr: "hello@zivra.dev",
         bizTypes: ["Restaurant / Café", "Clinic / Medical", "Hotel / Tourism", "Service Business", "E-commerce", "Startup / SaaS", "Not sure yet"],
         services: ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth Engine", "Help me choose"],
         goals: ["Increase sales", "Get more leads", "Save time / automate", "Improve support", "Launch fast"],
-        errPopup: "It seems your browser blocked the window. Please click here for WhatsApp: ",
         emailSubject: "Project Inquiry - ZIVRA"
     };
 }
@@ -76,7 +68,6 @@ function buildContactMessage(lead: LeadData, lang: Lang) {
         if (lead.businessType) lines.push(`نوع النشاط: ${lead.businessType}`);
         if (lead.selectedService) lines.push(`الخدمة المطلوبة: ${lead.selectedService}`);
         if (lead.goal) lines.push(`الهدف الأساسي: ${lead.goal}`);
-        if (lead.platforms && lead.platforms.length > 0) lines.push(`المنصات: ${lead.platforms.join(', ')}`);
         lines.push("");
         lines.push("حاب أعرف تفاصيل أكثر عن الباقات المتاحة وكيف نبدأ.");
         lines.push("أرسلت بواسطة دردشة الموقع.");
@@ -85,10 +76,9 @@ function buildContactMessage(lead: LeadData, lang: Lang) {
         if (lead.businessType) lines.push(`Business Type: ${lead.businessType}`);
         if (lead.selectedService) lines.push(`Service Interested: ${lead.selectedService}`);
         if (lead.goal) lines.push(`Main Goal: ${lead.goal}`);
-        if (lead.platforms && lead.platforms.length > 0) lines.push(`Platforms: ${lead.platforms.join(', ')}`);
         lines.push("");
         lines.push("I'd like to get more details on your packages and how to start.");
-        lines.push("Sent from ZIVRA website chat.");
+        lines.push("Sent from zivra.dev chat.");
     }
 
     return lines.join("\n");
@@ -104,7 +94,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
     const [loading, setLoading] = React.useState(false);
     const [input, setInput] = React.useState("");
 
-    // Lead state
+    // State for discovery flow
     const [lead, setLead] = React.useState<LeadData>({});
     const [step, setStep] = React.useState(0);
 
@@ -138,7 +128,10 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content }]);
     };
 
-    const captureAndSyncLead = async (update: Partial<LeadData>, type: string = "lead_update") => {
+    /**
+     * Sends lead data to webhook without modifying chat UI
+     */
+    const syncLead = async (update: Partial<LeadData>, type: string = "lead_update") => {
         const newLead = { ...lead, ...update };
         setLead(newLead);
 
@@ -151,47 +144,53 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                     lang,
                     leadData: {
                         ...newLead,
-                        locale: lang,
                         type,
                         timestamp: new Date().toISOString(),
                         pageUrl: typeof window !== "undefined" ? window.location.href : ""
                     }
                 }),
             });
-        } catch (e) {
-            console.error("Lead sync error", e);
+        } catch (e) { /* silent */ }
+    };
+
+    /**
+     * Handles WhatsApp/Email CTA clicks immediately
+     */
+    const handleCTA = async (method: "whatsapp" | "email") => {
+        const message = buildContactMessage(lead, lang);
+
+        // Log the click
+        await syncLead({ lastUserMessage: `Clicked ${method} CTA` }, "contact_click");
+
+        if (method === "whatsapp") {
+            const waUrl = `https://wa.me/358401604442?text=${encodeURIComponent(message)}`;
+            const win = window.open(waUrl, "_blank", "noopener,noreferrer");
+            if (!win) {
+                window.location.href = waUrl;
+            }
+        } else {
+            const mailtoUrl = `mailto:hello@zivra.dev?subject=${encodeURIComponent(dict.emailSubject)}&body=${encodeURIComponent(message)}`;
+            window.location.href = mailtoUrl;
         }
     };
 
     const handleOption = async (opt: string) => {
+        // 1. Check if it's a direct CTA (Should not happen if UI is correctly mapped, but for safety)
         const isWhatsApp = opt.includes("WhatsApp") || opt.includes("واتساب");
         const isEmail = opt.includes("Email") || opt.includes("إيميل");
-
         if (isWhatsApp || isEmail) {
-            const method = isWhatsApp ? "whatsapp" : "email";
-            const message = buildContactMessage(lead, lang);
-
-            await captureAndSyncLead({ lastUserMessage: `Clicked ${method} CTA` }, "contact_click");
-
-            if (isWhatsApp) {
-                const waUrl = `https://wa.me/358401604442?text=${encodeURIComponent(message)}`;
-                const win = window.open(waUrl, "_blank", "noopener,noreferrer");
-                if (!win) {
-                    addMsg("assistant", `${dict.errPopup} ${waUrl}`);
-                }
-            } else {
-                const mailtoUrl = `mailto:hello@zivra.dev?subject=${encodeURIComponent(dict.emailSubject)}&body=${encodeURIComponent(message)}`;
-                window.location.href = mailtoUrl;
-            }
+            await handleCTA(isWhatsApp ? "whatsapp" : "email");
             return;
         }
 
+        // 2. Regular Option Handling (Discovery Flow)
         addMsg("user", opt);
         setOptions([]);
 
         if (step === 0) {
+            // Step 0 -> Step 1: Business Type chosen
             setStep(1);
-            await captureAndSyncLead({ businessType: opt });
+            await syncLead({ businessType: opt });
             setLoading(true);
             setTimeout(() => {
                 setLoading(false);
@@ -199,8 +198,9 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                 setOptions(dict.services);
             }, 600);
         } else if (step === 1) {
-            await captureAndSyncLead({ selectedService: opt });
-            if (opt.includes("choose") || opt.includes("اختيار")) {
+            // Step 1 -> Step 2 OR Mode B: Service/Consultation chosen
+            await syncLead({ selectedService: opt });
+            if (opt.includes("choose") || opt.includes("اختيار") || opt === dict.consultReq) {
                 handleAskConsultation();
             } else {
                 setLoading(true);
@@ -211,8 +211,8 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                 }, 600);
             }
         } else if (step === 3) {
-            await captureAndSyncLead({ goal: opt });
-            // Send to AI for explanation
+            // Mode B: Goal chosen -> Ask AI
+            await syncLead({ goal: opt });
             sendMessage(opt);
         } else if (opt === dict.consultReq) {
             handleAskConsultation();
@@ -245,13 +245,14 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                 body: JSON.stringify({
                     messages: [...messages, { role: "user", content: text }].map(m => ({ role: m.role, content: m.content })),
                     lang,
-                    leadData: { ...lead, locale: lang }
+                    leadData: { ...lead }
                 }),
             });
 
             const data = await res.json();
             if (res.ok) {
                 addMsg("assistant", data.reply);
+                // Ensure CTAs are always available if AI closes
                 if (data.options && data.options.length > 0) {
                     setOptions(data.options);
                 } else {
@@ -271,6 +272,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         <>
             {open && (
                 <div dir={isRtl ? "rtl" : "ltr"} className="fixed bottom-24 right-5 z-[9999] w-[400px] max-w-[calc(100vw-40px)] rounded-2xl border border-white/10 bg-black/80 backdrop-blur-2xl shadow-2xl flex flex-col h-[600px] animate-in slide-in-from-bottom-5 duration-300">
+                    {/* Header */}
                     <div className="flex items-center justify-between border-b border-white/10 px-4 py-4 bg-white/5">
                         <div className="flex items-center gap-3">
                             <div className="relative h-10 w-10 rounded-full overflow-hidden border border-white/20">
@@ -287,6 +289,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                         <button onClick={() => setOpen(false)} className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white transition-colors">✕</button>
                     </div>
 
+                    {/* Chat Messages */}
                     <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth">
                         {messages.map((m) => (
                             <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -299,18 +302,35 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                         {loading && <div className="text-xs text-white/30 italic px-2">{dict.typing}</div>}
                     </div>
 
+                    {/* Interactive Area */}
                     <div className="p-4 bg-white/5 border-t border-white/10">
                         {options.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-4">
-                                {options.map((opt) => (
-                                    <button
-                                        key={opt}
-                                        onClick={() => handleOption(opt)}
-                                        className="rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white hover:bg-primary hover:scale-105 transition-all border border-white/10"
-                                    >
-                                        {opt}
-                                    </button>
-                                ))}
+                                {options.map((opt) => {
+                                    const isWhatsApp = opt.includes("WhatsApp") || opt.includes("واتساب");
+                                    const isEmail = opt.includes("Email") || opt.includes("إيميل");
+
+                                    return (
+                                        <button
+                                            key={opt}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (isWhatsApp || isEmail) {
+                                                    handleCTA(isWhatsApp ? "whatsapp" : "email");
+                                                } else {
+                                                    handleOption(opt);
+                                                }
+                                            }}
+                                            className={`rounded-full px-4 py-2 text-xs font-medium transition-all border ${isWhatsApp || isEmail
+                                                    ? "bg-primary/20 border-primary/40 text-primary-foreground hover:bg-primary/30"
+                                                    : "bg-white/10 border-white/10 text-white hover:bg-white/20"
+                                                } hover:scale-105 active:scale-95`}
+                                        >
+                                            {opt}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         )}
                         <div className="flex items-center gap-2">
@@ -327,12 +347,13 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                 </div>
             )}
 
+            {/* Float Trigger */}
             <button
                 onClick={() => setOpen(!open)}
-                className="fixed bottom-6 right-6 z-[9999] h-16 w-16 rounded-full bg-primary text-white shadow-2xl hover:scale-110 transition-all flex items-center justify-center group"
+                className="fixed bottom-6 right-6 z-[9999] h-16 w-16 rounded-full bg-primary text-white shadow-2xl hover:scale-110 transition-all flex items-center justify-center"
             >
                 {open ? <span className="text-xl">✕</span> : (
-                    <div className="relative h-11 w-11 rounded-full overflow-hidden border-2 border-white/20 group-hover:border-white/40">
+                    <div className="relative h-11 w-11 rounded-full overflow-hidden border-2 border-white/20">
                         <Image src="/images/zivra-logo.jpg" alt="Chat" fill className="object-cover" />
                     </div>
                 )}

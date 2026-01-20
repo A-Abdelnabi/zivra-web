@@ -59,6 +59,23 @@ export async function POST(req: Request) {
         const incoming = normalizeMessages(body?.messages);
         const lang = body?.lang === 'ar' ? 'ar' : 'en';
 
+        // Lead capture logic if data is present
+        if (body.leadData) {
+            const lastMsg = incoming.length > 0 ? incoming[incoming.length - 1].content.toLowerCase() : "";
+            await sendLead({
+                ...body.leadData,
+                lastUserMessage: body.leadData.lastUserMessage || lastMsg,
+                timestamp: new Date().toISOString(),
+                lang: lang,
+                source: "ZIVRA Website Chat"
+            });
+
+            // If it's ONLY a lead sync (no messages), return early
+            if (incoming.length === 0) {
+                return NextResponse.json({ success: true, message: "Lead captured" });
+            }
+        }
+
         // Extract last message to check for consultation triggers
         const lastMsg = incoming.length > 0 ? incoming[incoming.length - 1].content.toLowerCase() : "";
         const isConsultationTrigger = /benefit|offer|which package|help me choose|package|pricing|details|افضل|باقة|عرض|فوائد|ساعدني|وش تقدمون/.test(lastMsg);
@@ -149,17 +166,6 @@ Output Format (JSON):
 
         const content = completion.choices?.[0]?.message?.content || "{}";
         const parsed = JSON.parse(content);
-
-        // Lead capture logic if data is present
-        if (body.leadData) {
-            await sendLead({
-                ...body.leadData,
-                lastUserMessage: lastMsg,
-                timestamp: new Date().toISOString(),
-                lang: lang,
-                source: "ZIVRA Website Chat"
-            });
-        }
 
         return NextResponse.json({
             reply: parsed.reply,
