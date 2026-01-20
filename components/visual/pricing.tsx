@@ -2,8 +2,28 @@
 
 import { Check } from "lucide-react";
 import { Locale, Dictionary } from '@/lib/i18n';
+import { PRICING_DATA, formatPrice, formatSetup } from '@/lib/pricing';
+
+const WHATSAPP_LINK = "https://wa.me/358401604442";
+
 
 function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
+    const pricing = PRICING_DATA[plan.id as keyof typeof PRICING_DATA];
+
+    const priceText = pricing ? formatPrice(pricing.monthlySAR, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
+    const setupText = pricing ? formatSetup(pricing.setupSAR, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
+
+    const handleCTA = () => {
+        if (plan.id === 'starter') {
+            window.open(WHATSAPP_LINK, '_blank');
+        } else {
+            const contactSection = document.getElementById('contact');
+            if (contactSection) {
+                contactSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    };
+
     return (
         <div
             className={[
@@ -18,29 +38,30 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
                 </div>
             )}
 
-            <div>
+            <div className={locale === 'ar' ? 'text-right' : ''}>
                 <h3 className="text-lg font-semibold text-white">{plan.name}</h3>
                 <p className="mt-1 text-sm text-white/70">{plan.tagline}</p>
             </div>
 
-            <div className="mt-5">
-                <div className="text-2xl font-semibold text-white">{plan.price}</div>
-                <div className="mt-1 text-sm text-white/70">{plan.setup}</div>
+            <div className={`mt-5 ${locale === 'ar' ? 'text-right' : ''}`}>
+                <div className="text-2xl font-semibold text-white tracking-tight">{priceText}</div>
+                <div className="mt-1 text-sm text-white/70">{setupText}</div>
             </div>
 
             <ul className="mt-5 space-y-2 text-sm text-white/80">
                 {plan.bullets.map((b: string) => (
                     <li key={b} className="flex items-start gap-2">
                         <Check className={`mt-0.5 h-4 w-4 text-purple-300 shrink-0 ${locale === 'ar' ? 'order-2' : ''}`} />
-                        <span className={locale === 'ar' ? 'text-right' : ''}>{b}</span>
+                        <span className={locale === 'ar' ? 'text-right flex-1' : ''}>{b}</span>
                     </li>
                 ))}
             </ul>
 
             <button
                 type="button"
+                onClick={handleCTA}
                 className={[
-                    "mt-6 inline-flex w-full items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium",
+                    "mt-6 inline-flex w-full items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium transition-all active:scale-95",
                     "bg-purple-500 text-white hover:bg-purple-500/90",
                     "focus:outline-none focus:ring-2 focus:ring-purple-400/60 focus:ring-offset-0",
                 ].join(" ")}
@@ -50,6 +71,7 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
         </div>
     );
 }
+
 
 export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     return (
@@ -68,9 +90,15 @@ export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictio
             </div>
 
             <div className="mt-10 grid gap-6 md:grid-cols-3">
-                {dict.pricing.plans.map((p) => (
+                {dict.pricing.plans.map((p: any) => (
                     <PlanCard key={p.name} plan={p} locale={locale} />
                 ))}
+            </div>
+
+            <div className="mt-12 text-center">
+                <p className="text-xs text-white/40 italic">
+                    {dict.pricing.disclaimer}
+                </p>
             </div>
         </section>
     );

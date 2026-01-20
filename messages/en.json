@@ -59,23 +59,21 @@
         "subtitle": "Stop hiring more staff. Start scaling with calm intelligence.",
         "plans": [
             {
+                "id": "starter",
                 "name": "Starter",
                 "tagline": "For individuals & small startups.",
-                "price": "€149 / month",
-                "setup": "+ €999 setup",
                 "bullets": [
                     "Website or Landing Page",
                     "Basic AI Chat",
                     "Multi-language Support",
                     "Managed Hosting"
                 ],
-                "cta": "Choose Starter"
+                "cta": "Contact us on WhatsApp"
             },
             {
-                "name": "Growth",
+                "id": "business",
+                "name": "Business",
                 "tagline": "For restaurants, clinics & scaling businesses.",
-                "price": "€499 / month",
-                "setup": "+ €2499 setup",
                 "recommended": true,
                 "bullets": [
                     "Custom Web App / Dashboard",
@@ -85,13 +83,12 @@
                     "Automated Lead Follow-up",
                     "Priority Support"
                 ],
-                "cta": "Choose Growth"
+                "cta": "Request a consultation"
             },
             {
-                "name": "Scale",
+                "id": "scale",
+                "name": "Scale / Enterprise",
                 "tagline": "For serious brands & enterprises.",
-                "price": "€549 / month",
-                "setup": "+ €4999 setup",
                 "bullets": [
                     "Full Custom Architecture",
                     "Advanced AI Modeling",
@@ -99,9 +96,10 @@
                     "Strategic Consulting",
                     "Custom Integrations"
                 ],
-                "cta": "Choose Scale"
+                "cta": "Request a consultation"
             }
-        ]
+        ],
+        "disclaimer": "Prices are pegged to SAR (USD shown for convenience)."
     },
     "contact": {
         "title": "Let's Build Together",
