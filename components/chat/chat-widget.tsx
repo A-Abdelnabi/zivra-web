@@ -108,7 +108,10 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         let welcomeMsg = dict.step0;
         let initialOptions = BIZ_OPTIONS[lang];
 
-        if (path.includes('/restaurants')) {
+        if (path.includes('/sa/restaurants')) {
+            welcomeMsg = lang === 'ar' ? "أهلًا 👋 تبغى تفعّل أتمتة الطلبات لمطعمك؟" : "Hi 👋 Want to activate order automation for your restaurant?";
+            initialOptions = lang === 'ar' ? ["نعم، عندي مطعم/كافيه", "حاب أستفسر"] : ["Yes, I have a restaurant/café", "I have an inquiry"];
+        } else if (path.includes('/restaurants')) {
             welcomeMsg = lang === 'ar' ? "أهلًا 👋 تبغى تأتمت طلبات مطعمك أو المنيو؟" : "Hi 👋 Want to automate your restaurant orders or menu?";
             initialOptions = lang === 'ar' ? ["أتمتة الطلبات", "حجز طاولات", "استفسارات المنيو"] : ["Order Automation", "Table Booking", "Menu Inquiries"];
         } else if (path.includes('/clinics')) {
@@ -143,10 +146,16 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         }
     }, [messages, open, loading]);
 
-    // Tracking for chat_open
+    // Tracking for chat_open & Auto-open for /sa/restaurants
     React.useEffect(() => {
         if (open) {
             trackEvent('chat_open', { language: lang });
+        }
+
+        const path = window.location.pathname;
+        if (path.includes('/sa/restaurants') && !open) {
+            const timer = setTimeout(() => setOpen(true), 1500);
+            return () => clearTimeout(timer);
         }
     }, [open, lang]);
 
@@ -170,6 +179,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
         const nextStep = (step + 1) as ChatStep;
         const isHelpSelection = val === "I need help" || val === "محتاج مساعدة" || val === "Not sure yet" || val === "مو متأكد حالياً";
+        const isRestaurantStart = val === "نعم، عندي مطعم/كافيه" || val === "Yes, I have a restaurant/café";
 
         if (isHelpSelection) {
             setLoading(false);
@@ -180,6 +190,13 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
         setTimeout(() => {
             setLoading(false);
+            if (isRestaurantStart) {
+                setStep(1);
+                addMsg("assistant", lang === 'ar' ? "ممتاز! عندك رقم واتساب رسمي جاهز نفعّل عليه النظام؟" : "Great! Do you have an official WhatsApp number ready?");
+                setOptions(lang === 'ar' ? ["نعم، جاهز", "لا، أحتاج رقم جديد"] : ["Yes, ready", "No, I need a new one"]);
+                return;
+            }
+
             if (nextStep === 1) {
                 setStep(1);
                 addMsg("assistant", dict.step1);
