@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Locale } from "@/lib/i18n";
 import { Send, RefreshCw, MessageCircle, Mail } from "lucide-react";
 import Portal from "@/components/ui/Portal";
+import { trackEvent } from "@/lib/analytics";
 
 type Role = "assistant" | "user";
 type Lang = "ar" | "en";
@@ -128,6 +129,13 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         }
     }, [messages, open, loading]);
 
+    // Tracking for chat_open
+    React.useEffect(() => {
+        if (open) {
+            trackEvent('chat_open', { language: lang });
+        }
+    }, [open, lang]);
+
     const addMsg = (role: Role, content: string, isContactCard: boolean = false) => {
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content, isContactCard }]);
     };
@@ -139,16 +147,26 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         setOptions([]);
         setLoading(true);
 
+        // Tracking
+        if (step === 0) {
+            trackEvent('business_selected', { business_type: val, language: lang });
+        } else if (step === 1) {
+            trackEvent('service_selected', { service_type: val, language: lang });
+        }
+
         const nextStep = (step + 1) as ChatStep;
         const isHelpSelection = val === "I need help" || val === "محتاج مساعدة" || val === "Not sure yet" || val === "مو متأكد حالياً";
 
+        if (isHelpSelection) {
+            setLoading(false);
+            setStep(2);
+            addMsg("assistant", dict.step2, true);
+            return;
+        }
+
         setTimeout(() => {
             setLoading(false);
-            if (isHelpSelection) {
-                // Jump to Contact immediately
-                setStep(2);
-                addMsg("assistant", dict.step2, true);
-            } else if (nextStep === 1) {
+            if (nextStep === 1) {
                 setStep(1);
                 addMsg("assistant", dict.step1);
                 setOptions(SERVICE_OPTIONS[lang]);
@@ -162,8 +180,10 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
     const handleCTA = (method: "whatsapp" | "email") => {
         if (method === "whatsapp") {
+            trackEvent('contact_whatsapp_click', { language: lang });
             window.open("https://wa.me/358401604442", "_blank");
         } else {
+            trackEvent('contact_email_click', { language: lang });
             window.location.href = `mailto:hello@zivra.dev?subject=ZIVRA Inquiry (${lang === 'ar' ? 'طلب استفسار' : 'Inquiry'})`;
         }
     };

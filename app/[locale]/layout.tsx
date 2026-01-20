@@ -4,6 +4,7 @@ import "../globals.css";
 import Providers from "@/components/providers";
 import ChatWidget from "@/components/chat/chat-widget";
 import WhatsAppButton from "@/components/whatsapp-button";
+import LeadCapture from "@/components/lead-capture";
 import { Locale, locales, getDirection } from "@/lib/i18n";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -57,6 +58,22 @@ export default async function LocaleLayout({
 
     return (
         <html lang={locale} dir={dir} className="dark">
+            <head>
+                {/* Google Analytics */}
+                <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX" />
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `
+                            window.dataLayer = window.dataLayer || [];
+                            function gtag(){dataLayer.push(arguments);}
+                            gtag('js', new Date());
+                            gtag('config', 'G-XXXXXXXXXX', {
+                                page_path: window.location.pathname,
+                            });
+                        `,
+                    }}
+                />
+            </head>
             <body className={`${fontClass} ${locale === 'ar' ? 'font-cairo' : 'font-inter'} min-h-screen bg-background text-foreground antialiased pb-28`}>
                 <Providers>
                     {children}
@@ -64,6 +81,7 @@ export default async function LocaleLayout({
                     {/* Floating Widgets */}
                     <WhatsAppButton locale={locale} />
                     <ChatWidget key={`chat-${locale}`} locale={locale} />
+                    <LeadCapture locale={locale} />
                 </Providers>
             </body>
         </html>

@@ -5,6 +5,8 @@ import { Locale, Dictionary } from '@/lib/i18n';
 import { PRICING_DATA, formatPrice, formatSetup } from '@/lib/pricing';
 import { motion } from 'framer-motion';
 import { Reveal, RevealList, RevealItem } from '@/components/motion/Reveal';
+import { trackEvent } from '@/lib/analytics';
+import { useEffect } from 'react';
 
 const WHATSAPP_LINK = "https://wa.me/358401604442";
 
@@ -15,6 +17,7 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
     const setupText = pricing ? formatSetup(pricing.setupUSD, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
 
     const handleCTA = () => {
+        trackEvent('pricing_cta_click', { plan_id: plan.id, language: locale });
         if (plan.id === 'starter' || plan.id === 'growth') {
             window.open(WHATSAPP_LINK, '_blank');
         } else {
@@ -82,6 +85,10 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
 }
 
 export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictionary }) {
+    useEffect(() => {
+        trackEvent('pricing_view', { language: locale });
+    }, [locale]);
+
     return (
         <section id="packages" className="mx-auto w-full max-w-6xl px-4 py-16">
             <Reveal>

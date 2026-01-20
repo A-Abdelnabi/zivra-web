@@ -1,4 +1,4 @@
-import 'server-only';
+// i18n helpers for both client and server
 
 export type Locale = 'en' | 'ar';
 
