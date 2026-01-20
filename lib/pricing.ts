@@ -1,17 +1,17 @@
 export const PRICING_DATA = {
     starter: {
-        monthlyUSD: 159,
-        setupUSD: 649,
+        monthlyUSD: 149,
+        setupUSD: 499,
     },
-    business: {
-        monthlyUSD: 529,
-        setupUSD: 1999,
+    growth: {
+        monthlyUSD: 449,
+        setupUSD: 1499,
         recommended: true,
     },
-    scale: {
-        monthlyUSD: 949,
-        setupUSD: 3199,
-        hasPlus: false,
+    enterprise: {
+        monthlyUSD: 999, // Custom / Base
+        setupUSD: 2999,
+        hasPlus: true,
     },
 } as const;
 

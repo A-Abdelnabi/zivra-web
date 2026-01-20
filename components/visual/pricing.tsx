@@ -15,12 +15,15 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
     const setupText = pricing ? formatSetup(pricing.setupUSD, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
 
     const handleCTA = () => {
-        if (plan.id === 'starter') {
+        if (plan.id === 'starter' || plan.id === 'growth') {
             window.open(WHATSAPP_LINK, '_blank');
         } else {
+            // Enterprise or other: scroll to contact
             const contactSection = document.getElementById('contact');
             if (contactSection) {
                 contactSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.location.href = 'mailto:hello@zivra.dev';
             }
         }
     };

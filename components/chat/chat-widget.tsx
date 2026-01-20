@@ -6,7 +6,7 @@ import { Locale } from "@/lib/i18n";
 import { Send, RefreshCw, MessageCircle, Mail } from "lucide-react";
 import Portal from "@/components/ui/Portal";
 
-type Role = "user" | "assistant";
+type Role = "assistant" | "user";
 type Lang = "ar" | "en";
 
 type Msg = {
@@ -16,7 +16,7 @@ type Msg = {
     isContactCard?: boolean;
 };
 
-// Strict Steps: 0 = BUSINESS, 1 = SERVICE, 2 = CONTACT
+// Strict Steps: 0 = BUSINESS, 1 = SERVICE, 2 = CONTACT (Marked as Converted)
 type ChatStep = 0 | 1 | 2;
 
 const BIZ_OPTIONS = {
@@ -26,7 +26,7 @@ const BIZ_OPTIONS = {
         "E-commerce",
         "Service Business",
         "Startup / SaaS",
-        "❓ Not sure / Need help"
+        "Not sure yet"
     ],
     ar: [
         "مطعم / كافيه",
@@ -34,30 +34,24 @@ const BIZ_OPTIONS = {
         "متجر إلكتروني",
         "شركة خدمات",
         "شركة تقنية / SaaS",
-        "❓ محتاج مساعدة"
+        "مو متأكد حالياً"
     ]
 };
 
 const SERVICE_OPTIONS = {
     en: [
-        "🤖 AI Chatbot (Sales / Support)",
-        "📲 WhatsApp Automation",
-        "🌐 Website / Landing Page",
-        "📋 Digital Menu",
-        "📈 Marketing & Ads",
-        "⚙️ Business Automation",
-        "🔗 CRM & Lead Follow-up",
-        "❓ I need help choosing"
+        "Website / Landing Page",
+        "AI Chatbot",
+        "WhatsApp Automation",
+        "Marketing / Social Media",
+        "I need help"
     ],
     ar: [
-        "🤖 شات بوت ذكي (مبيعات / دعم)",
-        "📲 أتمتة واتساب",
-        "🌐 موقع إلكتروني / صفحة هبوط",
-        "📋 منيو رقمي",
-        "📈 تسويق وإعلانات",
-        "⚙️ أتمتة أعمال",
-        "🔗 نظام CRM ومتابعة عملاء",
-        "❓ محتاج مساعدة في الاختيار"
+        "موقع / صفحة هبوط",
+        "شات بوت ذكي",
+        "أتمتة واتساب",
+        "تسويق وسوشيال ميديا",
+        "محتاج مساعدة"
     ]
 };
 
@@ -72,9 +66,9 @@ function getDict(lang: Lang) {
             whatsappSub: "أسرع رد",
             email: "إيميل",
             emailSub: "احصل على عرض رسمي",
-            placeholder: "استفسار سريع...",
+            placeholder: "اكتب استفسارك...",
             typing: "جاري المعالجة...",
-            closed: "تم إنهاء المحادثة • تواصل معنا أعلاه",
+            closed: "تم التحويل • تواصل معنا أعلاه",
             reset: "إعادة تعيين"
         };
     }
@@ -89,7 +83,7 @@ function getDict(lang: Lang) {
         emailSub: "Get an official quote",
         placeholder: "Quick query...",
         typing: "ZIZO is processing...",
-        closed: "Conversation Finished • Contact us above",
+        closed: "Converted • Contact us above",
         reset: "Reset Chat"
     };
 }
@@ -107,11 +101,13 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
     const dict = getDict(lang);
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
-    // Initial setup & Locale Sync
+    // Initial setup & Reset on Locale change
     React.useEffect(() => {
         setMessages([{ id: "init", role: "assistant", content: dict.step0 }]);
         setOptions(BIZ_OPTIONS[lang]);
         setStep(0);
+        setInput("");
+        setLoading(false);
         setMounted(true);
         // Ensure chat is closed on locale change for a clean feel
         setOpen(false);
@@ -144,10 +140,15 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         setLoading(true);
 
         const nextStep = (step + 1) as ChatStep;
+        const isHelpSelection = val === "I need help" || val === "محتاج مساعدة" || val === "Not sure yet" || val === "مو متأكد حالياً";
 
         setTimeout(() => {
             setLoading(false);
-            if (nextStep === 1) {
+            if (isHelpSelection) {
+                // Jump to Contact immediately
+                setStep(2);
+                addMsg("assistant", dict.step2, true);
+            } else if (nextStep === 1) {
                 setStep(1);
                 addMsg("assistant", dict.step1);
                 setOptions(SERVICE_OPTIONS[lang]);
@@ -204,7 +205,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                     {/* Main UI window - pointer-events-auto */}
                     <div
                         dir={isRtl ? "rtl" : "ltr"}
-                        className={`absolute bottom-24 ${isRtl ? 'left-5 md:left-8' : 'right-5 md:right-8'} w-[400px] max-w-[calc(100vw-40px)] h-[600px] flex flex-col rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,10,20,0.6)] border border-white/10 bg-black/80 backdrop-blur-3xl transition-transform duration-500 pointer-events-auto ${open ? 'translate-y-0' : 'translate-y-10'
+                        className={`absolute bottom-24 ${isRtl ? 'left-5 md:left-8' : 'right-5 md:right-8'} w-[380px] max-w-[calc(100vw-40px)] h-[580px] flex flex-col rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,10,20,0.6)] border border-white/10 bg-black/90 backdrop-blur-3xl transition-transform duration-500 pointer-events-auto ${open ? 'translate-y-0' : 'translate-y-10'
                             }`}
                         style={{ pointerEvents: open ? 'auto' : 'none' }}
                     >
@@ -271,8 +272,8 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                         </div>
                                     ) : (
                                         <div className={`max-w-[85%] rounded-2xl px-5 py-4 text-sm leading-relaxed shadow-lg ${m.role === "user"
-                                                ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-tr-none"
-                                                : "bg-white/10 text-white/90 border border-white/5 rounded-tl-none backdrop-blur-md"
+                                            ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-tr-none"
+                                            : "bg-white/10 text-white/90 border border-white/5 rounded-tl-none backdrop-blur-md"
                                             }`}>
                                             {m.content}
                                         </div>
