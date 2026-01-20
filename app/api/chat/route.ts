@@ -76,6 +76,45 @@ export async function POST(req: Request) {
             }
         }
 
+        // =========================
+        // ✅ Event-Based Navigation (Bypass AI)
+        // =========================
+        if (body.event) {
+            const ev = body.event;
+            const val = body.value;
+
+            if (ev === "business_selected") {
+                return NextResponse.json({
+                    reply: lang === "ar" ? "تمام. هذه خدماتنا - اختر اللي يناسبك، أو تواصل معنا ونرتّب لك أفضل خيار." : "Perfect. Here’s what we can help you with. Pick anything, or just contact us and we’ll guide you.",
+                    options: lang === "ar"
+                        ? ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth Engine", "ساعدوني في الاختيار"]
+                        : ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth Engine", "Help me choose"]
+                });
+            }
+
+            if (ev === "service_selected") {
+                const isConsultation = val.includes("choose") || val.includes("اختيار") || val.includes("benefits") || val.includes("المزايا");
+                if (isConsultation) {
+                    return NextResponse.json({
+                        reply: lang === "ar" ? "وش أهم هدف لك الحين؟" : "What’s your main goal right now?",
+                        options: lang === "ar"
+                            ? ["زيادة المبيعات", "زيادة العملاء", "توفير الوقت / أتمتة", "تحسين الخدمة", "إطلاق سريع"]
+                            : ["Increase sales", "Get more leads", "Save time / automate", "Improve support", "Launch fast"]
+                    });
+                } else {
+                    return NextResponse.json({
+                        reply: lang === "ar" ? "تمام 👍 اختر الأنسب لك:" : "Perfect 👍 Choose what works best for you:",
+                        options: ["__CTA__"] // Flag for contact card
+                    });
+                }
+            }
+
+            // Fallback for events we don't handle directly
+            if (incoming.length === 0) {
+                return NextResponse.json({ success: true });
+            }
+        }
+
         // Extract last message to check for consultation triggers
         const lastMsg = incoming.length > 0 ? incoming[incoming.length - 1].content.toLowerCase() : "";
         const isConsultationTrigger = /benefit|offer|which package|help me choose|package|pricing|details|افضل|باقة|عرض|فوائد|ساعدني|وش تقدمون/.test(lastMsg);
