@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Locale } from "@/lib/i18n";
-import { MessageCircle, Mail } from "lucide-react";
+import { MessageCircle, Mail, Send } from "lucide-react";
 import Portal from "@/components/ui/Portal";
 
 type Role = "user" | "assistant";
@@ -16,42 +16,50 @@ type Msg = {
     isContactCard?: boolean;
 };
 
+// Conversational State Machine
+// 0: Initial (Business Type)
+// 1: Service/Goal Selection
+// 2: Recommendation (Final before CTA)
+// 3: CONVERTED (Force CTA, No more messages)
+type ChatStep = 0 | 1 | 2 | 3;
+
 type LeadData = {
     businessType?: string;
     selectedService?: string;
     goal?: string;
-    lastUserMessage?: string;
+    step?: number;
 };
 
 function t(lang: Lang) {
     if (lang === "ar") {
         return {
             welcome: "ZIZO AI",
-            step0: "هلا 👋 أنا مساعد ZIZO. بس بسألك سؤال سريع وبعدين أعرض لك خدماتنا. وش نوع نشاطك؟",
-            placeholder: "أكتب استفسارك هنا...",
-            typing: "ZIZO يكتب...",
-            bizTypes: ["مطعم / كافيه", "عيادة / طبي", "فندق / سياحة", "شركة خدمات", "متجر إلكتروني", "Startup / SaaS", "غير متأكد بعد"],
+            step0: "هلا 👋 أنا مساعد ZIZO. وش نوع نشاطك التجاري؟",
+            placeholder: "أدخل استفسارك هنا...",
+            typing: "جاري المعالجة...",
+            bizTypes: ["مطعم / كافيه", "عيادة / طبي", "فندق / سياحة", "شركة خدمات", "متجر إلكتروني", "Startup / SaaS"],
             ctaText: "تمام 👍 أسرع طريقة نخدمك بشكل مضبوط هي إنك تتواصل معنا مباشرة.\nاختَر اللي يناسبك:",
             whatsapp: "واتساب",
-            email: "إيميل"
+            email: "إيميل",
+            contactNow: "تواصل الآن"
         };
     }
 
     return {
         welcome: "ZIZO AI",
-        step0: "Hi 👋 I’m ZIZO AI Assistant. I’ll ask 1 quick question, then I’ll show you our services. What type of business are you?",
-        placeholder: "Type your message...",
-        typing: "ZIZO is typing...",
-        bizTypes: ["Restaurant / Café", "Clinic / Medical", "Hotel / Tourism", "Service Business", "E-commerce", "Startup / SaaS", "Not sure yet"],
+        step0: "Hi 👋 I’m ZIZO. What type of business do you run?",
+        placeholder: "Type your query...",
+        typing: "ZIZO is thinking...",
+        bizTypes: ["Restaurant / Café", "Clinic / Medical", "Hotel / Tourism", "Service Business", "E-commerce", "Startup / SaaS"],
         ctaText: "Perfect 👍 The fastest way to help you properly is to get contacted directly.\nPlease choose what works best for you:",
         whatsapp: "WhatsApp",
-        email: "Email"
+        email: "Email",
+        contactNow: "Contact Now"
     };
 }
 
 export default function ChatWidget({ locale }: { locale: Locale }) {
     const [open, setOpen] = React.useState(false);
-    const [converted, setConverted] = React.useState(false);
     const [mounted, setMounted] = React.useState(false);
     const lang: Lang = (locale as Lang) || "en";
     const dict = t(lang);
@@ -62,56 +70,66 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
     const [input, setInput] = React.useState("");
 
     const [lead, setLead] = React.useState<LeadData>({});
-    const [step, setStep] = React.useState(0);
+    const [step, setStep] = React.useState<ChatStep>(0);
 
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
-    // Initial hydration/persistence
+    // Initial hydration and state recovery
     React.useEffect(() => {
         setMounted(true);
-        const saved = localStorage.getItem("zivra_lead_context");
-        if (saved) setLead(JSON.parse(saved));
+        const savedLead = localStorage.getItem("zv_chat_lead");
+        const savedMessages = localStorage.getItem("zv_chat_msgs");
+        const savedStep = localStorage.getItem("zv_chat_step");
 
-        const isConv = localStorage.getItem("zivra_converted");
-        if (isConv === "true") setConverted(true);
+        if (savedLead) setLead(JSON.parse(savedLead));
+        if (savedMessages) setMessages(JSON.parse(savedMessages));
+        if (savedStep) setStep(parseInt(savedStep) as ChatStep);
     }, []);
 
-    // Manage body overflow when chat is open
+    // Body scroll lock
     React.useEffect(() => {
         if (open) {
-            const originalStyle = window.getComputedStyle(document.body).overflow;
             document.body.style.overflow = 'hidden';
-            return () => {
-                document.body.style.overflow = originalStyle;
-            };
+            return () => { document.body.style.overflow = ''; };
         }
     }, [open]);
 
+    // Persistence
     React.useEffect(() => {
-        if (Object.keys(lead).length > 0) {
-            localStorage.setItem("zivra_lead_context", JSON.stringify(lead));
+        if (mounted) {
+            localStorage.setItem("zv_chat_lead", JSON.stringify(lead));
+            localStorage.setItem("zv_chat_msgs", JSON.stringify(messages));
+            localStorage.setItem("zv_chat_step", step.toString());
         }
-    }, [lead]);
+    }, [lead, messages, step, mounted]);
 
-    // Initial messages
+    // Initial State Trigger
     React.useEffect(() => {
-        if (messages.length === 0) {
+        if (mounted && messages.length === 0) {
             setMessages([{ id: "init", role: "assistant", content: dict.step0 }]);
             setOptions(dict.bizTypes);
         }
-    }, [dict, messages.length]);
+    }, [mounted, messages.length, dict]);
 
+    // Auto-scroll
     React.useEffect(() => {
         if (listRef.current) {
             listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
         }
-    }, [messages, open]);
+    }, [messages, open, loading]);
 
     const addMsg = (role: Role, content: string, isContactCard: boolean = false) => {
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content, isContactCard }]);
     };
 
-    const sendEvent = async (eventName: string, value: string, updateLead: Partial<LeadData> = {}) => {
+    const forceConversion = (reason?: string) => {
+        setStep(3);
+        setOptions([]);
+        setLoading(false);
+        addMsg("assistant", reason || dict.ctaText, true);
+    };
+
+    const sendToAPI = async (eventName: string, value: string, updateLead: Partial<LeadData>) => {
         const newLead = { ...lead, ...updateLead };
         setLead(newLead);
         setLoading(true);
@@ -126,58 +144,44 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                     lang,
                     event: eventName,
                     value: value,
-                    leadData: {
-                        ...newLead,
-                        timestamp: new Date().toISOString(),
-                        pageUrl: typeof window !== "undefined" ? window.location.href : ""
-                    }
+                    leadData: { ...newLead, currentStep: step }
                 }),
             });
 
             const data = await res.json();
             if (res.ok) {
-                const isFinalCTA = data.options?.includes("__CTA__");
-                addMsg("assistant", data.reply, isFinalCTA);
-                if (isFinalCTA) {
-                    setOptions([]);
-                    setStep(10); // Flow Complete
+                if (data.options?.includes("__CTA__") || step >= 2) {
+                    forceConversion(data.reply);
                 } else {
+                    addMsg("assistant", data.reply);
                     setOptions(data.options || []);
                 }
+            } else {
+                forceConversion();
             }
         } catch (e) {
-            addMsg("assistant", lang === 'ar' ? 'عفواً، واجهت مشكلة.' : 'Sorry, something went wrong.');
+            forceConversion();
         } finally {
             setLoading(false);
         }
     };
 
-    const handleCTA = async (method: "whatsapp" | "email") => {
-        console.log("CTA Clicked:", method);
-        if (converted) {
-            // Even if converted, let them click again to open the link
-            if (method === "whatsapp") {
-                window.open("https://wa.me/358401604442", "_blank");
-            } else {
-                window.location.href = "mailto:hello@zivra.dev";
-            }
-            return;
+    const handleOption = async (opt: string) => {
+        if (step === 3 || loading) return;
+        addMsg("user", opt);
+
+        if (step === 0) {
+            setStep(1);
+            await sendToAPI("business_selected", opt, { businessType: opt });
+        } else if (step === 1) {
+            setStep(2);
+            await sendToAPI("service_selected", opt, { selectedService: opt });
+        } else if (step === 2) {
+            forceConversion();
         }
+    };
 
-        setConverted(true);
-        localStorage.setItem("zivra_converted", "true");
-
-        try {
-            await fetch("/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    messages: [], lang,
-                    leadData: { ...lead, type: "contact_click_final", method, timestamp: new Date().toISOString() }
-                }),
-            });
-        } catch (e) { }
-
+    const handleCTA = (method: "whatsapp" | "email") => {
         if (method === "whatsapp") {
             window.open("https://wa.me/358401604442", "_blank");
         } else {
@@ -185,50 +189,12 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         }
     };
 
-    const handleOption = async (opt: string) => {
-        console.log("Option Clicked:", opt);
-        if (converted || loading) return;
-        addMsg("user", opt);
-
-        if (step === 0) {
-            setStep(1);
-            await sendEvent("business_selected", opt, { businessType: opt });
-        } else if (step === 1) {
-            const isConsultation = opt.includes("choose") || opt.includes("اختيار") || opt.includes("المزايا") || opt.includes("benefits");
-            if (isConsultation) {
-                setStep(3);
-                await sendEvent("service_selected", opt, { selectedService: opt });
-            } else {
-                // Skip directly to CTA for services
-                setStep(10);
-                setOptions([]);
-                addMsg("assistant", dict.ctaText, true);
-                // Background sync
-                fetch("/api/chat", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        messages: [], lang,
-                        event: "service_selected",
-                        value: opt,
-                        leadData: { ...lead, selectedService: opt }
-                    }),
-                }).catch(() => { });
-            }
-        } else if (step === 3) {
-            setStep(10);
-            await sendEvent("goal_selected", opt, { goal: opt });
-        }
-    };
-
-    const sendMessage = async (override?: string) => {
-        const text = (override ?? input).trim();
-        if (!text || loading || converted) return;
-
-        if (!override) addMsg("user", text);
+    const sendMessage = async () => {
+        if (!input.trim() || step === 3 || loading) return;
+        const text = input.trim();
         setInput("");
+        addMsg("user", text);
         setLoading(true);
-        setOptions([]);
 
         try {
             const res = await fetch("/api/chat", {
@@ -243,191 +209,174 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
             const data = await res.json();
             if (res.ok) {
-                const isFinalCTA = data.options?.includes("__CTA__");
-                addMsg("assistant", data.reply, isFinalCTA);
-                if (isFinalCTA) {
-                    setOptions([]);
-                    setStep(10);
+                if (data.options?.includes("__CTA__") || step >= 2) {
+                    forceConversion(data.reply);
                 } else {
+                    addMsg("assistant", data.reply);
                     setOptions(data.options || []);
                 }
+            } else {
+                forceConversion();
             }
         } catch (e) {
-            addMsg("assistant", lang === 'ar' ? 'عفواً، واجهت مشكلة.' : 'Sorry, something went wrong.');
+            forceConversion();
         } finally {
             setLoading(false);
         }
     };
 
     const isRtl = lang === "ar";
-
     if (!mounted) return null;
 
     return (
         <>
-            {/* 1. PORTAL CONTENT: The actual Chat Modal */}
             <Portal>
-                {/* Fixed Root Wrapper - MUST BE pointer-events-none to prevent interception on page */}
-                <div className="fixed inset-0 z-[9999] pointer-events-none">
+                {/* Overlay Container */}
+                <div className={`fixed inset-0 z-[9999] pointer-events-none ${open ? 'visible' : 'invisible'}`}>
 
-                    {/* The Modal Window */}
+                    {/* The Modal */}
                     <div
                         dir={isRtl ? "rtl" : "ltr"}
-                        className={`absolute bottom-24 right-5 md:right-8 w-[400px] max-w-[calc(100vw-40px)] h-[600px] transition-all duration-500 ease-out 
-                            ${open ? 'opacity-100 translate-y-0 visible pointer-events-auto' : 'opacity-0 translate-y-5 invisible pointer-events-none'}`}
+                        className={`absolute bottom-24 right-5 md:right-8 w-[400px] max-w-[calc(100vw-40px)] h-[600px] transition-all duration-500 ease-out flex flex-col rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 bg-black/80 backdrop-blur-3xl 
+                            ${open ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'}`}
                     >
-                        {/* Visual Background Layer - STRICTLY pointer-events-none */}
-                        <div className="absolute inset-0 z-0 rounded-3xl border border-white/10 bg-black/80 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-none select-none" aria-hidden="true" />
-
-                        {/* Interactive Content Layer - Container must be absolute inset-0 to fill modal but pointer-events-none to let sub-elements decide */}
-                        <div className="absolute inset-0 z-10 flex flex-col h-full rounded-3xl pointer-events-none overflow-hidden">
-
-                            {/* Header */}
-                            <div className="flex items-center justify-between border-b border-white/5 px-6 py-4 bg-white/5 relative z-20 pointer-events-auto">
-                                <div className="flex items-center gap-4 pointer-events-none">
-                                    <div className="relative h-11 w-11 rounded-full overflow-hidden border border-white/10 ring-2 ring-indigo-500/20">
-                                        <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-sm font-bold text-white tracking-tight">ZIZO Assistant</h3>
-                                        <div className="flex items-center gap-1.5 text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-                                            {isRtl ? 'نشط الآن' : 'Active Now'}
-                                        </div>
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 bg-white/5 pointer-events-auto">
+                            <div className="flex items-center gap-3">
+                                <div className="relative h-10 w-10 rounded-full overflow-hidden border border-white/10 ring-2 ring-indigo-500/20">
+                                    <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-bold text-white tracking-tight">ZIZO Assistant</h3>
+                                    <div className="flex items-center gap-1.5 text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                                        {isRtl ? 'نشط الآن' : 'Active Now'}
                                     </div>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(false); }}
-                                    className="h-8 w-8 flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-all cursor-pointer pointer-events-auto relative z-30"
-                                >
-                                    <span className="text-lg">✕</span>
-                                </button>
                             </div>
-
-                            {/* Message History */}
-                            <div
-                                ref={listRef}
-                                className="flex-1 overflow-y-auto px-6 py-6 space-y-6 scroll-smooth pointer-events-auto relative z-10 overscroll-contain"
-                                style={{ pointerEvents: 'auto' }}
+                            <button
+                                onClick={() => setOpen(false)}
+                                className="h-8 w-8 flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-all"
                             >
-                                {messages.map((m) => (
-                                    <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2`}>
-                                        {m.isContactCard ? (
-                                            <div className="w-full max-w-[90%] bg-white/5 rounded-2xl p-4 border border-white/10 backdrop-blur-md shadow-lg relative z-20">
-                                                <p className="text-sm font-medium text-white/90 mb-5 whitespace-pre-line leading-relaxed">{m.content}</p>
-                                                <div className="space-y-3">
-                                                    <button
-                                                        type="button"
-                                                        onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCTA("whatsapp"); }}
-                                                        className="w-full flex items-center gap-4 bg-indigo-600/10 hover:bg-indigo-600/20 active:bg-indigo-600/30 border border-indigo-500/20 rounded-2xl p-3.5 transition-all group cursor-pointer pointer-events-auto relative z-30"
-                                                    >
-                                                        <div className="h-10 w-10 rounded-full overflow-hidden border border-white/20 flex-shrink-0 relative">
-                                                            <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
-                                                        </div>
-                                                        <div className="flex flex-col items-start gap-0.5">
-                                                            <span className="text-sm font-bold text-white">
-                                                                {dict.whatsapp}
-                                                            </span>
-                                                            <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Fast Response</span>
-                                                        </div>
-                                                        <div className="ms-auto h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-                                                    </button>
+                                <span className="text-xl">✕</span>
+                            </button>
+                        </div>
 
-                                                    <button
-                                                        type="button"
-                                                        onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCTA("email"); }}
-                                                        className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:bg-white/20 border border-white/10 rounded-2xl p-3.5 transition-all group cursor-pointer pointer-events-auto relative z-30"
-                                                    >
-                                                        <div className="h-10 w-10 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
-                                                            <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
-                                                        </div>
-                                                        <div className="flex flex-col items-start gap-0.5">
-                                                            <span className="text-sm font-bold text-white">
-                                                                {dict.email}
-                                                            </span>
-                                                            <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Official Inquiry</span>
-                                                        </div>
-                                                    </button>
-                                                </div>
+                        {/* Messages History */}
+                        <div
+                            ref={listRef}
+                            className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth overscroll-contain pointer-events-auto"
+                        >
+                            {messages.map((m) => (
+                                <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                                    {m.isContactCard ? (
+                                        <div className="w-full max-w-[90%] bg-indigo-600/5 rounded-3xl p-5 border border-indigo-500/20 backdrop-blur-md shadow-lg">
+                                            <p className="text-sm font-medium text-white/90 mb-6 leading-relaxed whitespace-pre-line">{m.content}</p>
+                                            <div className="space-y-3">
+                                                <button
+                                                    onPointerDown={() => handleCTA("whatsapp")}
+                                                    className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-2xl p-4 transition-all group"
+                                                >
+                                                    <div className="h-10 w-10 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
+                                                        <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
+                                                    </div>
+                                                    <div className="flex-1 text-start">
+                                                        <span className="text-sm font-bold text-white block">{dict.whatsapp}</span>
+                                                        <span className="text-[10px] text-white/30 uppercase tracking-widest leading-none">Instant Message</span>
+                                                    </div>
+                                                    <div className="h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                                                </button>
+
+                                                <button
+                                                    onPointerDown={() => handleCTA("email")}
+                                                    className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-2xl p-4 transition-all group"
+                                                >
+                                                    <div className="h-10 w-10 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
+                                                        <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
+                                                    </div>
+                                                    <div className="flex-1 text-start">
+                                                        <span className="text-sm font-bold text-white block">{dict.email}</span>
+                                                        <span className="text-[10px] text-white/30 uppercase tracking-widest leading-none">Official Inquiry</span>
+                                                    </div>
+                                                </button>
                                             </div>
-                                        ) : (
-                                            <div className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm leading-relaxed shadow-sm relative z-20 ${m.role === "user"
-                                                    ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-tr-none"
-                                                    : "bg-white/10 text-white/90 border border-white/5 rounded-tl-none backdrop-blur-md"
-                                                }`}>
-                                                {m.content}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                                {loading && (
-                                    <div className="flex justify-start">
-                                        <div className="bg-white/5 rounded-2xl rounded-tl-none px-4 py-2 text-indigo-400 text-[10px] font-bold tracking-widest uppercase animate-pulse">
-                                            {dict.typing}
                                         </div>
+                                    ) : (
+                                        <div className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed ${m.role === "user"
+                                                ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-tr-none shadow-indigo-500/20 shadow-lg"
+                                                : "bg-white/10 text-white/90 border border-white/5 rounded-tl-none backdrop-blur-md"
+                                            }`}>
+                                            {m.content}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            {loading && (
+                                <div className="flex justify-start">
+                                    <div className="bg-white/5 rounded-2xl px-4 py-2 text-indigo-400 text-[10px] font-bold tracking-widest uppercase animate-pulse">
+                                        {dict.typing}
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
+                        </div>
 
-                            {/* Interaction Zone: Option Chips & Input */}
-                            <div className="p-6 bg-gradient-to-t from-black/80 to-transparent border-t border-white/5 relative z-50 pointer-events-auto">
-                                <div className="flex flex-wrap gap-2 mb-6 pointer-events-auto">
+                        {/* Interactive Footer */}
+                        <div className="p-6 bg-gradient-to-t from-black/60 to-transparent border-t border-white/5 pointer-events-auto">
+                            {options.length > 0 && step < 3 && (
+                                <div className="flex flex-wrap gap-2 mb-6">
                                     {options.map((opt) => (
                                         <button
                                             key={opt}
-                                            type="button"
-                                            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleOption(opt); }}
-                                            className="rounded-full bg-white/10 px-5 py-2.5 text-xs font-semibold text-white/80 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-purple-600 hover:text-white hover:scale-105 transition-all border border-white/10 active:scale-95 cursor-pointer pointer-events-auto relative z-[60]"
+                                            onPointerDown={() => handleOption(opt)}
+                                            className="rounded-full bg-indigo-500/10 px-5 py-2.5 text-xs font-semibold text-white/80 hover:bg-indigo-600 hover:text-white hover:scale-105 active:scale-95 transition-all border border-indigo-500/20 active:bg-indigo-700"
                                         >
                                             {opt}
                                         </button>
                                     ))}
                                 </div>
+                            )}
 
-                                {!converted && (
-                                    <div className="relative flex items-center gap-3 pointer-events-auto">
-                                        <input
-                                            value={input}
-                                            onChange={(e) => setInput(e.target.value)}
-                                            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                                            placeholder={dict.placeholder}
-                                            className="flex-1 h-12 rounded-2xl border border-white/5 bg-white/10 px-5 text-sm text-white placeholder:text-white/20 focus:border-indigo-500/50 outline-none transition-all pointer-events-auto relative z-[60]"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); sendMessage(); }}
-                                            disabled={loading || !input.trim()}
-                                            className="h-12 w-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-20 disabled:grayscale cursor-pointer pointer-events-auto relative z-[60]"
-                                        >
-                                            <span className={`text-lg transition-transform ${isRtl ? 'rotate-180' : ''}`}>➤</span>
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                            {step < 3 ? (
+                                <div className="relative flex items-center gap-3">
+                                    <input
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                                        placeholder={dict.placeholder}
+                                        className="flex-1 h-12 rounded-2xl border border-white/5 bg-white/5 px-5 text-sm text-white placeholder:text-white/20 focus:border-indigo-500/50 outline-none transition-all"
+                                    />
+                                    <button
+                                        onClick={sendMessage}
+                                        disabled={loading || !input.trim()}
+                                        className="h-12 w-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:grayscale disabled:opacity-30"
+                                    >
+                                        <Send size={18} className={isRtl ? 'rotate-180' : ''} />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="h-12 flex items-center justify-center rounded-2xl bg-indigo-500/5 border border-indigo-500/20 text-[10px] uppercase tracking-widest font-bold text-indigo-300 pointer-events-none opacity-60">
+                                    Conversation Closed • Use CTA above
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </Portal>
 
-            {/* 2. TRIGGER BUTTON */}
+            {/* Float Trigger */}
             <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(!open); }}
-                className="fixed bottom-6 right-6 z-[10000] h-18 w-18 md:h-20 md:w-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-[0_10px_40px_rgba(99,102,241,0.4)] hover:scale-110 hover:shadow-[0_15px_50px_rgba(99,102,241,0.6)] active:scale-90 transition-all duration-500 flex items-center justify-center group overflow-hidden cursor-pointer pointer-events-auto"
+                onClick={() => setOpen(!open)}
+                className="fixed bottom-6 right-6 z-[10000] h-18 w-18 md:h-20 md:w-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-2xl hover:scale-110 active:scale-90 transition-all flex items-center justify-center group overflow-hidden"
             >
                 {open ? (
                     <span className="text-2xl font-light">✕</span>
                 ) : (
-                    <div className="relative h-full w-full flex items-center justify-center pointer-events-none">
-                        <div className="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors" />
-                        <div className="relative h-[70%] w-[70%] rounded-full overflow-hidden border-2 border-white/20 group-hover:border-white/50 transition-all">
+                    <div className="relative h-full w-full flex items-center justify-center">
+                        <div className="absolute inset-0 bg-white/5 group-hover:bg-transparent transition-colors" />
+                        <div className="relative h-[70%] w-[70%] rounded-full overflow-hidden border-2 border-white/20">
                             <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
                         </div>
                     </div>
-                )}
-                {!open && messages.length === 0 && !converted && (
-                    <span className="absolute top-2 right-2 h-4 w-4 bg-red-500 rounded-full border-2 border-black animate-bounce" />
                 )}
             </button>
         </>

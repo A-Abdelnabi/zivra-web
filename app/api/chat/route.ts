@@ -13,161 +13,105 @@ type Msg = { role: Role; content: string };
 function normalizeMessages(incoming: any): Msg[] {
     const arr = Array.isArray(incoming) ? incoming : [];
     return arr
-        .filter(
-            (m) =>
-                m &&
-                (m.role === "user" || m.role === "assistant") &&
-                typeof m.content === "string"
-        )
+        .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
         .map((m) => ({ role: m.role as Role, content: String(m.content) }))
-        .slice(-10);
-}
-
-async function sendLead(data: any) {
-    const webhookUrl = process.env.LEADS_WEBHOOK_URL;
-    if (!webhookUrl) return;
-    try {
-        await fetch(webhookUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
-    } catch (e) {
-        console.error("Lead webhook error:", e);
-    }
+        .slice(-6); // Very short context for speed and focused flow
 }
 
 export async function POST(req: Request) {
     try {
         if (!process.env.OPENAI_API_KEY) {
-            return NextResponse.json({ error: "Missing OPENAI_API_KEY" }, { status: 500 });
+            return NextResponse.json({ error: "Missing API Key" }, { status: 500 });
         }
 
         const body = await req.json().catch(() => ({}));
         const incoming = normalizeMessages(body?.messages);
         const lang = body?.lang === 'ar' ? 'ar' : 'en';
-
-        if (body.leadData) {
-            const lastMsg = incoming.length > 0 ? incoming[incoming.length - 1].content.toLowerCase() : "";
-            await sendLead({
-                ...body.leadData,
-                lastUserMessage: body.leadData.lastUserMessage || lastMsg,
-                timestamp: new Date().toISOString(),
-                lang: lang,
-                source: "ZIVRA Website Chat"
-            });
-            if (incoming.length === 0) {
-                return NextResponse.json({ success: true });
-            }
-        }
+        const step = body?.leadData?.currentStep || 0;
 
         // =========================
-        // ✅ Strict Event Navigation
+        // ✅ Rule 1: No long loops. Immediate Chip Responses.
         // =========================
         if (body.event) {
             const ev = body.event;
             const val = body.value;
 
+            // Step 0 -> 1 (Business selected)
             if (ev === "business_selected") {
                 return NextResponse.json({
                     reply: lang === "ar"
-                        ? "تمام. هذه خدماتنا - اختر اللي تبدأ فيه، أو حاب نساعدك تختار الأنسب لنشاطك؟"
-                        : "Perfect. Here are our main services - pick one to start with, or would you like us to help you choose?",
+                        ? "تمام. أي خدمة تحتاج نركز عليها؟ أو حاب نختار لك الأنسب؟"
+                        : "Got it. Which service should we focus on? Or would you like a recommendation?",
                     options: lang === "ar"
-                        ? ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth", "ساعدوني في الاختيار"]
-                        : ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth", "Help me choose"]
+                        ? ["Website / Apps", "AI Chatbot", "Automation", "ساعدوني في الاختيار"]
+                        : ["Website / Apps", "AI Chatbot", "Automation", "Help me choose"]
                 });
             }
 
+            // Step 1 -> 2 (Service/Consultation selected)
             if (ev === "service_selected") {
-                const isConsultation = val.includes("choose") || val.includes("اختيار") || val.includes("benefits") || val.includes("المزايا");
-                if (isConsultation) {
-                    return NextResponse.json({
-                        reply: lang === "ar" ? "وش أهم هدف تبي تحققه الحين؟" : "What is your primary goal right now?",
-                        options: lang === "ar"
-                            ? ["زيادة مبيعات", "توفير وقت / أتمتة", "خدمة عملاء رد آلي", "إطلاق مشروع جديد"]
-                            : ["Increase sales", "Save time / Automate", "Automated support", "Launch new project"]
-                    });
-                } else {
-                    // This case is handled in frontend now (direct CTA), but fallback here
-                    return NextResponse.json({
-                        reply: lang === "ar"
-                            ? "تمام 👍 أسرع طريقة نخدمك بشكل مضبوط هي إنك تتواصل معنا مباشرة.\nاختَر اللي يناسبك:"
-                            : "Perfect 👍 The fastest way to help you properly is to get contacted directly.\nPlease choose what works best for you:",
-                        options: ["__CTA__"]
-                    });
-                }
-            }
-
-            if (ev === "goal_selected") {
                 return NextResponse.json({
                     reply: lang === "ar"
-                        ? "تمام 👍 أسرع طريقة نخدمك بشكل مضبوط هي إنك تتواصل معنا مباشرة.\nاختَر اللي يناسبك:"
-                        : "Perfect 👍 The fastest way to help you properly is to get contacted directly.\nPlease choose what works best for you:",
-                    options: ["__CTA__"]
+                        ? "ممتاز 👍 وش هدفك الأساسي؟ مبيعات أكثر، توفير وقت، أو رد آلي؟"
+                        : "Great choice 👍 What is your main goal? More sales, saving time, or automated support?",
+                    options: lang === "ar"
+                        ? ["زيادة مبيعات", "توفير وقت", "رد آلي", "إطلاق مشروع"]
+                        : ["Increase sales", "Save time", "Automated support", "New project"]
                 });
             }
         }
 
         // =========================
-        // ✅ ZIZO AI (Concise Sales Assistant)
+        // ✅ Rule 2: AI as a Closer.
         // =========================
         let systemPrompt = "";
         if (lang === "ar") {
             systemPrompt = `
-أنت (زيزو - ZIZO)، خبير في ZIVRA.
-هدفك: تحويل الزوار لعملاء عبر الواتساب بأسرع وقت.
-اللغة: خليجي/سعودي أبيض (Urban Saudi). قصير جداً ومباشر.
-لا تكرر الكلام. بمجرد ما يفهم العميل الخدمة، وجهه واتساب.
+أنت (زيزو - ZIZO)، خبير في ZIVRA. 
+مهمتك: مساعدة العميل خلال "خطوة واحدة" فقط لمساعدته على اختيار الخدمة، ثم إغلاق المحادثة وتوجيهه للواتساب.
 
-الخدمات: Website, Web App, AI Chatbot, Automation (n8n), Lead Follow-up, Social Growth.
-
-إذا سأل العميل "وش تقدمون" أو "وش الفوائد":
-1. اعط فوائد قوية (3-4 نقاط).
-2. انته دائماً بطلب التواصل واتساب.
-
-رابط الواتساب: https://wa.me/358401604442
+⚠️ شروط صارمة:
+1. ردودك لا تتعدى سطرين.
+2. لا تشرح بالتفصيل. اذكر الفائدة النهائية فقط.
+3. بمجرد أن يذكر العميل اهتمامه، قل له "هذا تخصصنا، تواصل معنا واتساب عشان نعطيك الخطة المناسبة".
+4. المخرجات دائماً JSON.
 `;
         } else {
             systemPrompt = `
-You are (ZIZO), a sales architect at ZIVRA.
-Goal: Convert visitors to WhatsApp leads ASAP.
-Tone: Professional SaaS expert, very concise, outcome-focused.
-Do not provide long explanations. Once the value is clear, push to WhatsApp.
+You are (ZIZO), a sales strategist at ZIVRA.
+Objective: Guide the user in ONE turn to clarify their need, then push to WhatsApp to close.
 
-Services: Website, Web App, AI Chatbot, Automation (n8n), Lead Follow-up, Social Growth.
-
-If visitor asks "what do you do" or "benefits":
-1. Provide 3-4 punchy outcome-driven bullets.
-2. Always end with a WhatsApp contact offer.
-
-WhatsApp: https://wa.me/358401604442
+⚠️ Strict Rules:
+1. Max 2 short sentences.
+2. No long lists. Focus on the outcome/ROI.
+3. As soon as the user indicates interest or a problem, say: "We specialize in this. Let's talk on WhatsApp to finalize your plan."
+4. Always output JSON.
 `;
         }
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
-            temperature: 0.3,
+            temperature: 0.2,
             response_format: { type: "json_object" },
             messages: [
-                { role: "system", content: systemPrompt.trim() + "\n\nOutput JSON: {\"reply\": string, \"suggested_options\": string[]}" },
+                { role: "system", content: systemPrompt.trim() + "\n\nJSON Format: {\"reply\": string, \"suggested_options\": string[]}" },
                 ...incoming,
             ],
-            max_tokens: 300,
+            max_tokens: 150,
         });
 
         const parsed = JSON.parse(completion.choices?.[0]?.message?.content || "{}");
-        // Force CTA if intent is clear
         const lowerReply = parsed.reply?.toLowerCase() || "";
-        const needsCTA = lowerReply.includes("wa.me") || lowerReply.includes("contact") || lowerReply.includes("تواصل") || lowerReply.includes("واتساب");
+
+        // Final State Check
+        const isClosing = step >= 2 || lowerReply.includes("whatsapp") || lowerReply.includes("contact") || lowerReply.includes("تواصل") || lowerReply.includes("واتساب");
 
         return NextResponse.json({
             reply: parsed.reply,
-            options: needsCTA ? ["__CTA__"] : (parsed.suggested_options || []),
+            options: isClosing ? ["__CTA__"] : (parsed.suggested_options || []),
         });
 
     } catch (error: any) {
-        console.error("Zivra API error:", error);
-        return NextResponse.json({ error: "AI error" }, { status: 500 });
+        return NextResponse.json({ reply: "Service error. Please contact directly.", options: ["__CTA__"] });
     }
 }
