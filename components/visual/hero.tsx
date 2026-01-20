@@ -6,10 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Bot, ChevronRight } from 'lucide-react';
 import { Locale, Dictionary } from '@/lib/i18n';
 import { motion } from 'framer-motion';
+import { EnergyField } from '@/components/motion/EnergyField';
 
 export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     return (
         <section className="relative pt-32 pb-24 md:pt-48 md:pb-32 overflow-hidden hero-bg-animate">
+            <EnergyField intensity="low" variant="hero" />
+
             {/* Logo as Central Light Source */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[800px] md:h-[800px] z-0 pointer-events-none">
                 {/* Purple Bloom / Glow */}
