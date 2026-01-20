@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Locale } from "@/lib/i18n";
-import { Send } from "lucide-react";
+import { Send, RefreshCw } from "lucide-react";
 import Portal from "@/components/ui/Portal";
 
 type Role = "user" | "assistant";
@@ -16,90 +16,155 @@ type Msg = {
     isContactCard?: boolean;
 };
 
-type ChatStep = 0 | 1 | 2;
+type ChatStep = "BUSINESS" | "SERVICE" | "CONTACT" | "DONE";
 
 type LeadData = {
-    businessType?: string;
-    goal?: string;
+    businessType?: string | null;
+    serviceInterest?: string | null;
+    conversationId: string;
 };
 
-function getChatDict(lang: Lang) {
+const BIZ_OPTIONS = {
+    en: [
+        "Restaurant / Café",
+        "Clinic / Medical",
+        "Hotel / Tourism",
+        "Service Business",
+        "E-commerce",
+        "Startup / SaaS",
+        "Other",
+        "I need help"
+    ],
+    ar: [
+        "مطعم / كافيه",
+        "عيادة / طبي",
+        "فندق / سياحة",
+        "شركة خدمات",
+        "متجر إلكتروني",
+        "شركة تقنية / SaaS",
+        "أخرى",
+        "محتاج مساعدة"
+    ]
+};
+
+const SERVICE_MAPPING: Record<string, { en: string[], ar: string[] }> = {
+    "Restaurant / Café": {
+        en: ["Ordering chatbot", "WhatsApp automation", "Website/Menu", "Marketing"],
+        ar: ["شات بوت للطلبات", "أتمتة واتساب", "موقع/منيو", "تسويق"]
+    },
+    "مطعم / كافيه": {
+        en: ["Ordering chatbot", "WhatsApp automation", "Website/Menu", "Marketing"],
+        ar: ["شات بوت للطلبات", "أتمتة واتساب", "موقع/منيو", "تسويق"]
+    },
+    "Clinic / Medical": {
+        en: ["Appointment chatbot", "Lead follow-up", "Website/Landing", "WhatsApp reminders"],
+        ar: ["شات بوت للحجوزات", "متابعة العملاء", "موقع/صفحة هبوط", "تذكير واتساب"]
+    },
+    "عيادة / طبي": {
+        en: ["Appointment chatbot", "Lead follow-up", "Website/Landing", "WhatsApp reminders"],
+        ar: ["شات بوت للحجوزات", "متابعة العملاء", "موقع/صفحة هبوط", "تذكير واتساب"]
+    },
+    "Hotel / Tourism": {
+        en: ["Booking chatbot", "Website", "Automation", "Marketing"],
+        ar: ["شات بوت للحجز", "موقع", "أتمتة", "تسويق"]
+    },
+    "فندق / سياحة": {
+        en: ["Booking chatbot", "Website", "Automation", "Marketing"],
+        ar: ["شات بوت للحجز", "موقع", "أتمتة", "تسويق"]
+    },
+    "Service Business": {
+        en: ["Lead capture", "Website", "Automation", "Marketing"],
+        ar: ["جمع عملاء", "موقع", "أتمتة", "تسويق"]
+    },
+    "شركة خدمات": {
+        en: ["Lead capture", "Website", "Automation", "Marketing"],
+        ar: ["جمع عملاء", "موقع", "أتمتة", "تسويق"]
+    },
+    "E-commerce": {
+        en: ["Support chatbot", "WhatsApp automation", "Website", "Marketing"],
+        ar: ["شات بوت دعم", "أتمتة واتساب", "موقع", "تسويق"]
+    },
+    "متجر إلكتروني": {
+        en: ["Support chatbot", "WhatsApp automation", "Website", "Marketing"],
+        ar: ["شات بوت دعم", "أتمتة واتساب", "موقع", "تسويق"]
+    },
+    "Startup / SaaS": {
+        en: ["Product website", "Automation", "AI assistant", "Integrations"],
+        ar: ["موقع للمنتج", "أتمتة", "مساعد AI", "تكاملات"]
+    },
+    "شركة تقنية / SaaS": {
+        en: ["Product website", "Automation", "AI assistant", "Integrations"],
+        ar: ["موقع للمنتج", "أتمتة", "مساعد AI", "تكاملات"]
+    },
+    "Other": {
+        en: ["Website", "Automation", "Marketing", "Custom system"],
+        ar: ["موقع", "أتمتة", "تسويق", "نظام مخصص"]
+    },
+    "أخرى": {
+        en: ["Website", "Automation", "Marketing", "Custom system"],
+        ar: ["موقع", "أتمتة", "تسويق", "نظام مخصص"]
+    }
+};
+
+function getDict(lang: Lang) {
     if (lang === "ar") {
         return {
-            step0: "هلا 👋 أنا مساعد ZIZO. وش نوع نشاطك التجاري؟",
+            title: "مساعد مبيعات ZIZO",
+            reset: "إعادة تعيين",
+            step1: "أهلًا 👋 نوع نشاطك إيه؟",
+            step2: "تمام. محتاج إيه دلوقتي؟",
+            step3: "تمام 👍 اختار أسرع طريقة للتواصل:",
             placeholder: "اكتب هنا...",
             typing: "جاري الكتابة...",
-            bizTypes: ["مطعم / كافيه", "عيادة / طبي", "فندق / سياحة", "شركة خدمات", "متجر إلكتروني", "مشروع جديد"],
-            goalPrompt: "ممتاز. وش هدفك الأساسي؟",
-            goals: ["زيادة مبيعات", "توفير وقت", "رد آلي", "إطلاق مشروع"],
-            ctaText: "تمام 👍 أسرع طريقة نخدمك بشكل مضبوط هي التواصل المباشر.\nاختَر اللي يناسبك:",
             whatsapp: "واتساب",
             email: "إيميل",
-            whatsappSub: "رد سريع",
-            emailSub: "عرض رسمي",
-            closed: "تم إنهاء المحادثة"
+            closed: "تم إنهاء المحادثة",
+            other: "أخرى",
+            help: "محتاج مساعدة"
         };
     }
-
     return {
-        step0: "Hi 👋 I'm ZIZO. What type of business do you run?",
+        title: "ZIZO Sales Assistant",
+        reset: "Reset chat",
+        step1: "Hi 👋 What type of business do you run?",
+        step2: "Great. What do you need right now?",
+        step3: "Perfect 👍 Choose the fastest way to reach us:",
         placeholder: "Type here...",
         typing: "ZIZO is typing...",
-        bizTypes: ["Restaurant / Café", "Clinic / Medical", "Hotel / Tourism", "Service Business", "E-commerce", "New Project"],
-        goalPrompt: "Great. What's your main goal?",
-        goals: ["Increase sales", "Save time", "Automated support", "Launch project"],
-        ctaText: "Perfect 👍 The fastest way to help you is direct contact.\nChoose what works best:",
         whatsapp: "WhatsApp",
         email: "Email",
-        whatsappSub: "Fast Response",
-        emailSub: "Official Quote",
-        closed: "Conversation Finished"
+        closed: "Conversation Finished",
+        other: "Other",
+        help: "I need help"
     };
 }
 
-// Helper to clear all chat storage
-function clearChatStorage() {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem("zv_sales_lead");
-    localStorage.removeItem("zv_sales_msgs");
-    localStorage.removeItem("zv_sales_step");
-}
-
 export default function ChatWidget({ locale }: { locale: Locale }) {
+    const lang: Lang = (locale as Lang) || "en";
+    const dict = getDict(lang);
+
     const [open, setOpen] = React.useState(false);
     const [mounted, setMounted] = React.useState(false);
-    const lang: Lang = (locale as Lang) || "en";
-    const dict = getChatDict(lang);
-
     const [messages, setMessages] = React.useState<Msg[]>([]);
+    const [step, setStep] = React.useState<ChatStep>("BUSINESS");
+    const [lead, setLead] = React.useState<LeadData>({ conversationId: "" });
     const [options, setOptions] = React.useState<string[]>([]);
-    const [loading, setLoading] = React.useState(false);
     const [input, setInput] = React.useState("");
-    const [lead, setLead] = React.useState<LeadData>({});
-    const [step, setStep] = React.useState<ChatStep>(0);
 
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
-    // Reset chat when locale changes
+    // Initial session setup - ALWAYS START FRESH ON RELOAD/REMOUNT
     React.useEffect(() => {
-        clearChatStorage();
-        setOpen(false);
-        setMessages([]);
-        setOptions([]);
-        setLoading(false);
-        setInput("");
-        setLead({});
-        setStep(0);
+        const conversationId = crypto.randomUUID();
+        setLead({ conversationId });
+        setMessages([{ id: "init", role: "assistant", content: dict.step1 }]);
+        setOptions(BIZ_OPTIONS[lang]);
+        setStep("BUSINESS");
         setMounted(true);
-    }, [locale]);
 
-    // Initial state setup
-    React.useEffect(() => {
-        if (mounted && messages.length === 0) {
-            setMessages([{ id: "init", role: "assistant", content: dict.step0 }]);
-            setOptions(dict.bizTypes);
-        }
-    }, [mounted, messages.length, dict.step0, dict.bizTypes]);
+        // Save locale preference
+        localStorage.setItem("zivra_locale", lang);
+    }, [locale, lang, dict.step1]);
 
     // Body scroll lock
     React.useEffect(() => {
@@ -109,60 +174,87 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         }
     }, [open]);
 
-    // Persistence (only save, don't restore to avoid stale state)
-    React.useEffect(() => {
-        if (mounted && messages.length > 0) {
-            localStorage.setItem("zv_sales_lead", JSON.stringify(lead));
-            localStorage.setItem("zv_sales_msgs", JSON.stringify(messages));
-            localStorage.setItem("zv_sales_step", step.toString());
-        }
-    }, [lead, messages, step, mounted]);
-
     // Auto-scroll
     React.useEffect(() => {
         if (listRef.current) {
             listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
         }
-    }, [messages, loading]);
+    }, [messages, open]);
 
     const addMsg = (role: Role, content: string, isContactCard: boolean = false) => {
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content, isContactCard }]);
     };
 
-    const forceConversion = () => {
-        setStep(2);
-        setOptions([]);
-        setLoading(false);
-        addMsg("assistant", dict.ctaText, true);
+    const handleReset = (e?: React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        const conversationId = crypto.randomUUID();
+        setLead({ conversationId });
+        setMessages([{ id: crypto.randomUUID(), role: "assistant", content: dict.step1 }]);
+        setOptions(BIZ_OPTIONS[lang]);
+        setStep("BUSINESS");
+        setInput("");
     };
 
-    const handleOption = (opt: string) => {
-        if (step === 2 || loading) return;
-
-        addMsg("user", opt);
-        setLoading(true);
-        setOptions([]);
-
-        if (step === 0) {
-            // Business type selected
-            setLead(prev => ({ ...prev, businessType: opt }));
-            setTimeout(() => {
-                setStep(1);
-                addMsg("assistant", dict.goalPrompt);
-                setOptions(dict.goals);
-                setLoading(false);
-            }, 500);
-        } else if (step === 1) {
-            // Goal selected - go straight to conversion
-            setLead(prev => ({ ...prev, goal: opt }));
-            setTimeout(() => {
-                forceConversion();
-            }, 500);
+    const logEvent = async (eventName: string, payload: any) => {
+        try {
+            await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ event: eventName, payload: { ...payload, conversationId: lead.conversationId, locale: lang, timestamp: new Date().toISOString(), pageUrl: window.location.href } }),
+            });
+        } catch (e) {
+            console.error("Failed to log event", e);
         }
     };
 
-    const handleCTA = (method: "whatsapp" | "email") => {
-        if (method === "whatsapp") {
+    const handleOption = (e: React.MouseEvent, opt: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (step === "DONE") return;
+
+        addMsg("user", opt);
+        setOptions([]);
+
+        const isHelp = opt === dict.help;
+
+        if (step === "BUSINESS") {
+            if (isHelp) {
+                setStep("CONTACT");
+                setTimeout(() => addMsg("assistant", dict.step3, true), 300);
+            } else {
+                setLead(prev => ({ ...prev, businessType: opt }));
+                setStep("SERVICE");
+                const nextOptions = SERVICE_MAPPING[opt]?.[lang] || SERVICE_MAPPING["Other"][lang];
+                // Add "I need help" to every service step
+                const finalOptions = [...nextOptions, dict.help];
+                setTimeout(() => {
+                    addMsg("assistant", dict.step2);
+                    setOptions(finalOptions);
+                }, 300);
+            }
+        } else if (step === "SERVICE") {
+            setLead(prev => ({ ...prev, serviceInterest: opt }));
+            setStep("CONTACT");
+            setTimeout(() => addMsg("assistant", dict.step3, true), 300);
+        }
+    };
+
+    const handleCTA = async (e: React.MouseEvent, channel: "whatsapp" | "email") => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        await logEvent("contact_click", {
+            selectedBusiness: lead.businessType,
+            selectedService: lead.serviceInterest,
+            channel
+        });
+
+        setStep("DONE");
+
+        if (channel === "whatsapp") {
             window.open("https://wa.me/358401604442", "_blank");
         } else {
             window.location.href = "mailto:hello@zivra.dev";
@@ -170,15 +262,14 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
     };
 
     const sendMessage = () => {
-        if (!input.trim() || step === 2 || loading) return;
+        if (!input.trim() || step === "DONE") return;
         const text = input.trim();
         setInput("");
         addMsg("user", text);
 
-        // For any free-form input, just move to conversion
-        setTimeout(() => {
-            forceConversion();
-        }, 800);
+        // Manual entry immediately forces contact to avoid AI rambling
+        setStep("CONTACT");
+        setTimeout(() => addMsg("assistant", dict.step3, true), 600);
     };
 
     const isRtl = lang === "ar";
@@ -187,37 +278,40 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
     return (
         <>
             <Portal>
-                {/* Root container - always mounted, visibility controlled by CSS */}
+                {/* Overlay layer - fixed inset-0 z-[9999] pointer-events-none */}
                 <div
-                    className={`fixed inset-0 z-[9999] pointer-events-none transition-opacity duration-300 ${open ? 'opacity-100 visible' : 'opacity-0 invisible'
+                    className={`fixed inset-0 z-[9999] pointer-events-none transition-all duration-300 ${open ? 'visible opacity-100' : 'invisible opacity-0'
                         }`}
                 >
-                    {/* Modal Window */}
+                    {/* Modal window - pointer-events-auto */}
                     <div
                         dir={isRtl ? "rtl" : "ltr"}
-                        className={`absolute bottom-24 ${isRtl ? 'left-5 md:left-8' : 'right-5 md:right-8'} w-[400px] max-w-[calc(100vw-40px)] h-[600px] transition-all duration-500 ease-out flex flex-col rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 bg-black/80 backdrop-blur-3xl pointer-events-auto ${open ? 'translate-y-0' : 'translate-y-5'
+                        className={`absolute bottom-24 ${isRtl ? 'left-5 md:left-8' : 'right-5 md:right-8'} w-[400px] max-w-[calc(100vw-40px)] h-[600px] flex flex-col rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 bg-black/80 backdrop-blur-3xl pointer-events-auto transition-transform duration-500 ease-out ${open ? 'translate-y-0' : 'translate-y-5'
                             }`}
+                        style={{ pointerEvents: open ? 'auto' : 'none' }}
                     >
-                        {/* Decorative background - pointer-events-none */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 pointer-events-none" aria-hidden="true" />
-
-                        {/* Content wrapper - pointer-events-auto */}
-                        <div className="relative z-10 flex flex-col h-full pointer-events-auto">
+                        {/* Interactive Area */}
+                        <div className="relative z-20 flex flex-col h-full">
                             {/* Header */}
                             <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 bg-white/5">
                                 <div className="flex items-center gap-3">
-                                    <div className="relative h-10 w-10 rounded-full overflow-hidden border border-white/10 ring-2 ring-indigo-500/20">
+                                    <div className="relative h-10 w-10 rounded-full overflow-hidden border border-white/10">
                                         <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <h3 className="text-sm font-bold text-white tracking-tight leading-none">ZIZO</h3>
-                                        <span className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mt-1">
-                                            {isRtl ? 'مساعد مبيعات' : 'Sales Assistant'}
-                                        </span>
+                                        <h3 className="text-sm font-bold text-white tracking-tight leading-none">{dict.title}</h3>
+                                        <button
+                                            onClick={handleReset}
+                                            className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mt-1 hover:text-indigo-300 flex items-center gap-1 transition-colors"
+                                            type="button"
+                                        >
+                                            <RefreshCw size={10} />
+                                            {dict.reset}
+                                        </button>
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => setOpen(false)}
+                                    onClick={(e) => { e.preventDefault(); setOpen(false); }}
                                     className="h-9 w-9 flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-all"
                                     type="button"
                                 >
@@ -225,7 +319,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                 </button>
                             </div>
 
-                            {/* Messages */}
+                            {/* Messages History */}
                             <div
                                 ref={listRef}
                                 className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth overscroll-contain"
@@ -233,35 +327,37 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                 {messages.map((m) => (
                                     <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                                         {m.isContactCard ? (
-                                            <div className="w-full max-w-[90%] bg-indigo-600/10 rounded-3xl p-6 border-2 border-indigo-500/30 backdrop-blur-md shadow-2xl">
-                                                <p className="text-sm font-bold text-white mb-6 leading-relaxed whitespace-pre-line">{m.content}</p>
+                                            <div className="w-full max-w-[90%] bg-indigo-600/10 rounded-3xl p-5 border border-indigo-500/30 backdrop-blur-md shadow-2xl">
+                                                <p className="text-sm font-bold text-white mb-5 leading-relaxed">{m.content}</p>
                                                 <div className="space-y-3">
                                                     <button
-                                                        onClick={() => handleCTA("whatsapp")}
+                                                        onClick={(e) => handleCTA(e, "whatsapp")}
                                                         type="button"
-                                                        className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-2xl p-4 transition-all"
+                                                        className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-2xl p-4 transition-all group"
                                                     >
-                                                        <div className="h-11 w-11 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
-                                                            <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
+                                                        <div className="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                                                            <div className="relative h-6 w-6">
+                                                                <Image src="/images/zivra-logo.jpg" alt="" fill className="object-contain" />
+                                                            </div>
                                                         </div>
                                                         <div className="flex-1 text-start">
                                                             <span className="text-sm font-black text-white block uppercase tracking-wide">{dict.whatsapp}</span>
-                                                            <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">{dict.whatsappSub}</span>
                                                         </div>
-                                                        <div className="h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,1)]" />
+                                                        <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_10px_rgba(99,102,241,1)]" />
                                                     </button>
 
                                                     <button
-                                                        onClick={() => handleCTA("email")}
+                                                        onClick={(e) => handleCTA(e, "email")}
                                                         type="button"
-                                                        className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-2xl p-4 transition-all"
+                                                        className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-2xl p-4 transition-all group"
                                                     >
-                                                        <div className="h-11 w-11 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
-                                                            <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
+                                                        <div className="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                                                            <div className="relative h-6 w-6">
+                                                                <Image src="/images/zivra-logo.jpg" alt="" fill className="object-contain opacity-50" />
+                                                            </div>
                                                         </div>
                                                         <div className="flex-1 text-start">
                                                             <span className="text-sm font-black text-white block uppercase tracking-wide">{dict.email}</span>
-                                                            <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">{dict.emailSub}</span>
                                                         </div>
                                                     </button>
                                                 </div>
@@ -276,25 +372,21 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                         )}
                                     </div>
                                 ))}
-                                {loading && (
-                                    <div className="flex justify-start">
-                                        <div className="bg-white/5 rounded-2xl px-4 py-2 text-indigo-400 text-[10px] font-black tracking-widest uppercase animate-pulse">
-                                            {dict.typing}
-                                        </div>
-                                    </div>
-                                )}
                             </div>
 
-                            {/* Footer */}
+                            {/* Options & Input */}
                             <div className="p-6 bg-gradient-to-t from-black/80 to-transparent border-t border-white/5">
-                                {options.length > 0 && step < 2 && (
+                                {options.length > 0 && step !== "DONE" && (
                                     <div className="flex flex-wrap gap-2 mb-6 animate-in fade-in slide-in-from-bottom-2">
                                         {options.map((opt) => (
                                             <button
                                                 key={opt}
-                                                onClick={() => handleOption(opt)}
+                                                onClick={(e) => handleOption(e, opt)}
                                                 type="button"
-                                                className="rounded-full bg-indigo-500/20 px-5 py-3 text-xs font-black text-white hover:bg-indigo-600 hover:scale-105 active:scale-95 transition-all border border-indigo-500/30"
+                                                className={`rounded-full px-5 py-3 text-xs font-black transition-all border ${opt === dict.help
+                                                        ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20'
+                                                        : 'bg-indigo-500/20 text-white border-indigo-500/30 hover:bg-indigo-600'
+                                                    }`}
                                             >
                                                 {opt}
                                             </button>
@@ -302,7 +394,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                     </div>
                                 )}
 
-                                {step < 2 ? (
+                                {step !== "DONE" ? (
                                     <div className="relative flex items-center gap-3">
                                         <input
                                             value={input}
@@ -313,8 +405,8 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                             type="text"
                                         />
                                         <button
-                                            onClick={sendMessage}
-                                            disabled={loading || !input.trim()}
+                                            onClick={(e) => { e.preventDefault(); sendMessage(); }}
+                                            disabled={!input.trim()}
                                             type="button"
                                             className="h-12 w-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-20"
                                         >
@@ -328,13 +420,16 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                 )}
                             </div>
                         </div>
+
+                        {/* Stacking Context Safeguard - Bottom decoration */}
+                        <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-br from-indigo-500/5 to-transparent shadow-inner" aria-hidden="true" />
                     </div>
                 </div>
             </Portal>
 
-            {/* Trigger Button */}
+            {/* Float Trigger */}
             <button
-                onClick={() => setOpen(!open)}
+                onClick={(e) => { e.preventDefault(); setOpen(!open); }}
                 type="button"
                 className="fixed bottom-6 right-6 z-[10000] h-18 w-18 md:h-20 md:w-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-2xl hover:scale-110 active:scale-90 transition-all flex items-center justify-center group overflow-hidden pointer-events-auto"
             >
@@ -342,8 +437,8 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                     <span className="text-2xl font-light">✕</span>
                 ) : (
                     <div className="relative h-full w-full flex items-center justify-center">
-                        <div className="absolute inset-0 bg-white/5 group-hover:bg-transparent transition-colors pointer-events-none" />
-                        <div className="relative h-[70%] w-[70%] rounded-full overflow-hidden">
+                        <div className="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors pointer-events-none" />
+                        <div className="relative h-[65%] w-[65%] rounded-full overflow-hidden shadow-2xl ring-2 ring-white/20 group-hover:ring-white/40 transition-all">
                             <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
                         </div>
                     </div>
