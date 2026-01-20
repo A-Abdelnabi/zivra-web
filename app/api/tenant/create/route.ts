@@ -36,14 +36,30 @@ export async function POST(req: Request) {
         // 3. Simulated external tenant creation (would call DB in production)
         console.log(`[Tenant Activation] Created Tenant for ${body.businessName}. Mode: ${body.paymentMode}`);
 
-        // 4. Trigger internal notification (Simulated)
-        const notifyRes = await fetch(`${new URL(req.url).origin}/api/notify/whatsapp`, {
-            method: 'POST',
-            body: JSON.stringify({
-                type: 'HOT_LEAD',
-                data: { ...body, leadId: lead.id }
-            })
-        });
+        // 4. Trigger parallel notifications (Owner + Sales)
+        try {
+            const apiBase = new URL(req.url).origin;
+            await Promise.all([
+                // Alert Sales
+                fetch(`${apiBase}/api/notify/whatsapp`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: 'HOT_LEAD',
+                        data: { ...body, leadId: lead.id }
+                    })
+                }),
+                // Welcome Client
+                fetch(`${apiBase}/api/notify/whatsapp`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: 'WELCOME',
+                        data: { ...body, leadId: lead.id }
+                    })
+                })
+            ]);
+        } catch (e) {
+            console.error("Notification trigger failed", e);
+        }
 
         return NextResponse.json({ success: true, leadId: lead.id });
     } catch (error) {

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Bot, ChevronRight } from 'lucide-react';
+import { Bot, ChevronRight, MessageCircle } from 'lucide-react';
 import { Locale, Dictionary } from '@/lib/i18n';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { EnergyField } from '@/components/motion/EnergyField';
@@ -117,12 +117,19 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                    <Button size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] shadow-lg shadow-primary/20 bg-primary text-white" asChild>
-                        <a href="#pricing">
+                    <Button size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] shadow-lg shadow-purple-500/20 bg-primary text-white" asChild>
+                        <Link href={`/${locale}/signup`}>
                             {dict.hero.ctaPrimary}
                             <ChevronRight className={`transition-transform duration-300 group-hover:translate-x-1 ${locale === 'ar' ? 'mr-2 rotate-180 group-hover:-translate-x-1' : 'ml-2'} h-5 w-5`} />
-                        </a>
+                        </Link>
                     </Button>
+                    <button
+                        onClick={() => window.open("https://wa.me/9665XXXXXXXX", "_blank")}
+                        className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-semibold"
+                    >
+                        <MessageCircle size={20} className="text-green-500" />
+                        {dict.hero.ctaSecondary}
+                    </button>
                 </motion.div>
             </motion.div>
         </section>

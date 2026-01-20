@@ -65,7 +65,7 @@ export default function SignupFlow({ locale, params }: { locale: 'ar' | 'en'; pa
             <div className="w-full max-w-2xl">
                 {/* Progress Bar */}
                 <div className="flex gap-2 mb-12">
-                    {[1, 2, 3, 4].map(s => (
+                    {[1, 2, 3].map(s => (
                         <div key={s} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${state.step >= s ? 'bg-primary' : 'bg-white/10'}`} />
                     ))}
                 </div>
@@ -73,8 +73,7 @@ export default function SignupFlow({ locale, params }: { locale: 'ar' | 'en'; pa
                 <AnimatePresence mode="wait">
                     {state.step === 1 && <Step1 key="s1" locale={locale} onNext={nextStep} />}
                     {state.step === 2 && <Step2 key="s2" locale={locale} state={state} update={updateState} onNext={nextStep} />}
-                    {state.step === 3 && <Step3 key="s3" locale={locale} state={state} update={updateState} onNext={nextStep} />}
-                    {state.step === 4 && <Step4 key="s4" locale={locale} state={state} onAction={handleCreateTerminal} />}
+                    {state.step === 3 && <Step4 key="s4" locale={locale} state={state} onAction={handleCreateTerminal} />}
                 </AnimatePresence>
 
                 {/* Always Visible Help */}
@@ -168,55 +167,6 @@ function Step2({ locale, state, update, onNext }: any) {
     );
 }
 
-function Step3({ locale, state, update, onNext }: any) {
-    const pricing = getPricing('restaurants');
-    const plans = [
-        { id: 'starter', name: locale === 'ar' ? 'البداية' : 'Starter', icon: Clock },
-        { id: 'growth', name: locale === 'ar' ? 'النمو' : 'Growth', icon: Target },
-        { id: 'pro', name: locale === 'ar' ? 'الاحتراف' : 'Pro', icon: CreditCard },
-    ];
-
-    return (
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-            <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold">{locale === 'ar' ? 'اختر الباقة المناسبة' : 'Choose your plan'}</h2>
-            </div>
-
-            <div className="grid gap-4">
-                {plans.map(p => {
-                    const isActive = state.selectedPlanId === p.id;
-                    const details = pricing[p.id as keyof typeof pricing];
-                    return (
-                        <div
-                            key={p.id}
-                            onClick={() => update({ selectedPlanId: p.id })}
-                            className={`p-6 rounded-3xl border-2 cursor-pointer transition-all relative overflow-hidden ${isActive ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-white/5 border-white/5 hover:border-white/20'
-                                }`}
-                        >
-                            {isActive && <div className="absolute top-0 right-0 bg-primary text-white text-[8px] font-black uppercase px-4 py-1 rounded-bl-xl tracking-widest">Recommended</div>}
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${isActive ? 'bg-primary text-white' : 'bg-zinc-800 text-zinc-500'}`}>
-                                        <p.icon size={20} />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold">{p.name}</h4>
-                                        <p className="text-xs text-zinc-500">{formatPrice(details.monthlyEUR, locale)} / mo</p>
-                                    </div>
-                                </div>
-                                {isActive && <CheckCircle2 className="text-primary" size={24} />}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <button onClick={onNext} className="w-full h-14 bg-primary text-white rounded-2xl font-bold text-lg mt-4 shadow-xl shadow-primary/20">
-                {locale === 'ar' ? 'تأكيد الباقة' : 'Confirm Plan'}
-            </button>
-        </motion.div>
-    );
-}
 
 function Step4({ locale, state, onAction }: any) {
     return (
@@ -226,6 +176,10 @@ function Step4({ locale, state, onAction }: any) {
                     <ShieldCheck size={32} />
                 </div>
                 <h2 className="text-2xl font-black mb-2">{locale === 'ar' ? 'الخطوة الأخيرة' : 'Last Step'}</h2>
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-8 text-sm">
+                    <p className="font-bold text-white mb-1">ZIVRA Restaurant Starter</p>
+                    <p className="text-zinc-500 font-medium">$49/mo + $149 {locale === 'ar' ? 'رسوم تأسيس' : 'setup fee'}</p>
+                </div>
                 <p className="text-zinc-500 text-sm">{locale === 'ar' ? 'كيف تود تفعيل اشتراكك؟' : 'How would you like to activate?'}</p>
             </div>
 

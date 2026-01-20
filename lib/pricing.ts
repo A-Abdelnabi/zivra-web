@@ -1,58 +1,36 @@
 export type PlanDetails = {
-    readonly monthlyEUR: number;
-    readonly setupEUR: number;
+    readonly monthlyUSD: number;
+    readonly setupUSD: number;
     readonly recommended?: boolean;
-    readonly hasPlus?: boolean;
 };
 
 export type PriceTier = {
     readonly starter: PlanDetails;
-    readonly growth: PlanDetails;
-    readonly pro: PlanDetails;
 };
 
-export type VerticalType = 'general' | 'restaurants' | 'clinics' | 'services';
+export type VerticalType = 'general' | 'restaurants';
 
-export const PRICING_BASE: PriceTier = {
-    starter: { monthlyEUR: 49, setupEUR: 0 },
-    growth: { monthlyEUR: 99, setupEUR: 0, recommended: true },
-    pro: { monthlyEUR: 199, setupEUR: 0, hasPlus: true },
+export const PRICING_DATA: PriceTier = {
+    starter: { monthlyUSD: 49, setupUSD: 149, recommended: true },
 };
 
-export const VERTICAL_PRICING: Record<VerticalType, PriceTier> = {
-    general: PRICING_BASE,
-    restaurants: PRICING_BASE,
-    clinics: {
-        starter: { monthlyEUR: 69, setupEUR: 0 },
-        growth: { monthlyEUR: 149, setupEUR: 0, recommended: true },
-        pro: { monthlyEUR: 249, setupEUR: 0, hasPlus: true },
-    },
-    services: {
-        starter: { monthlyEUR: 59, setupEUR: 0 },
-        growth: { monthlyEUR: 119, setupEUR: 0, recommended: true },
-        pro: { monthlyEUR: 219, setupEUR: 0, hasPlus: true },
-    },
-};
-
-export const PRICING_DATA = PRICING_BASE; // Backward compatibility
-
-export function getPricing(vertical: VerticalType = 'general'): PriceTier {
-    return VERTICAL_PRICING[vertical] || PRICING_BASE;
+export function getPricing(vertical: VerticalType = 'restaurants'): PriceTier {
+    return PRICING_DATA;
 }
 
-export function formatPrice(eurValue: number, locale: string, hasPlus = false) {
-    const formattedNumber = eurValue.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-IE');
+export function formatPrice(usdValue: number, locale: string) {
+    const formattedNumber = usdValue.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US');
     if (locale === 'ar') {
-        return `€${formattedNumber}${hasPlus ? '+' : ''} / شهرياً`;
+        return `$${formattedNumber} / شهرياً`;
     }
-    return `€${formattedNumber}${hasPlus ? '+' : ''} / month`;
+    return `$${formattedNumber} / month`;
 }
 
-export function formatSetup(eurValue: number, locale: string, hasPlus = false) {
-    if (eurValue === 0) return "";
-    const formattedNumber = eurValue.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-IE');
+export function formatSetup(usdValue: number, locale: string) {
+    if (usdValue === 0) return "";
+    const formattedNumber = usdValue.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US');
     if (locale === 'ar') {
-        return `+ €${formattedNumber}${hasPlus ? '+' : ''} رسوم تأسيس`;
+        return `+ $${formattedNumber} رسوم تأسيس تدفع مرة واحدة`;
     }
-    return `+ €${formattedNumber}${hasPlus ? '+' : ''} setup fee`;
+    return `+ $${formattedNumber} one-time setup fee`;
 }

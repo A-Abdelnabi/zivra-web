@@ -28,7 +28,6 @@ export default async function Home({
                 <Automation locale={locale} dict={dict} />
                 <UseCases locale={locale} dict={dict} />
                 <Pricing locale={locale} dict={dict} />
-                <SocialPricing locale={locale} dict={dict} />
                 <ContactForm locale={locale} dict={dict} />
             </main>
             <Footer locale={locale} dict={dict} />

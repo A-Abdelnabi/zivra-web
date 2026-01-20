@@ -6,12 +6,12 @@
         "getStarted": "Get Started"
     },
     "hero": {
-        "badge": "AI + Automation Studio",
-        "title": "Build. Automate. <span>Scale.</span>",
-        "subtitle": "Websites, Apps & AI Systems.",
-        "description": "We build high-end websites and apps — and automate your business with AI workflows (n8n), chatbots, integrations, and lead follow-up.",
-        "ctaPrimary": "Get Started",
-        "ctaSecondary": "Talk to AI Assistant"
+        "badge": "Restaurant AI + Automation",
+        "title": "One smart system for restaurants to get <span>more orders.</span>",
+        "subtitle": "Digital Menu, WhatsApp Ordering & AI Agents.",
+        "description": "We help restaurants automate ordering, manage digital menus, and convert customers 24/7 with specialized AI assistants.",
+        "ctaPrimary": "Start Restaurant Demo",
+        "ctaSecondary": "Talk on WhatsApp"
     },
     "services": {
         "title": "What We Build",
@@ -55,124 +55,27 @@
         ]
     },
     "pricing": {
-        "badge": "Packages",
-        "title": "Invest in Automation.",
-        "subtitle": "Stop hiring more staff. Start scaling with calm intelligence.",
+        "badge": "Single Offer",
+        "title": "ZIVRA Restaurant Starter",
+        "subtitle": "Everything you need to automate your restaurant and start taking orders today.",
         "plans": [
             {
                 "id": "starter",
-                "name": "Starter",
-                "tagline": "Essential AI for small teams",
+                "name": "ZIVRA Restaurant Starter",
+                "tagline": "The ultimate setup for modern restaurants",
                 "bullets": [
-                    "Everything in Phase B",
-                    "AI Chat Widget (Basic)",
-                    "WhatsApp Automation (Basic)",
-                    "Monthly Sales Reports",
-                    "Lead Capture System"
+                    "Digital Menu",
+                    "WhatsApp Ordering",
+                    "AI Assistant (Arabic & English)",
+                    "Full Setup",
+                    "Basic Support"
                 ],
-                "cta": "Get Started"
-            },
-            {
-                "id": "growth",
-                "name": "Growth",
-                "tagline": "Full automation for growing businesses",
-                "recommended": true,
-                "bullets": [
-                    "Everything in Starter",
-                    "WhatsApp Ordering / Booking",
-                    "AI trained on your data",
-                    "CRM Sync (Basic)",
-                    "Priority AI response"
-                ],
-                "cta": "Subscribe Now"
-            },
-            {
-                "id": "pro",
-                "name": "Pro",
-                "tagline": "Advanced multi-channel power",
-                "bullets": [
-                    "Everything in Growth",
-                    "Multi-channel (WA + IG + FB)",
-                    "Advanced Workflow Logic",
-                    "Infinite AI training",
-                    "24/7 Priority Support"
-                ],
-                "cta": "Scale Now"
+                "cta": "Start Restaurant Demo"
             }
         ],
-        "disclaimer": "All prices are in EUR. Cancel anytime."
+        "disclaimer": "All prices are in USD. Standard monthly subscription."
     },
-    "social_pricing": {
-        "badge": "Social Media",
-        "title": "Social Media Growth Engine",
-        "subtitle": "Turn your social media into a real lead generation machine. Choose the platforms your audience actually uses — we handle the rest.",
-        "platformsTitle": "Select Platforms",
-        "platforms": [
-            "Instagram",
-            "TikTok",
-            "Snapchat",
-            "X (Twitter)",
-            "LinkedIn"
-        ],
-        "plans": [
-            {
-                "id": "social_2",
-                "name": "Social Engine – 2 Platforms",
-                "price": "$399 / month",
-                "bullets": [
-                    "8–10 posts per month",
-                    "Content design + captions",
-                    "Basic AI auto-replies",
-                    "WhatsApp / Contact CTA",
-                    "Monthly performance report"
-                ],
-                "cta": "Start with 2 Platforms"
-            },
-            {
-                "id": "social_3",
-                "name": "Social Engine – 3 Platforms",
-                "price": "$699 / month",
-                "recommended": true,
-                "badge": "Most Popular",
-                "bullets": [
-                    "14–16 posts per month",
-                    "AI-powered DM replies",
-                    "Lead capture automation",
-                    "Bio & messaging optimization",
-                    "Monthly performance insights"
-                ],
-                "cta": "Grow with 3 Platforms"
-            },
-            {
-                "id": "social_4",
-                "name": "Social Engine – 4 Platforms",
-                "price": "$1199 / month",
-                "bullets": [
-                    "20–24 posts per month",
-                    "Advanced AI chatbot for DMs",
-                    "Full automation & CRM-ready leads",
-                    "Website & WhatsApp integration",
-                    "Dedicated account manager",
-                    "Weekly reports"
-                ],
-                "cta": "Scale with 4 Platforms"
-            }
-        ],
-        "disclaimer": "All prices are in USD.",
-        "addons": {
-            "title": "Add-ons (Optional)",
-            "items": [
-                {
-                    "name": "Reels / Shorts Booster",
-                    "price": "$199 / month"
-                },
-                {
-                    "name": "AI Lead Assistant (DM + WhatsApp)",
-                    "price": "$149 / month"
-                }
-            ]
-        }
-    },
+    "social_pricing": null,
     "contact": {
         "title": "Let's Build Together",
         "subtitle": "Tell us about your project. We'll get back to you within 24 hours.",

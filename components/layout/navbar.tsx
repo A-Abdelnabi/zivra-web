@@ -111,10 +111,9 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     </div>
                     <Button size="sm" asChild>
                         <a
-                            href={`/${locale}#contact`}
-                            onClick={(e) => handleScroll(e, '#contact')}
+                            href={`/${locale}/signup`}
                         >
-                            {dict.nav.getStarted}
+                            {dict.hero.ctaPrimary}
                         </a>
                     </Button>
                 </div>
