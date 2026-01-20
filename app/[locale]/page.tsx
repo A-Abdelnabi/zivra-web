@@ -5,6 +5,7 @@ import { Trust } from "@/components/visual/trust";
 import { Services } from "@/components/visual/services";
 import { Automation } from "@/components/visual/automation";
 import Pricing from "@/components/visual/pricing";
+import SocialPricing from "@/components/visual/social-pricing";
 import { ContactForm } from "@/components/forms/contact-form";
 import { getDictionary, Locale } from "@/lib/i18n";
 
@@ -25,6 +26,7 @@ export default async function Home({
                 <Services locale={locale} dict={dict} />
                 <Automation locale={locale} dict={dict} />
                 <Pricing locale={locale} dict={dict} />
+                <SocialPricing locale={locale} dict={dict} />
                 <ContactForm locale={locale} dict={dict} />
             </main>
             <Footer locale={locale} dict={dict} />

@@ -101,6 +101,68 @@
         ],
         "disclaimer": "All prices are in Saudi Riyal (SAR)."
     },
+    "social_pricing": {
+        "badge": "Social Media",
+        "title": "Social Media Growth Engine",
+        "subtitle": "Turn your social media into a real lead generation machine. Choose the platforms your audience actually uses — we handle the rest.",
+        "plans": [
+            {
+                "id": "social_2",
+                "name": "Social Engine – 2 Platforms",
+                "price": "$399 / month",
+                "bullets": [
+                    "8–10 posts per month",
+                    "Content design + captions",
+                    "Basic AI auto-replies",
+                    "WhatsApp / Contact CTA",
+                    "Monthly performance report"
+                ],
+                "cta": "Start with 2 Platforms"
+            },
+            {
+                "id": "social_3",
+                "name": "Social Engine – 3 Platforms",
+                "price": "$699 / month",
+                "recommended": true,
+                "badge": "Most Popular",
+                "bullets": [
+                    "14–16 posts per month",
+                    "AI-powered DM replies",
+                    "Lead capture automation",
+                    "Bio & messaging optimization",
+                    "Monthly performance insights"
+                ],
+                "cta": "Grow with 3 Platforms"
+            },
+            {
+                "id": "social_4",
+                "name": "Social Engine – 4 Platforms",
+                "price": "$1199 / month",
+                "bullets": [
+                    "20–24 posts per month",
+                    "Advanced AI chatbot for DMs",
+                    "Full automation & CRM-ready leads",
+                    "Website & WhatsApp integration",
+                    "Dedicated account manager",
+                    "Weekly reports"
+                ],
+                "cta": "Scale with 4 Platforms"
+            }
+        ],
+        "addons": {
+            "title": "Add-ons (Optional)",
+            "items": [
+                {
+                    "name": "Reels / Shorts Booster",
+                    "price": "$199 / month"
+                },
+                {
+                    "name": "AI Lead Assistant (DM + WhatsApp)",
+                    "price": "$149 / month"
+                }
+            ]
+        }
+    },
     "contact": {
         "title": "Let's Build Together",
         "subtitle": "Tell us about your project. We'll get back to you within 24 hours.",
@@ -120,6 +182,7 @@
             "Web Application",
             "AI Chatbot",
             "Full Management Package",
+            "Social Media Growth",
             "Automation & Integration",
             "Other / Consultation"
         ]
