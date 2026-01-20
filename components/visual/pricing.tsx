@@ -1,64 +1,9 @@
 "use client";
 
 import { Check } from "lucide-react";
+import { Locale, Dictionary } from '@/lib/i18n';
 
-type Plan = {
-    name: string;
-    tagline: string;
-    price: string;
-    setup: string;
-    recommended?: boolean;
-    bullets: string[];
-    cta: string;
-};
-
-const plans: Plan[] = [
-    {
-        name: "Starter",
-        tagline: "For individuals & small startups.",
-        price: "€149 / month",
-        setup: "+ €999 setup",
-        bullets: [
-            "Website or Landing Page",
-            "Basic AI Chat",
-            "Multi-language Support",
-            "Managed Hosting",
-        ],
-        cta: "Choose Starter",
-    },
-    {
-        name: "Growth",
-        tagline: "For restaurants, clinics & scaling businesses.",
-        price: "€499 / month",
-        setup: "+ €2499 setup",
-        recommended: true,
-        bullets: [
-            "Custom Web App / Dashboard",
-            "Business-Trained AI",
-            "Restaurant Logic (Menu/Calories)",
-            "WhatsApp Automation",
-            "Automated Lead Follow-up",
-            "Priority Support",
-        ],
-        cta: "Choose Growth",
-    },
-    {
-        name: "Scale",
-        tagline: "For serious brands & enterprises.",
-        price: "€549 / month",
-        setup: "+ €4999 setup",
-        bullets: [
-            "Full Custom Architecture",
-            "Advanced AI Modeling",
-            "Unlimited Modules",
-            "Strategic Consulting",
-            "Custom Integrations",
-        ],
-        cta: "Choose Scale",
-    },
-];
-
-function PlanCard({ plan }: { plan: Plan }) {
+function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
     return (
         <div
             className={[
@@ -69,7 +14,7 @@ function PlanCard({ plan }: { plan: Plan }) {
         >
             {plan.recommended && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-purple-500/40 bg-purple-500/10 px-3 py-1 text-xs text-purple-200">
-                    Recommended
+                    {locale === 'ar' ? 'موصى به' : 'Recommended'}
                 </div>
             )}
 
@@ -84,10 +29,10 @@ function PlanCard({ plan }: { plan: Plan }) {
             </div>
 
             <ul className="mt-5 space-y-2 text-sm text-white/80">
-                {plan.bullets.map((b) => (
+                {plan.bullets.map((b: string) => (
                     <li key={b} className="flex items-start gap-2">
-                        <Check className="mt-0.5 h-4 w-4 text-purple-300" />
-                        <span>{b}</span>
+                        <Check className={`mt-0.5 h-4 w-4 text-purple-300 shrink-0 ${locale === 'ar' ? 'order-2' : ''}`} />
+                        <span className={locale === 'ar' ? 'text-right' : ''}>{b}</span>
                     </li>
                 ))}
             </ul>
@@ -106,25 +51,25 @@ function PlanCard({ plan }: { plan: Plan }) {
     );
 }
 
-export default function Pricing() {
+export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     return (
         <section id="packages" className="mx-auto w-full max-w-6xl px-4 py-16">
             <div className="text-center">
                 <div className="mx-auto inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/70">
-                    Packages
+                    {dict.pricing.badge}
                 </div>
 
                 <h2 className="mt-4 text-3xl font-semibold text-white">
-                    Invest in Automation.
+                    {dict.pricing.title}
                 </h2>
                 <p className="mx-auto mt-3 max-w-2xl text-sm text-white/70">
-                    Stop hiring more staff. Start scaling with calm intelligence.
+                    {dict.pricing.subtitle}
                 </p>
             </div>
 
             <div className="mt-10 grid gap-6 md:grid-cols-3">
-                {plans.map((p) => (
-                    <PlanCard key={p.name} plan={p} />
+                {dict.pricing.plans.map((p) => (
+                    <PlanCard key={p.name} plan={p} locale={locale} />
                 ))}
             </div>
         </section>

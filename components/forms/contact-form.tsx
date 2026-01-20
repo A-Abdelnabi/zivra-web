@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { contactSchema, ContactFormData } from '@/lib/validators/contact'
-import { submitContactForm } from '@/app/actions'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { contactSchema, ContactFormData } from '@/lib/validators/contact';
+import { submitContactForm } from '@/app/actions';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
     Form,
     FormControl,
@@ -14,12 +14,13 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from '@/components/ui/form'
-import { useState } from 'react'
+} from '@/components/ui/form';
+import { useState } from 'react';
+import { Locale, Dictionary } from '@/lib/i18n';
 
-export function ContactForm() {
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [success, setSuccess] = useState(false)
+export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary }) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     const form = useForm<ContactFormData>({
         resolver: zodResolver(contactSchema),
@@ -28,42 +29,44 @@ export function ContactForm() {
             email: '',
             message: '',
         },
-    })
+    });
 
     async function onSubmit(data: ContactFormData) {
-        setIsSubmitting(true)
+        setIsSubmitting(true);
         try {
-            await submitContactForm(data)
-            setSuccess(true)
-            form.reset()
+            await submitContactForm(data);
+            setSuccess(true);
+            form.reset();
         } catch (error) {
-            console.error(error)
+            console.error(error);
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
     }
 
     if (success) {
         return (
             <div className="bg-primary/10 border border-primary/20 rounded-lg p-8 text-center animate-in fade-in">
-                <h3 className="text-2xl font-bold mb-2">Message Sent! 🚀</h3>
+                <h3 className="text-2xl font-bold mb-2">{dict.contact.form.success}</h3>
                 <p className="text-muted-foreground mb-6">
-                    Thanks for reaching out. Our team (or AI agent) will get back to you within 24 hours.
+                    {locale === 'ar'
+                        ? 'شكراً على تواصلك. سيرد عليك فريقنا خلال 24 ساعة.'
+                        : 'Thanks for reaching out. Our team will get back to you within 24 hours.'}
                 </p>
                 <Button variant="outline" onClick={() => setSuccess(false)}>
-                    Send another message
+                    {locale === 'ar' ? 'إرسال رسالة أخرى' : 'Send another message'}
                 </Button>
             </div>
-        )
+        );
     }
 
     return (
         <section id="contact" className="py-24">
             <div className="container mx-auto px-4 max-w-2xl">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Launch?</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold mb-6">{dict.contact.title}</h2>
                     <p className="text-muted-foreground text-lg">
-                        Tell us about your project. We'll handle the rest.
+                        {dict.contact.subtitle}
                     </p>
                 </div>
 
@@ -75,9 +78,13 @@ export function ContactForm() {
                                 name="name"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Name</FormLabel>
+                                        <FormLabel>{dict.contact.form.name}</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="John Doe" {...field} />
+                                            <Input
+                                                placeholder={locale === 'ar' ? 'محمد أحمد' : 'John Doe'}
+                                                className={locale === 'ar' ? 'text-right' : ''}
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -89,9 +96,14 @@ export function ContactForm() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                        <FormLabel>{dict.contact.form.email}</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="john@example.com" type="email" {...field} />
+                                            <Input
+                                                placeholder={locale === 'ar' ? 'email@example.com' : 'john@example.com'}
+                                                type="email"
+                                                dir="ltr"
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -103,11 +115,13 @@ export function ContactForm() {
                                 name="message"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Project Details</FormLabel>
+                                        <FormLabel>{dict.contact.form.message}</FormLabel>
                                         <FormControl>
                                             <Textarea
-                                                placeholder="I need a website for my restaurant..."
-                                                className="min-h-[120px]"
+                                                placeholder={locale === 'ar'
+                                                    ? 'أحتاج موقع لمطعمي...'
+                                                    : 'I need a website for my restaurant...'}
+                                                className={`min-h-[120px] ${locale === 'ar' ? 'text-right' : ''}`}
                                                 {...field}
                                             />
                                         </FormControl>
@@ -117,12 +131,12 @@ export function ContactForm() {
                             />
 
                             <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-                                {isSubmitting ? 'Sending...' : 'Send Message'}
+                                {isSubmitting ? dict.contact.form.submitting : dict.contact.form.submit}
                             </Button>
                         </form>
                     </Form>
                 </div>
             </div>
         </section>
-    )
+    );
 }

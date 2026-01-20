@@ -1,0 +1,144 @@
+{
+    "nav": {
+        "services": "Services",
+        "packages": "Packages",
+        "contact": "Contact",
+        "getStarted": "Get Started"
+    },
+    "hero": {
+        "badge": "AI + Automation Studio",
+        "title": "Build. Automate. <span>Scale.</span>",
+        "subtitle": "Websites, Apps & AI Systems.",
+        "description": "We build high-end websites and apps — and automate your business with AI workflows (n8n), chatbots, integrations, and lead follow-up.",
+        "ctaPrimary": "Get Started",
+        "ctaSecondary": "Talk to AI Assistant"
+    },
+    "services": {
+        "title": "What We Build",
+        "subtitle": "We don't just write code – we build digital engines for your business growth.",
+        "items": [
+            {
+                "title": "Website Development",
+                "description": "Fast, modern, and responsive websites. From landing pages to complex corporate sites, built for SEO and speed."
+            },
+            {
+                "title": "Web Application",
+                "description": "Custom dashboards, admin panels, and SaaS products. We build robust tools to run your business."
+            },
+            {
+                "title": "AI Chatbots",
+                "description": "24/7 customer support, lead generation, and sales assistants trained specifically on your business data."
+            },
+            {
+                "title": "Full Management",
+                "description": "Relax while we handle everything. Updates, content changes, security monitoring, and hosting."
+            }
+        ]
+    },
+    "automation": {
+        "title": "AI-First Automation",
+        "subtitle": "We connect your tools and automate workflows using n8n, AI agents, and smart integrations.",
+        "items": [
+            {
+                "title": "Lead Follow-up",
+                "description": "Automatically qualify, nurture, and route leads to your team."
+            },
+            {
+                "title": "WhatsApp Automation",
+                "description": "Send confirmations, reminders, and updates via WhatsApp API."
+            },
+            {
+                "title": "Custom Workflows",
+                "description": "Connect your CRM, calendar, payment gateway, and more."
+            }
+        ]
+    },
+    "pricing": {
+        "badge": "Packages",
+        "title": "Invest in Automation.",
+        "subtitle": "Stop hiring more staff. Start scaling with calm intelligence.",
+        "plans": [
+            {
+                "name": "Starter",
+                "tagline": "For individuals & small startups.",
+                "price": "€149 / month",
+                "setup": "+ €999 setup",
+                "bullets": [
+                    "Website or Landing Page",
+                    "Basic AI Chat",
+                    "Multi-language Support",
+                    "Managed Hosting"
+                ],
+                "cta": "Choose Starter"
+            },
+            {
+                "name": "Growth",
+                "tagline": "For restaurants, clinics & scaling businesses.",
+                "price": "€499 / month",
+                "setup": "+ €2499 setup",
+                "recommended": true,
+                "bullets": [
+                    "Custom Web App / Dashboard",
+                    "Business-Trained AI",
+                    "Restaurant Logic (Menu/Calories)",
+                    "WhatsApp Automation",
+                    "Automated Lead Follow-up",
+                    "Priority Support"
+                ],
+                "cta": "Choose Growth"
+            },
+            {
+                "name": "Scale",
+                "tagline": "For serious brands & enterprises.",
+                "price": "€549 / month",
+                "setup": "+ €4999 setup",
+                "bullets": [
+                    "Full Custom Architecture",
+                    "Advanced AI Modeling",
+                    "Unlimited Modules",
+                    "Strategic Consulting",
+                    "Custom Integrations"
+                ],
+                "cta": "Choose Scale"
+            }
+        ]
+    },
+    "contact": {
+        "title": "Let's Build Together",
+        "subtitle": "Tell us about your project. We'll get back to you within 24 hours.",
+        "form": {
+            "name": "Your Name",
+            "email": "Email Address",
+            "service": "What do you need?",
+            "servicePlaceholder": "Select a service",
+            "message": "Tell us about your project",
+            "submit": "Send Message",
+            "submitting": "Sending...",
+            "success": "Message sent! We'll be in touch soon.",
+            "error": "Failed to send. Please try again."
+        },
+        "services": [
+            "Website Development",
+            "Web Application",
+            "AI Chatbot",
+            "Full Management Package",
+            "Automation & Integration",
+            "Other / Consultation"
+        ]
+    },
+    "footer": {
+        "tagline": "Websites • Apps • AI • Management",
+        "contact": "Contact",
+        "services": "Services",
+        "packages": "Packages",
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "copyright": "© {year} ZIVRA. All rights reserved."
+    },
+    "trust": {
+        "title": "Trusted by businesses across the Gulf"
+    },
+    "whatsapp": {
+        "message": "Hi ZIVRA! I'd like to discuss tech solutions for my business."
+    }
+}

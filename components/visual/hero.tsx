@@ -1,9 +1,10 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { ArrowRight, Bot, ChevronRight } from 'lucide-react'
+import Link from 'next/link';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Bot, ChevronRight } from 'lucide-react';
+import { Locale, Dictionary } from '@/lib/i18n';
 
-export function Hero() {
+export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     return (
         <section className="relative pt-32 pb-24 md:pt-48 md:pb-32 overflow-hidden">
             {/* Background Gradients */}
@@ -23,33 +24,33 @@ export function Hero() {
             <div className="container relative mx-auto px-4 text-center">
                 <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 backdrop-blur-sm">
                     <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse shadow-glow"></span>
-                    AI + Automation Studio
+                    {dict.hero.badge}
                 </div>
 
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                    Build. Automate. <span className="text-gradient">Scale.</span>
+                    <span dangerouslySetInnerHTML={{ __html: dict.hero.title.replace('<span>', '<span class="text-gradient">').replace('</span>', '</span>') }} />
                     <br />
-                    <span className="text-foreground">Websites, Apps & AI Systems.</span>
+                    <span className="text-foreground">{dict.hero.subtitle}</span>
                 </h1>
 
                 <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-in fade-in slide-in-from-bottom-8">
-                    We build high-end websites and apps — and automate your business with AI workflows (n8n), chatbots, integrations, and lead follow-up.
+                    {dict.hero.description}
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both delay-300">
                     <Button size="lg" className="h-12 px-8 text-lg rounded-full" asChild>
-                        <Link href="#pricing">
-                            Get Started <ChevronRight className="ml-2 h-4 w-4" />
-                        </Link>
+                        <a href="#pricing">
+                            {dict.hero.ctaPrimary} <ChevronRight className={`${locale === 'ar' ? 'mr-2 rotate-180' : 'ml-2'} h-4 w-4`} />
+                        </a>
                     </Button>
                     <Button size="lg" variant="secondary" className="h-12 px-8 text-lg rounded-full" asChild>
-                        <Link href="#ai-chat-trigger">
-                            <Bot className="mr-2 h-5 w-5" />
-                            Talk to AI Assistant
-                        </Link>
+                        <a href="#ai-chat-trigger">
+                            <Bot className={`${locale === 'ar' ? 'ml-2' : 'mr-2'} h-5 w-5`} />
+                            {dict.hero.ctaSecondary}
+                        </a>
                     </Button>
                 </div>
             </div>
         </section>
-    )
+    );
 }
