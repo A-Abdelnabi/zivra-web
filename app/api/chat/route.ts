@@ -10,16 +10,6 @@ const openai = new OpenAI({
 type Role = "system" | "user" | "assistant";
 type Msg = { role: Role; content: string };
 
-function safeString(v: unknown) {
-    if (typeof v === "string") return v;
-    if (v == null) return "";
-    try {
-        return String(v);
-    } catch {
-        return "";
-    }
-}
-
 function normalizeMessages(incoming: any): Msg[] {
     const arr = Array.isArray(incoming) ? incoming : [];
     return arr
@@ -30,14 +20,12 @@ function normalizeMessages(incoming: any): Msg[] {
                 typeof m.content === "string"
         )
         .map((m) => ({ role: m.role as Role, content: String(m.content) }))
-        .slice(-15);
+        .slice(-10);
 }
 
-// Helper to send lead to webhook
 async function sendLead(data: any) {
     const webhookUrl = process.env.LEADS_WEBHOOK_URL;
     if (!webhookUrl) return;
-
     try {
         await fetch(webhookUrl, {
             method: "POST",
@@ -59,7 +47,6 @@ export async function POST(req: Request) {
         const incoming = normalizeMessages(body?.messages);
         const lang = body?.lang === 'ar' ? 'ar' : 'en';
 
-        // Lead capture logic if data is present
         if (body.leadData) {
             const lastMsg = incoming.length > 0 ? incoming[incoming.length - 1].content.toLowerCase() : "";
             await sendLead({
@@ -69,15 +56,13 @@ export async function POST(req: Request) {
                 lang: lang,
                 source: "ZIVRA Website Chat"
             });
-
-            // If it's ONLY a lead sync (no messages), return early
             if (incoming.length === 0) {
-                return NextResponse.json({ success: true, message: "Lead captured" });
+                return NextResponse.json({ success: true });
             }
         }
 
         // =========================
-        // ✅ Event-Based Navigation (Bypass AI)
+        // ✅ Strict Event Navigation
         // =========================
         if (body.event) {
             const ev = body.event;
@@ -85,10 +70,12 @@ export async function POST(req: Request) {
 
             if (ev === "business_selected") {
                 return NextResponse.json({
-                    reply: lang === "ar" ? "تمام. هذه خدماتنا - اختر اللي يناسبك، أو تواصل معنا ونرتّب لك أفضل خيار." : "Perfect. Here’s what we can help you with. Pick anything, or just contact us and we’ll guide you.",
+                    reply: lang === "ar"
+                        ? "تمام. هذه خدماتنا - اختر اللي تبدأ فيه، أو حاب نساعدك تختار الأنسب لنشاطك؟"
+                        : "Perfect. Here are our main services - pick one to start with, or would you like us to help you choose?",
                     options: lang === "ar"
-                        ? ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth Engine", "ساعدوني في الاختيار"]
-                        : ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth Engine", "Help me choose"]
+                        ? ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth", "ساعدوني في الاختيار"]
+                        : ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth", "Help me choose"]
                 });
             }
 
@@ -96,99 +83,65 @@ export async function POST(req: Request) {
                 const isConsultation = val.includes("choose") || val.includes("اختيار") || val.includes("benefits") || val.includes("المزايا");
                 if (isConsultation) {
                     return NextResponse.json({
-                        reply: lang === "ar" ? "وش أهم هدف لك الحين؟" : "What’s your main goal right now?",
+                        reply: lang === "ar" ? "وش أهم هدف تبي تحققه الحين؟" : "What is your primary goal right now?",
                         options: lang === "ar"
-                            ? ["زيادة المبيعات", "زيادة العملاء", "توفير الوقت / أتمتة", "تحسين الخدمة", "إطلاق سريع"]
-                            : ["Increase sales", "Get more leads", "Save time / automate", "Improve support", "Launch fast"]
+                            ? ["زيادة مبيعات", "توفير وقت / أتمتة", "خدمة عملاء رد آلي", "إطلاق مشروع جديد"]
+                            : ["Increase sales", "Save time / Automate", "Automated support", "Launch new project"]
                     });
                 } else {
+                    // This case is handled in frontend now (direct CTA), but fallback here
                     return NextResponse.json({
-                        reply: lang === "ar" ? "تمام 👍 اختر الأنسب لك:" : "Perfect 👍 Choose what works best for you:",
-                        options: ["__CTA__"] // Flag for contact card
+                        reply: lang === "ar"
+                            ? "تمام 👍 أسرع طريقة نخدمك بشكل مضبوط هي إنك تتواصل معنا مباشرة.\nاختَر اللي يناسبك:"
+                            : "Perfect 👍 The fastest way to help you properly is to get contacted directly.\nPlease choose what works best for you:",
+                        options: ["__CTA__"]
                     });
                 }
             }
 
-            // Fallback for events we don't handle directly
-            if (incoming.length === 0) {
-                return NextResponse.json({ success: true });
+            if (ev === "goal_selected") {
+                return NextResponse.json({
+                    reply: lang === "ar"
+                        ? "تمام 👍 أسرع طريقة نخدمك بشكل مضبوط هي إنك تتواصل معنا مباشرة.\nاختَر اللي يناسبك:"
+                        : "Perfect 👍 The fastest way to help you properly is to get contacted directly.\nPlease choose what works best for you:",
+                    options: ["__CTA__"]
+                });
             }
         }
 
-        // Extract last message to check for consultation triggers
-        const lastMsg = incoming.length > 0 ? incoming[incoming.length - 1].content.toLowerCase() : "";
-        const isConsultationTrigger = /benefit|offer|which package|help me choose|package|pricing|details|افضل|باقة|عرض|فوائد|ساعدني|وش تقدمون/.test(lastMsg);
-
         // =========================
-        // ✅ ZIZO AI System Prompt (Sales Engine & Conversion Flow)
+        // ✅ ZIZO AI (Concise Sales Assistant)
         // =========================
         let systemPrompt = "";
-
         if (lang === "ar") {
             systemPrompt = `
-أنت (زيزو - ZIZO)، المهندس التقني وخبير المبيعات في ZIVRA.
-هدفك: تحويل الزوار إلى عملاء فعليين عبر الواتساب أو الإيميل بأسرع وقت.
+أنت (زيزو - ZIZO)، خبير في ZIVRA.
+هدفك: تحويل الزوار لعملاء عبر الواتساب بأسرع وقت.
+اللغة: خليجي/سعودي أبيض (Urban Saudi). قصير جداً ومباشر.
+لا تكرر الكلام. بمجرد ما يفهم العميل الخدمة، وجهه واتساب.
 
-⚠️ قواعد صارمة:
-1. اللغة: خليجي/سعودي أبيض (Urban Saudi). لا تستخدم فصحى ولا ترجمة حرفية.
-2. الاختصار: ردودك لازم تكون قصيرة جداً ومباشرة.
-3. التوجيه: انتهِ دائماً بدعوة للتواصل عبر واتساب أو إيميل.
-4. الاستشارة: إذا سأل العميل عن الفوائد أو "وش الأنسب لي"، اسأل سؤال واحد فقط عن هدفه (زيادة مبيعات، أتمتة، الخ) ثم اعطِ إجابة في 4-6 نقاط (bullets) كحد أقصى.
+الخدمات: Website, Web App, AI Chatbot, Automation (n8n), Lead Follow-up, Social Growth.
 
-الخدمات التي نقدمها:
-- Website / Landing Page
-- Web App / Dashboard
-- AI Chatbot (دعم فني ومبيعات)
-- Automation (n8n) لربط الأنظمة
-- Lead Follow-up (واتساب + CRM)
-- Social Media Growth Engine
+إذا سأل العميل "وش تقدمون" أو "وش الفوائد":
+1. اعط فوائد قوية (3-4 نقاط).
+2. انته دائماً بطلب التواصل واتساب.
 
-إذا اختار العميل خدمة معينة، اشرحها في 3 نقاط مع اقتراح الباقة المناسبة للبداية.
-
-الختام دائماً:
-"عشان نعطيك اقتراح مناسب وتسعير سريع، تواصل معنا:
-✅ واتساب: https://wa.me/358401604442
-✅ إيميل: hello@zivra.dev"
-
-المخرجات (JSON):
-{
-  "reply": "الرد النصي",
-  "suggested_options": ["خيار1", "خيار2"],
-  "data": { "intent": "consultation|direct", "goal": "..." }
-}
+رابط الواتساب: https://wa.me/358401604442
 `;
         } else {
             systemPrompt = `
-You are (ZIZO), the tech lead & sales architect at ZIVRA.
-Goal: Convert visitors into leads via WhatsApp or Email as fast as possible.
+You are (ZIZO), a sales architect at ZIVRA.
+Goal: Convert visitors to WhatsApp leads ASAP.
+Tone: Professional SaaS expert, very concise, outcome-focused.
+Do not provide long explanations. Once the value is clear, push to WhatsApp.
 
-⚠️ Strict Rules:
-1. Tone: Professional, confident, high-end SaaS expert.
-2. Conciseness: Keep messages extremely short and punchy.
-3. CTA: Always end with a WhatsApp/Email contact trigger.
-4. Consultation: If asked about benefits or "which package", ask exactly ONE clarifying question about their goal, then provide 4-6 concise bullets max.
+Services: Website, Web App, AI Chatbot, Automation (n8n), Lead Follow-up, Social Growth.
 
-Our Services:
-- Website / Landing Page
-- Web App / Dashboard
-- AI Chatbot (Support & Sales)
-- Automation (n8n) for connecting tools
-- Lead Follow-up System (WhatsApp + CRM)
-- Social Media Growth Engine
+If visitor asks "what do you do" or "benefits":
+1. Provide 3-4 punchy outcome-driven bullets.
+2. Always end with a WhatsApp contact offer.
 
-If a user selects a specific service, explain it in 3 bullets + suggested starting package.
-
-Always end with:
-"To give you a precise recommendation and a quick quote, please contact us:
-✅ WhatsApp: https://wa.me/358401604442
-✅ Email: hello@zivra.dev"
-
-Output Format (JSON):
-{
-  "reply": "string",
-  "suggested_options": ["Option1", "Option2"],
-  "data": { "intent": "consultation|direct", "goal": "..." }
-}
+WhatsApp: https://wa.me/358401604442
 `;
         }
 
@@ -197,19 +150,20 @@ Output Format (JSON):
             temperature: 0.3,
             response_format: { type: "json_object" },
             messages: [
-                { role: "system", content: systemPrompt.trim() },
+                { role: "system", content: systemPrompt.trim() + "\n\nOutput JSON: {\"reply\": string, \"suggested_options\": string[]}" },
                 ...incoming,
             ],
-            max_tokens: 600,
+            max_tokens: 300,
         });
 
-        const content = completion.choices?.[0]?.message?.content || "{}";
-        const parsed = JSON.parse(content);
+        const parsed = JSON.parse(completion.choices?.[0]?.message?.content || "{}");
+        // Force CTA if intent is clear
+        const lowerReply = parsed.reply?.toLowerCase() || "";
+        const needsCTA = lowerReply.includes("wa.me") || lowerReply.includes("contact") || lowerReply.includes("تواصل") || lowerReply.includes("واتساب");
 
         return NextResponse.json({
             reply: parsed.reply,
-            options: parsed.suggested_options || [],
-            data: parsed.data || {}
+            options: needsCTA ? ["__CTA__"] : (parsed.suggested_options || []),
         });
 
     } catch (error: any) {
