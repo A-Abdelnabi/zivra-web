@@ -110,6 +110,13 @@ export default function SocialPricing({ locale, dict }: { locale: Locale; dict: 
                     </div>
                 </div>
             </Reveal>
+            <Reveal delay={0.5}>
+                <div className="mt-12 text-center">
+                    <p className="text-xs text-white/40 italic">
+                        {sp.disclaimer}
+                    </p>
+                </div>
+            </Reveal>
         </section>
     );
 }

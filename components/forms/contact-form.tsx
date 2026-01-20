@@ -15,7 +15,7 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Locale, Dictionary } from '@/lib/i18n';
 import { Reveal } from '@/components/motion/Reveal';
 
@@ -29,8 +29,12 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
             name: '',
             email: '',
             message: '',
+            service: '',
+            platforms: [],
         },
     });
+
+    const selectedService = form.watch('service');
 
     async function onSubmit(data: ContactFormData) {
         setIsSubmitting(true);
@@ -47,7 +51,7 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
 
     if (success) {
         return (
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-8 text-center animate-in fade-in">
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-8 text-center animate-in fade-in max-w-2xl mx-auto my-24">
                 <h3 className="text-2xl font-bold mb-2">{dict.contact.form.success}</h3>
                 <p className="text-muted-foreground mb-6">
                     {locale === 'ar'
@@ -60,6 +64,14 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
             </div>
         );
     }
+
+    const socPlatforms = [
+        { id: 'instagram', name: locale === 'ar' ? 'انستقرام' : 'Instagram' },
+        { id: 'tiktok', name: locale === 'ar' ? 'تيك توك' : 'TikTok' },
+        { id: 'snapchat', name: locale === 'ar' ? 'سناب شات' : 'Snapchat' },
+        { id: 'x', name: locale === 'ar' ? 'X (تويتر)' : 'X (Twitter)' },
+        { id: 'linkedin', name: locale === 'ar' ? 'لينكد إن' : 'LinkedIn' },
+    ];
 
     return (
         <section id="contact" className="py-24">
@@ -77,43 +89,99 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                     <div className="glass-card p-6 md:p-8 rounded-2xl border-white/5 shadow-xl">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <FormField
+                                        control={form.control}
+                                        name="name"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{dict.contact.form.name}</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder={locale === 'ar' ? 'اكتب اسمك هنا' : 'Your name here'}
+                                                        className={`transition-all focus:scale-[1.01] ${locale === 'ar' ? 'text-right' : ''}`}
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="email"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{dict.contact.form.email}</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="email@example.com"
+                                                        type="email"
+                                                        dir="ltr"
+                                                        className="transition-all focus:scale-[1.01]"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
                                 <FormField
                                     control={form.control}
-                                    name="name"
+                                    name="service"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{dict.contact.form.name}</FormLabel>
+                                            <FormLabel>{dict.contact.form.service}</FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    placeholder={locale === 'ar' ? 'محمد أحمد' : 'John Doe'}
-                                                    className={`transition-all focus:scale-[1.01] ${locale === 'ar' ? 'text-right' : ''}`}
+                                                <select
                                                     {...field}
-                                                />
+                                                    className={`w-full h-10 px-3 rounded-md border border-white/10 bg-white/5 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none ${locale === 'ar' ? 'text-right' : ''}`}
+                                                >
+                                                    <option value="" disabled className="bg-[#0a0a0c]">{dict.contact.form.servicePlaceholder}</option>
+                                                    {dict.contact.services.map((s: string) => (
+                                                        <option key={s} value={s} className="bg-[#0a0a0c]">{s}</option>
+                                                    ))}
+                                                </select>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
 
-                                <FormField
-                                    control={form.control}
-                                    name="email"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{dict.contact.form.email}</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    placeholder={locale === 'ar' ? 'email@example.com' : 'john@example.com'}
-                                                    type="email"
-                                                    dir="ltr"
-                                                    className="transition-all focus:scale-[1.01]"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                {(selectedService === "Social Media Growth" || selectedService === "نمو السوشيال ميديا") && (
+                                    <div className="space-y-3 p-4 rounded-xl border border-blue-500/20 bg-blue-500/5 animate-in slide-in-from-top-2 duration-300">
+                                        <p className={`text-sm font-medium ${locale === 'ar' ? 'text-right' : ''}`}>
+                                            {locale === 'ar' ? 'اختار المنصات المستهدفة:' : 'Selected Platforms:'}
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {socPlatforms.map((plat) => {
+                                                const currentPlats = form.getValues('platforms') || [];
+                                                const isSelected = currentPlats.includes(plat.id);
+                                                return (
+                                                    <button
+                                                        key={plat.id}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const newValue = isSelected
+                                                                ? currentPlats.filter((i) => i !== plat.id)
+                                                                : [...currentPlats, plat.id];
+                                                            form.setValue('platforms', newValue);
+                                                        }}
+                                                        className={`px-3 py-1.5 rounded-full text-xs transition-all border ${isSelected
+                                                                ? "bg-blue-600 border-blue-400 text-white"
+                                                                : "bg-white/5 border-white/10 text-white/60 hover:border-white/20"
+                                                            }`}
+                                                    >
+                                                        {plat.name}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
 
                                 <FormField
                                     control={form.control}
@@ -124,8 +192,8 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                                             <FormControl>
                                                 <Textarea
                                                     placeholder={locale === 'ar'
-                                                        ? 'أحتاج موقع لمطعمي...'
-                                                        : 'I need a website for my restaurant...'}
+                                                        ? 'فضفض لنا عن مشروعك...'
+                                                        : 'Tell us about your project...'}
                                                     className={`min-h-[120px] transition-all focus:scale-[1.01] ${locale === 'ar' ? 'text-right' : ''}`}
                                                     {...field}
                                                 />
@@ -138,7 +206,7 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                                 <Button
                                     type="submit"
                                     size="lg"
-                                    className="w-full transition-transform active:scale-[0.98]"
+                                    className="w-full transition-transform active:scale-[0.98] h-12 text-lg font-bold"
                                     disabled={isSubmitting}
                                 >
                                     {isSubmitting ? dict.contact.form.submitting : dict.contact.form.submit}

@@ -1,34 +1,32 @@
-export const SAR_USD_RATE = 3.75;
-
 export const PRICING_DATA = {
     starter: {
-        monthlySAR: 599,
-        setupSAR: 2500,
+        monthlyUSD: 159,
+        setupUSD: 649,
     },
     business: {
-        monthlySAR: 1999,
-        setupSAR: 7500,
+        monthlyUSD: 529,
+        setupUSD: 1999,
         recommended: true,
     },
     scale: {
-        monthlySAR: 3499,
-        setupSAR: 12000,
-        hasPlus: false, // User provided exact numbers, no plus mentioned for monthly
+        monthlyUSD: 949,
+        setupUSD: 3199,
+        hasPlus: false,
     },
 } as const;
 
-export function formatPrice(sarValue: number, locale: string, hasPlus = false) {
-    const formattedNumber = sarValue.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US');
+export function formatPrice(usdValue: number, locale: string, hasPlus = false) {
+    const formattedNumber = usdValue.toLocaleString(locale === 'ar' ? 'en-US' : 'en-US'); // Keeping numbers Western style for USD usually
     if (locale === 'ar') {
-        return `${formattedNumber}${hasPlus ? '+' : ''} ريال / شهر`;
+        return `$${formattedNumber}${hasPlus ? '+' : ''} / شهرياً`;
     }
-    return `${formattedNumber}${hasPlus ? '+' : ''} SAR / month`;
+    return `$${formattedNumber}${hasPlus ? '+' : ''} / month`;
 }
 
-export function formatSetup(sarValue: number, locale: string, hasPlus = false) {
-    const formattedNumber = sarValue.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US');
+export function formatSetup(usdValue: number, locale: string, hasPlus = false) {
+    const formattedNumber = usdValue.toLocaleString(locale === 'ar' ? 'en-US' : 'en-US');
     if (locale === 'ar') {
-        return `+ ${formattedNumber}${hasPlus ? '+' : ''} ريال إعداد`;
+        return `+ $${formattedNumber}${hasPlus ? '+' : ''} رسوم تأسيس`;
     }
-    return `+ ${formattedNumber}${hasPlus ? '+' : ''} SAR setup`;
+    return `+ $${formattedNumber}${hasPlus ? '+' : ''} setup fee`;
 }

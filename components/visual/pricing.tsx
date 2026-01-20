@@ -11,8 +11,8 @@ const WHATSAPP_LINK = "https://wa.me/358401604442";
 function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
     const pricing = PRICING_DATA[plan.id as keyof typeof PRICING_DATA];
 
-    const priceText = pricing ? formatPrice(pricing.monthlySAR, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
-    const setupText = pricing ? formatSetup(pricing.setupSAR, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
+    const priceText = pricing ? formatPrice(pricing.monthlyUSD, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
+    const setupText = pricing ? formatSetup(pricing.setupUSD, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
 
     const handleCTA = () => {
         if (plan.id === 'starter') {

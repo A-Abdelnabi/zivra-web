@@ -38,6 +38,7 @@
     "automation": {
         "title": "AI-First Automation",
         "subtitle": "We connect your tools and automate workflows using n8n, AI agents, and smart integrations.",
+        "badge": "Automation",
         "items": [
             {
                 "title": "Lead Follow-up",
@@ -63,7 +64,7 @@
                 "name": "Starter",
                 "tagline": "For individuals & small startups.",
                 "bullets": [
-                    "Website or Landing Page",
+                    "Website or Loading Page",
                     "Basic AI Chat",
                     "Multi-language Support",
                     "Managed Hosting"
@@ -99,12 +100,20 @@
                 "cta": "Request a consultation"
             }
         ],
-        "disclaimer": "All prices are in Saudi Riyal (SAR)."
+        "disclaimer": "All prices are in USD."
     },
     "social_pricing": {
         "badge": "Social Media",
         "title": "Social Media Growth Engine",
         "subtitle": "Turn your social media into a real lead generation machine. Choose the platforms your audience actually uses — we handle the rest.",
+        "platformsTitle": "Select Platforms",
+        "platforms": [
+            "Instagram",
+            "TikTok",
+            "Snapchat",
+            "X (Twitter)",
+            "LinkedIn"
+        ],
         "plans": [
             {
                 "id": "social_2",
@@ -149,6 +158,7 @@
                 "cta": "Scale with 4 Platforms"
             }
         ],
+        "disclaimer": "All prices are in USD.",
         "addons": {
             "title": "Add-ons (Optional)",
             "items": [
@@ -201,5 +211,13 @@
     },
     "whatsapp": {
         "message": "Hi ZIVRA! I'd like to discuss tech solutions for my business."
+    },
+    "chat": {
+        "welcome": "Hello! I'm ZIVRA's AI Assistant. How can I help your business scale today?",
+        "placeholder": "Ask about automation, websites, or social media...",
+        "recommendationPrefix": "Based on your needs, I recommend: ",
+        "cta": "If you'd like to start or need a custom quote, message us on WhatsApp and mention this package.",
+        "whatsappBtn": "WhatsApp",
+        "emailBtn": "Email"
     }
 }

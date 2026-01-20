@@ -30,62 +30,10 @@ function normalizeMessages(incoming: any): Msg[] {
                 typeof m.content === "string"
         )
         .map((m) => ({ role: m.role as Role, content: String(m.content) }))
-        .slice(-12); // Keep context reasonable
+        .slice(-12);
 }
 
-type Lang = "ar" | "en" | "fi";
-
-function detectLangFromText(text: string): Lang {
-    const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
-    if (arabicRegex.test(text)) return "ar";
-
-    const fiRegex = /[äöå]/i;
-    const fiWords =
-        /\b(hei|moi|kiitos|tarvitsen|haluan|sivusto|verkkosivu|yhteys|paketit|hinta|tarjous|apua)\b/i;
-
-    if (fiRegex.test(text) || fiWords.test(text)) return "fi";
-
-    return "en";
-}
-
-type Lead = {
-    name?: string;
-    email?: string;
-    businessType?: string;
-    goal?: string;
-    painPoint?: string;
-    service?: string; // Derived or generic
-    lastUserMessage?: string;
-    transcript?: Array<{ role: string; content: string }>;
-    lang?: string;
-    source?: string;
-};
-
-async function submitLead(lead: Lead) {
-    // Only log leads that have at least some business intent captured
-    if (!lead.businessType && !lead.goal && !lead.name && !lead.email) return;
-
-    console.log("✅ NEW LEAD (or Context Capture):", {
-        name: lead.name,
-        email: lead.email,
-        businessType: lead.businessType,
-        goal: lead.goal,
-    });
-
-    const webhookUrl = process.env.LEADS_WEBHOOK_URL;
-    if (!webhookUrl) return;
-
-    try {
-        await fetch(webhookUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(lead),
-        });
-        console.log("✅ Lead sent to webhook");
-    } catch (e) {
-        console.error("⚠️ Failed to send lead to webhook", e);
-    }
-}
+type Lang = "ar" | "en";
 
 export async function POST(req: Request) {
     try {
@@ -95,127 +43,81 @@ export async function POST(req: Request) {
 
         const body = await req.json().catch(() => ({}));
         const incoming = normalizeMessages(body?.messages);
-
-        const lastUser =
-            [...incoming].reverse().find((m) => m.role === "user")?.content ?? "";
-
-        const requestedLang = body?.lang; // Expect 'en' or 'ar'
-
-        // Fallback only if missing (should not happen with new widget)
-        const lang = (requestedLang === 'ar' || requestedLang === 'en')
-            ? requestedLang
-            : 'en';
+        const lang = body?.lang === 'ar' ? 'ar' : 'en';
 
         // =========================
-        // ✅ ZIZO AI System Prompt
-        // =========================
-        // =========================
-        // ✅ ZIZO AI System Prompt (STRICT LANGUAGE CONTROL)
+        // ✅ ZIZO AI System Prompt (Sales Engine & Gulf Tone)
         // =========================
         let systemPrompt = "";
 
         if (lang === "ar") {
-            // ARABIC PROMPT
             systemPrompt = `
-أنت مساعد ZIZO الذكي (زيزو).
-يجب الرد باللغة العربية فقط.
-لا تغيّر اللغة إلا إذا طلب المستخدم ذلك صراحة.
-حتى لو كتب المستخدم بالإنجليزية، استمر بالعربية.
-الأسلوب: احترافي، سعودي/خليجي راقي، واثق، ومختصر.
+أنت (زيزو - ZIZO)، المهندس التقني وخبير المبيعات في ZIVRA.
+بزنس ZIVRA يبني مواقع، تطبيقات، ويؤتمت العمليات بالذكاء الاصطناعي (AI Automation)، وعندنا محرك نمو للسوشيال ميديا.
 
-مهمتك: مساعدة أصحاب المشاريع في دول الخليج على فهم خدمات Zivra.
+مهمتك الأساسية: "إغلاق البيعة" أو توجيه العميل للباقة اللي تخليه ينجح، بأسلوب سعودي/خليجي، فزعة، وذكي.
+
+القواعد:
+1. اللغة: سعودي/خليجي أبيض (Urban Saudi). لا تستخدم فصحى ولا ترجمة حرفية.
+2. الأسلوب: واثق، مهتم بنجاح العميل، ومختصر جداً.
+3. لا تجمع بيانات شخصية (مثل الاسم أو الإيميل) وسط الشات.
+4. التوصية: بمجرد ما تفهم احتياج العميل (موقع، أتمتة، مبيعات، سوشيال ميديا)، اقترح باقة واحدة "فقط" ووضح ليه هي الأنسب له.
+
+الباقات المتاحة:
+- Starter ($159): للمشاريع الصغيرة، موقع تعريفي + ذكاء اصطناعي أساسي.
+- Growth ($529): للمطاعم والشركات، أتمتة مبيعات + واتساب + ذكاء اصطناعي مدرب.
+- Scale ($949): للمؤسسات والشركات الكبيرة.
+- Social Engine (2 منصات $399 / 3 منصات $699 / 4 منصات $1199).
+
+خطوات المحادثة:
+1. رحب بالعميل واسأله وش نوع شغله (مطعم، شركة، متجر، الخ).
+2. افهم منه وش وده يحقق (مبيعات، توفير وقت، انتشار).
+3. إذا الكلام عن السوشيال ميديا، اسأله: "وش المنصات اللي تبي نركز عليها؟ (انستقرام، تيك توك، سناب، X)". وبعدها اقترح الباقة (2 أو 3 أو 4 منصات).
+4. الختام: عط التوصية النهائية ووجهه للواتساب أو الإيميل فوراً.
 
 المخرجات (JSON):
 {
-  "reply": "الرد النصي",
+  "reply": "الرد النصي بأسلوب خليجي",
   "suggested_options": ["خيار1", "خيار2"],
-  "extracted_data": { "business_type": "...", "goal": "..." }
+  "recommended_package": "اسم الباقة",
+  "data": { "business": "...", "intent": "...", "platforms": "..." }
 }
 
-خطوات المحادثة (3 خطوات فقط):
-
-1. معرفة نوع النشاط (Business Type)
-   - السؤال: "وش نوع مشروعك؟"
-   - الخيارات: ["مطعم / كافيه", "فندق / سياحة", "شركة خدمات", "متجر إلكتروني", "SaaS / Startup", "غير متأكد"]
-
-2. معرفة الهدف (Goal)
-   - السؤال: "وش الهدف الأساسي اللي تركز عليه حاليًا؟"
-   - الخيارات: ["زيادة المبيعات", "زيادة الحجوزات", "الأتمتة وتوفير الوقت", "تحسين تجربة العملاء"]
-
-3. القيمة + الختام (Final Step)
-   - اشرح بجملتين كيف نساعده.
-   - ثم اعرض "قالب الرسالة النهائي" واطلب منه يرسله واتساب أو إيميل.
-   - الخيارات المقترحة: ["WhatsApp", "Email"].
-
-رسالة الختام المطلوبة (انسخها كما هي):
-"ممتاز 👍
-الخطوة التالية الأفضل هي التواصل معنا مباشرة لنقدّم لك اقتراح مناسب لحالتك.
-
-📲 WhatsApp: https://wa.me/358401604442
-📧 Email: info@zivra.co
-
-✍️ اقترح ترسل لنا هذه الرسالة (انسخ وعدّل):
-
-"مرحبًا ZIZO،
-أنا صاحب/مدير [Business Type].
-هدفي الأساسي هو [Goal].
-أفضل وقت للتواصل معي هو (...)،
-والمنطقة الزمنية (...).
-شكرًا."
-
-سنرد عليك بأسرع وقت."
+مثال لرد ختامي:
+"بناءً على كلامك، أنسب خيار لك هو باقة Growth لأنها بتشيل عنك هم متابعة العملاء وتأتمت لك الواتساب بالكامل. لو حاب نبدأ، كلمنا واتساب ونعطيك العلم الأكيد."
 `;
         } else {
-            // ENGLISH PROMPT
             systemPrompt = `
-You are ZIZO AI Assistant.
-You MUST respond ONLY in English.
-Never switch language unless the user explicitly changes it.
-Even if the user writes Arabic, continue in English.
-Tone: professional, concise, business-oriented.
+You are (ZIZO), the tech lead & sales architect at ZIVRA.
+ZIVRA builds websites, apps, designs AI Automations, and manages social media growth.
 
-Target: Business owners looking for AI & Web solutions.
+Goal: Finalize package selection and push to WhatsApp/Email.
+
+Rules:
+1. Tone: Professional, confident, high-end SaaS expert.
+2. Directness: Be extremely concise.
+3. No Data Collection: Never ask for name or email in chat.
+4. Recommendation: Suggest ONE specific package based on business needs.
+
+Packages:
+- Starter ($159): Website + Basic AI.
+- Growth ($529): Best for Restaurants/Clinics, includes WhatsApp automation & lead nurturing.
+- Scale ($949): Enterprise.
+- Social Engine (2 platforms $399 / 3 platforms $699 / 4 platforms $1199).
+
+Flow:
+1. Welcome & ask about business type.
+2. Ask about main goals (sales, time-saving, leads).
+3. If social media is mentioned, ask for platforms (Instagram, TikTok, Snapchat, X, LinkedIn).
+4. Finalize with a clear recommendation and push to WhatsApp or Email buttons.
 
 Output Format (JSON):
 {
-  "reply": "string",
+  "reply": "concise text",
   "suggested_options": ["Option1", "Option2"],
-  "extracted_data": { "business_type": "...", "goal": "..." }
+  "recommended_package": "Package Name",
+  "data": { "business": "...", "intent": "...", "platforms": "..." }
 }
-
-Conversation Flow (3 Steps):
-
-Step 1: Identify Business Type
-- Ask: "What type of business are you running?"
-- Options: ["Restaurant / Café", "Hotel / Tourism", "Service Business", "E-commerce", "SaaS / Startup", "Not sure yet"]
-
-Step 2: Identify Goal
-- Ask: "What is your main goal right now?"
-- Options: ["Increase Sales", "More Bookings", "Save Time (Automation)", "Better CX"]
-
-Step 3: Value + NO DATA COLLECTION + CTA
-- Explain in 2 sentences how ZIVRA helps.
-- THEN, IMMEDIATELY Provide the mandatory FINAL MESSAGE TEMPLATE.
-- Suggested Options: ["WhatsApp", "Email"]
-
-FINAL MESSAGE TEMPLATE (Use exactly):
-
-"Great 👍
-The best next step is to connect with us directly so we can provide a tailored proposal.
-
-📲 WhatsApp: https://wa.me/358401604442
-📧 Email: info@zivra.co
-
-✍️ Suggested message to send us:
-
-"Hi ZIZO,
-I run a [Business Type].
-My main goal is [Goal].
-Best time to reach me is (...),
-Timezone (...).
-Thanks."
-
-We will reply asap with clear steps."
 `;
         }
 
@@ -231,54 +133,17 @@ We will reply asap with clear steps."
         });
 
         const content = completion.choices?.[0]?.message?.content || "{}";
-        let parsed: any = {};
-        try {
-            parsed = JSON.parse(content);
-        } catch {
-            parsed = { reply: content };
-        }
-
-        const reply = safeString(parsed.reply);
-        const options = Array.isArray(parsed.suggested_options) ? parsed.suggested_options : [];
-        const extracted = parsed.extracted_data || {};
-
-        // =========================
-        // ✅ Anonymous Lead Submission (Context Capture)
-        // =========================
-        // Even without name/email, we capture the business context to the webhook
-        // so the business owner knows people are interacting.
-        if (extracted.business_type || extracted.goal) {
-            const lead: Lead = {
-                // Name/Email intentionally omitted as per new flow requirements
-                businessType: extracted.business_type,
-                goal: extracted.goal,
-                service: extracted.business_type ? `Chat Discovery: ${extracted.business_type}` : "Chat Discovery",
-                lastUserMessage: lastUser || "Start of conversation", // Safe fallback
-                lang: lang,
-                transcript: incoming.map((m) => ({ role: m.role, content: m.content })),
-                source: "zivra-chat-widget",
-            };
-
-            await submitLead(lead);
-        }
-
-        const fallback =
-            lang === "ar"
-                ? "حياك الله، وش نوع مشروعك؟"
-                : "Hi, what type of business do you run?";
+        const parsed = JSON.parse(content);
 
         return NextResponse.json({
-            reply: reply || fallback,
-            options: options,
-            // leadCaptured is less relevant now as we don't block for it, but we can return true if we reached the end
-            leadCaptured: false
+            reply: parsed.reply,
+            options: parsed.suggested_options || [],
+            recommendedPackage: parsed.recommended_package || null,
+            context: parsed.data || {}
         });
 
     } catch (error: any) {
         console.error("Zivra API error:", error);
-        return NextResponse.json(
-            { error: "AI error", details: safeString(error?.message) },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "AI error" }, { status: 500 });
     }
 }
