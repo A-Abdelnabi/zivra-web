@@ -16,7 +16,14 @@ export type TrackingEvent =
     | 'restaurant_whatsapp_click'
     | 'restaurant_call_click'
     | 'restaurant_menu_view'
-    | 'restaurant_consent_accept';
+    | 'restaurant_consent_accept'
+    | 'signup_view'
+    | 'signup_step_started'
+    | 'signup_step_completed'
+    | 'plan_selected'
+    | 'payment_started'
+    | 'payment_success'
+    | 'trial_created';
 
 export interface EventParams {
     language?: string;
