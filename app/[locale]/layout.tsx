@@ -63,7 +63,7 @@ export default async function LocaleLayout({
 
                     {/* Floating Widgets */}
                     <WhatsAppButton locale={locale} />
-                    <ChatWidget locale={locale} />
+                    <ChatWidget key={`chat-${locale}`} locale={locale} />
                 </Providers>
             </body>
         </html>

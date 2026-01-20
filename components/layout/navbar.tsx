@@ -21,10 +21,25 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
         { name: dict.nav.contact, href: `#contact` },
     ];
 
+    const clearChatStorage = () => {
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem("zv_sales_lead");
+            localStorage.removeItem("zv_sales_msgs");
+            localStorage.removeItem("zv_sales_step");
+        }
+    };
+
     const switchLocale = (newLocale: Locale) => {
         const segments = pathname.split('/');
         segments[1] = newLocale;
         return segments.join('/');
+    };
+
+    const handleLocaleSwitch = (e: React.MouseEvent<HTMLAnchorElement>, newLocale: Locale) => {
+        e.preventDefault();
+        clearChatStorage();
+        const newPath = switchLocale(newLocale);
+        window.location.href = newPath;
     };
 
     const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -73,24 +88,26 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                 <div className="hidden md:flex items-center gap-4">
                     {/* Language Switcher */}
                     <div className="flex items-center gap-1 border border-white/10 rounded-full overflow-hidden">
-                        <Link
+                        <a
                             href={switchLocale('en')}
+                            onClick={(e) => handleLocaleSwitch(e, 'en')}
                             className={`flex items-center gap-1 text-xs font-medium px-3 py-1 transition-colors ${locale === 'en'
                                 ? 'bg-white/10 text-foreground'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             EN
-                        </Link>
-                        <Link
+                        </a>
+                        <a
                             href={switchLocale('ar')}
+                            onClick={(e) => handleLocaleSwitch(e, 'ar')}
                             className={`flex items-center gap-1 text-xs font-medium px-3 py-1 transition-colors ${locale === 'ar'
                                 ? 'bg-white/10 text-foreground'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             AR
-                        </Link>
+                        </a>
                     </div>
                     <Button size="sm" asChild>
                         <a
@@ -125,24 +142,26 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
 
                             {/* Mobile Language Switcher */}
                             <div className="flex gap-2">
-                                <Link
+                                <a
                                     href={switchLocale('en')}
+                                    onClick={(e) => handleLocaleSwitch(e, 'en')}
                                     className={`flex-1 text-center py-2 px-4 rounded-lg border transition-colors ${locale === 'en'
                                         ? 'bg-white/10 border-white/20'
                                         : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     English
-                                </Link>
-                                <Link
+                                </a>
+                                <a
                                     href={switchLocale('ar')}
+                                    onClick={(e) => handleLocaleSwitch(e, 'ar')}
                                     className={`flex-1 text-center py-2 px-4 rounded-lg border transition-colors ${locale === 'ar'
                                         ? 'bg-white/10 border-white/20'
                                         : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     العربية
-                                </Link>
+                                </a>
                             </div>
 
                             <Button className="w-full" asChild>
