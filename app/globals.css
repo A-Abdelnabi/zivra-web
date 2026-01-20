@@ -83,6 +83,69 @@
     .font-inter {
         font-family: var(--font-inter), sans-serif;
     }
+
+    /* Motion Identity - Phase 1 */
+    .hero-bg-animate {
+        background: radial-gradient(circle at 50% 50%, rgba(15, 15, 20, 1) 0%, rgba(5, 5, 8, 1) 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-bg-animate::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.05) 0%, transparent 40%);
+        animation: organic-float 30s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    @keyframes organic-float {
+
+        0%,
+        100% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        33% {
+            transform: translate(2%, 3%) scale(1.05);
+        }
+
+        66% {
+            transform: translate(-1%, -2%) scale(0.95);
+        }
+    }
+
+    .logo-bloom {
+        filter: blur(80px);
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+        mix-blend-mode: screen;
+        pointer-events: none;
+    }
+
+    .icon-breathing {
+        animation: icon-breathing 4s ease-in-out infinite;
+    }
+
+    @keyframes icon-breathing {
+
+        0%,
+        100% {
+            transform: translateY(0);
+            opacity: 0.8;
+        }
+
+        50% {
+            transform: translateY(-4px);
+            opacity: 1;
+        }
+    }
 }
 
 /* ZIVRA Floating Widgets positions */
@@ -99,4 +162,17 @@
 
 .zv-waBubble {
     bottom: 84px;
+}
+
+.text-gradient {
+    background: linear-gradient(to right, #ffffff, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }

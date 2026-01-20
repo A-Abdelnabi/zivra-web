@@ -72,7 +72,7 @@
             },
             {
                 "id": "business",
-                "name": "Business",
+                "name": "Growth",
                 "tagline": "For restaurants, clinics & scaling businesses.",
                 "recommended": true,
                 "bullets": [
@@ -99,7 +99,7 @@
                 "cta": "Request a consultation"
             }
         ],
-        "disclaimer": "Prices are pegged to SAR (USD shown for convenience)."
+        "disclaimer": "All prices are in Saudi Riyal (SAR)."
     },
     "contact": {
         "title": "Let's Build Together",

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Menu, Globe } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import {
     Sheet,
     SheetContent,
@@ -16,16 +16,27 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     const pathname = usePathname();
 
     const navLinks = [
-        { name: dict.nav.services, href: '#services' },
-        { name: dict.nav.packages, href: '#pricing' },
-        { name: dict.nav.contact, href: '#contact' },
+        { name: dict.nav.services, href: `#services` },
+        { name: dict.nav.packages, href: `#packages` },
+        { name: dict.nav.contact, href: `#contact` },
     ];
 
     const switchLocale = (newLocale: Locale) => {
-        // Switch locale while keeping the path structure
         const segments = pathname.split('/');
         segments[1] = newLocale;
         return segments.join('/');
+    };
+
+    const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+        if (href.startsWith('#')) {
+            e.preventDefault();
+            const id = href.substring(1);
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+                window.history.pushState(null, '', `/${locale}${href}`);
+            }
+        }
     };
 
     return (
@@ -49,7 +60,8 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     {navLinks.map((link) => (
                         <a
                             key={link.name}
-                            href={link.href}
+                            href={`/${locale}${link.href}`}
+                            onClick={(e) => handleScroll(e, link.href)}
                             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
                             {link.name}
@@ -64,8 +76,8 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                         <Link
                             href={switchLocale('en')}
                             className={`flex items-center gap-1 text-xs font-medium px-3 py-1 transition-colors ${locale === 'en'
-                                    ? 'bg-white/10 text-foreground'
-                                    : 'text-muted-foreground hover:text-foreground'
+                                ? 'bg-white/10 text-foreground'
+                                : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             EN
@@ -73,15 +85,20 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                         <Link
                             href={switchLocale('ar')}
                             className={`flex items-center gap-1 text-xs font-medium px-3 py-1 transition-colors ${locale === 'ar'
-                                    ? 'bg-white/10 text-foreground'
-                                    : 'text-muted-foreground hover:text-foreground'
+                                ? 'bg-white/10 text-foreground'
+                                : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             AR
                         </Link>
                     </div>
                     <Button size="sm" asChild>
-                        <a href="#contact">{dict.nav.getStarted}</a>
+                        <a
+                            href={`/${locale}#contact`}
+                            onClick={(e) => handleScroll(e, '#contact')}
+                        >
+                            {dict.nav.getStarted}
+                        </a>
                     </Button>
                 </div>
 
@@ -98,7 +115,8 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                             {navLinks.map((link) => (
                                 <a
                                     key={link.name}
-                                    href={link.href}
+                                    href={`/${locale}${link.href}`}
+                                    onClick={(e) => handleScroll(e, link.href)}
                                     className="text-lg font-medium"
                                 >
                                     {link.name}
@@ -110,8 +128,8 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                                 <Link
                                     href={switchLocale('en')}
                                     className={`flex-1 text-center py-2 px-4 rounded-lg border transition-colors ${locale === 'en'
-                                            ? 'bg-white/10 border-white/20'
-                                            : 'border-white/10 hover:border-white/20'
+                                        ? 'bg-white/10 border-white/20'
+                                        : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     English
@@ -119,8 +137,8 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                                 <Link
                                     href={switchLocale('ar')}
                                     className={`flex-1 text-center py-2 px-4 rounded-lg border transition-colors ${locale === 'ar'
-                                            ? 'bg-white/10 border-white/20'
-                                            : 'border-white/10 hover:border-white/20'
+                                        ? 'bg-white/10 border-white/20'
+                                        : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     العربية
@@ -128,7 +146,12 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                             </div>
 
                             <Button className="w-full" asChild>
-                                <a href="#contact">{dict.nav.getStarted}</a>
+                                <a
+                                    href={`/${locale}#contact`}
+                                    onClick={(e) => handleScroll(e, '#contact')}
+                                >
+                                    {dict.nav.getStarted}
+                                </a>
                             </Button>
                         </div>
                     </SheetContent>

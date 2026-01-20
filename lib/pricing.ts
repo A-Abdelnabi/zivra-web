@@ -2,33 +2,33 @@ export const SAR_USD_RATE = 3.75;
 
 export const PRICING_DATA = {
     starter: {
-        monthlySAR: 399,
-        setupSAR: 3500,
+        monthlySAR: 599,
+        setupSAR: 2500,
     },
     business: {
-        monthlySAR: 1290,
-        setupSAR: 8900,
+        monthlySAR: 1999,
+        setupSAR: 7500,
         recommended: true,
     },
     scale: {
-        monthlySAR: 2990,
-        setupSAR: 18000,
-        hasPlus: true,
+        monthlySAR: 3499,
+        setupSAR: 12000,
+        hasPlus: false, // User provided exact numbers, no plus mentioned for monthly
     },
 } as const;
 
 export function formatPrice(sarValue: number, locale: string, hasPlus = false) {
+    const formattedNumber = sarValue.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US');
     if (locale === 'ar') {
-        return `${sarValue.toLocaleString('en-US')}${hasPlus ? '+' : ''} ريال / شهر`;
+        return `${formattedNumber}${hasPlus ? '+' : ''} ريال / شهر`;
     }
-    const usdValue = Math.round(sarValue / SAR_USD_RATE);
-    return `$${usdValue.toLocaleString('en-US')}${hasPlus ? '+' : ''} / month`;
+    return `${formattedNumber}${hasPlus ? '+' : ''} SAR / month`;
 }
 
 export function formatSetup(sarValue: number, locale: string, hasPlus = false) {
+    const formattedNumber = sarValue.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US');
     if (locale === 'ar') {
-        return `+ ${sarValue.toLocaleString('en-US')}${hasPlus ? '+' : ''} ريال إعداد`;
+        return `+ ${formattedNumber}${hasPlus ? '+' : ''} ريال إعداد`;
     }
-    const usdValue = Math.round(sarValue / SAR_USD_RATE);
-    return `+ $${usdValue.toLocaleString('en-US')}${hasPlus ? '+' : ''} setup`;
+    return `+ ${formattedNumber}${hasPlus ? '+' : ''} SAR setup`;
 }
