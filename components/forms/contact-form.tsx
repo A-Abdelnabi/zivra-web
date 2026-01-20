@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/form';
 import { useState } from 'react';
 import { Locale, Dictionary } from '@/lib/i18n';
+import { Reveal } from '@/components/motion/Reveal';
 
 export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,79 +64,89 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
     return (
         <section id="contact" className="py-24">
             <div className="container mx-auto px-4 max-w-2xl">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6">{dict.contact.title}</h2>
-                    <p className="text-muted-foreground text-lg">
-                        {dict.contact.subtitle}
-                    </p>
-                </div>
+                <Reveal>
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6">{dict.contact.title}</h2>
+                        <p className="text-muted-foreground text-lg">
+                            {dict.contact.subtitle}
+                        </p>
+                    </div>
+                </Reveal>
 
-                <div className="glass-card p-6 md:p-8 rounded-2xl">
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{dict.contact.form.name}</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder={locale === 'ar' ? 'محمد أحمد' : 'John Doe'}
-                                                className={locale === 'ar' ? 'text-right' : ''}
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                <Reveal delay={0.2}>
+                    <div className="glass-card p-6 md:p-8 rounded-2xl border-white/5 shadow-xl">
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{dict.contact.form.name}</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder={locale === 'ar' ? 'محمد أحمد' : 'John Doe'}
+                                                    className={`transition-all focus:scale-[1.01] ${locale === 'ar' ? 'text-right' : ''}`}
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{dict.contact.form.email}</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder={locale === 'ar' ? 'email@example.com' : 'john@example.com'}
-                                                type="email"
-                                                dir="ltr"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{dict.contact.form.email}</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder={locale === 'ar' ? 'email@example.com' : 'john@example.com'}
+                                                    type="email"
+                                                    dir="ltr"
+                                                    className="transition-all focus:scale-[1.01]"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                            <FormField
-                                control={form.control}
-                                name="message"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{dict.contact.form.message}</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder={locale === 'ar'
-                                                    ? 'أحتاج موقع لمطعمي...'
-                                                    : 'I need a website for my restaurant...'}
-                                                className={`min-h-[120px] ${locale === 'ar' ? 'text-right' : ''}`}
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                <FormField
+                                    control={form.control}
+                                    name="message"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{dict.contact.form.message}</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder={locale === 'ar'
+                                                        ? 'أحتاج موقع لمطعمي...'
+                                                        : 'I need a website for my restaurant...'}
+                                                    className={`min-h-[120px] transition-all focus:scale-[1.01] ${locale === 'ar' ? 'text-right' : ''}`}
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                            <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-                                {isSubmitting ? dict.contact.form.submitting : dict.contact.form.submit}
-                            </Button>
-                        </form>
-                    </Form>
-                </div>
+                                <Button
+                                    type="submit"
+                                    size="lg"
+                                    className="w-full transition-transform active:scale-[0.98]"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? dict.contact.form.submitting : dict.contact.form.submit}
+                                </Button>
+                            </form>
+                        </Form>
+                    </div>
+                </Reveal>
             </div>
         </section>
     );
