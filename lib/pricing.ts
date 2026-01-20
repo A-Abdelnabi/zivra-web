@@ -1,32 +1,33 @@
 export const PRICING_DATA = {
     starter: {
-        monthlyUSD: 149,
-        setupUSD: 499,
+        monthlyEUR: 49,
+        setupEUR: 0,
     },
     growth: {
-        monthlyUSD: 449,
-        setupUSD: 1499,
+        monthlyEUR: 99,
+        setupEUR: 0,
         recommended: true,
     },
-    enterprise: {
-        monthlyUSD: 999, // Custom / Base
-        setupUSD: 2999,
+    pro: {
+        monthlyEUR: 199,
+        setupEUR: 0,
         hasPlus: true,
     },
 } as const;
 
-export function formatPrice(usdValue: number, locale: string, hasPlus = false) {
-    const formattedNumber = usdValue.toLocaleString(locale === 'ar' ? 'en-US' : 'en-US'); // Keeping numbers Western style for USD usually
+export function formatPrice(eurValue: number, locale: string, hasPlus = false) {
+    const formattedNumber = eurValue.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-IE');
     if (locale === 'ar') {
-        return `$${formattedNumber}${hasPlus ? '+' : ''} / شهرياً`;
+        return `€${formattedNumber}${hasPlus ? '+' : ''} / شهرياً`;
     }
-    return `$${formattedNumber}${hasPlus ? '+' : ''} / month`;
+    return `€${formattedNumber}${hasPlus ? '+' : ''} / month`;
 }
 
-export function formatSetup(usdValue: number, locale: string, hasPlus = false) {
-    const formattedNumber = usdValue.toLocaleString(locale === 'ar' ? 'en-US' : 'en-US');
+export function formatSetup(eurValue: number, locale: string, hasPlus = false) {
+    if (eurValue === 0) return "";
+    const formattedNumber = eurValue.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-IE');
     if (locale === 'ar') {
-        return `+ $${formattedNumber}${hasPlus ? '+' : ''} رسوم تأسيس`;
+        return `+ €${formattedNumber}${hasPlus ? '+' : ''} رسوم تأسيس`;
     }
-    return `+ $${formattedNumber}${hasPlus ? '+' : ''} setup fee`;
+    return `+ €${formattedNumber}${hasPlus ? '+' : ''} setup fee`;
 }

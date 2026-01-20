@@ -1,5 +1,7 @@
 "use client";
 
+import * as React from "react";
+
 import { Check } from "lucide-react";
 import { Locale, Dictionary } from '@/lib/i18n';
 import { PRICING_DATA, formatPrice, formatSetup } from '@/lib/pricing';
@@ -13,21 +15,33 @@ const WHATSAPP_LINK = "https://wa.me/358401604442";
 function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
     const pricing = PRICING_DATA[plan.id as keyof typeof PRICING_DATA];
 
-    const priceText = pricing ? formatPrice(pricing.monthlyUSD, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
-    const setupText = pricing ? formatSetup(pricing.setupUSD, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
+    const priceText = pricing ? formatPrice(pricing.monthlyEUR, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
+    const setupText = pricing ? formatSetup(pricing.setupEUR, locale, 'hasPlus' in pricing && pricing.hasPlus) : "";
 
-    const handleCTA = () => {
+    const [loading, setLoading] = React.useState(false);
+
+    const handleCTA = async () => {
+        setLoading(true);
         trackEvent('pricing_cta_click', { plan_id: plan.id, language: locale });
-        if (plan.id === 'starter' || plan.id === 'growth') {
-            window.open(WHATSAPP_LINK, '_blank');
-        } else {
-            // Enterprise or other: scroll to contact
-            const contactSection = document.getElementById('contact');
-            if (contactSection) {
-                contactSection.scrollIntoView({ behavior: 'smooth' });
+
+        try {
+            const res = await fetch('/api/billing/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ planId: plan.id, locale }),
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
             } else {
-                window.location.href = 'mailto:hello@zivra.dev';
+                throw new Error(data.error || 'Failed to create checkout session');
             }
+        } catch (err) {
+            console.error(err);
+            // Fallback to WhatsApp if Stripe fails or is not configured
+            window.open(WHATSAPP_LINK, '_blank');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -69,15 +83,20 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
                 <motion.button
                     type="button"
                     onClick={handleCTA}
+                    disabled={loading}
                     whileTap={{ scale: 0.98 }}
                     whileHover={{ scale: 1.02 }}
                     className={[
                         "mt-6 inline-flex w-full items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium transition-all shadow-lg shadow-purple-500/10",
                         "bg-purple-500 text-white hover:bg-purple-500/90 hover:shadow-purple-500/20",
-                        "focus:outline-none focus:ring-2 focus:ring-purple-400/60 focus:ring-offset-0",
+                        "focus:outline-none focus:ring-2 focus:ring-purple-400/60 focus:ring-offset-0 disabled:opacity-50",
                     ].join(" ")}
                 >
-                    {plan.cta}
+                    {loading ? (
+                        <div className="h-5 w-5 border-2 border-white border-t-transparent animate-spin rounded-full" />
+                    ) : (
+                        plan.cta
+                    )}
                 </motion.button>
             </div>
         </RevealItem>

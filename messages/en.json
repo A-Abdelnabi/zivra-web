@@ -62,46 +62,45 @@
             {
                 "id": "starter",
                 "name": "Starter",
-                "tagline": "For small businesses starting with AI",
+                "tagline": "Essential AI for small teams",
                 "bullets": [
-                    "Website or Landing Page",
-                    "Basic AI Chatbot (FAQ + lead capture)",
-                    "WhatsApp contact button",
-                    "1 language",
-                    "Setup in 7 days"
+                    "Everything in Phase B",
+                    "AI Chat Widget (Basic)",
+                    "WhatsApp Automation (Basic)",
+                    "Monthly Sales Reports",
+                    "Lead Capture System"
                 ],
-                "cta": "Open WhatsApp directly"
+                "cta": "Get Started"
             },
             {
                 "id": "growth",
                 "name": "Growth",
-                "tagline": "For businesses that want automation & growth",
+                "tagline": "Full automation for growing businesses",
                 "recommended": true,
                 "bullets": [
-                    "Advanced AI Chatbot (decision-based)",
-                    "WhatsApp automation",
-                    "Lead follow-up automation",
-                    "Website optimization",
-                    "2 languages",
-                    "Setup in 5 days"
+                    "Everything in Starter",
+                    "WhatsApp Ordering / Booking",
+                    "AI trained on your data",
+                    "CRM Sync (Basic)",
+                    "Priority AI response"
                 ],
-                "cta": "Quick Quote → WhatsApp"
+                "cta": "Subscribe Now"
             },
             {
-                "id": "enterprise",
-                "name": "Enterprise",
-                "tagline": "For serious brands & high volume",
+                "id": "pro",
+                "name": "Pro",
+                "tagline": "Advanced multi-channel power",
                 "bullets": [
-                    "Full AI + Automation system",
-                    "CRM integration",
-                    "Custom workflows (n8n)",
-                    "Unlimited languages",
-                    "Priority support"
+                    "Everything in Growth",
+                    "Multi-channel (WA + IG + FB)",
+                    "Advanced Workflow Logic",
+                    "Infinite AI training",
+                    "24/7 Priority Support"
                 ],
-                "cta": "Email / Schedule Call"
+                "cta": "Scale Now"
             }
         ],
-        "disclaimer": "All prices are in USD."
+        "disclaimer": "All prices are in EUR. Cancel anytime."
     },
     "social_pricing": {
         "badge": "Social Media",
