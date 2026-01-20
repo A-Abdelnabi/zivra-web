@@ -12,6 +12,7 @@ type Msg = {
     id: string;
     role: Role;
     content: string;
+    isContactCard?: boolean;
 };
 
 type LeadData = {
@@ -27,7 +28,7 @@ function t(lang: Lang) {
             welcome: "ZIZO AI",
             step0: "هلا 👋 أنا مساعد ZIZO. بس بسألك سؤال سريع وبعدين أعرض لك خدماتنا. وش نوع نشاطك؟",
             step1: "تمام. هذه خدماتنا - اختر اللي يناسبك، أو تواصل معنا ونرتّب لك أفضل خيار.",
-            step2: "تمام شكرا جزيلا👍\nأسرع طريقة نقدر نخدمك فيها بشكل صحيح هي إننا نكمّل التواصل مباشرة.\n\nاختر الطريقة اللي تناسبك:",
+            step2Title: "تمام 👍 اختر الأنسب لك:",
             goalQuestion: "وش أهم هدف لك الحين؟",
             placeholder: "أكتب استفسارك هنا...",
             typing: "ZIZO يكتب...",
@@ -44,7 +45,7 @@ function t(lang: Lang) {
         welcome: "ZIZO AI",
         step0: "Hi 👋 I’m ZIZO AI Assistant. I’ll ask 1 quick question, then I’ll show you our services. What type of business are you?",
         step1: "Perfect. Here’s what we can help you with. Pick anything, or just contact us and we’ll guide you.",
-        step2: "Perfect 👍\nThe fastest way to help you properly is to continue the conversation directly.\n\nPlease choose what works best for you:",
+        step2Title: "Perfect 👍 Choose what works best for you:",
         goalQuestion: "What’s your main goal right now?",
         placeholder: "Type your message...",
         typing: "ZIZO is typing...",
@@ -98,8 +99,8 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
     }, [messages, open]);
 
-    const addMsg = (role: Role, content: string) => {
-        setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content }]);
+    const addMsg = (role: Role, content: string, isContactCard: boolean = false) => {
+        setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content, isContactCard }]);
     };
 
     const syncLead = async (update: Partial<LeadData>, type: string = "lead_update") => {
@@ -133,7 +134,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         await syncLead({ lastUserMessage: `Clicked ${method} CTA FINAL` }, "contact_click_final");
 
         if (method === "whatsapp") {
-            window.location.href = "https://wa.me/358401604442";
+            window.open("https://wa.me/358401604442", "_blank");
         } else {
             window.location.href = "mailto:hello@zivra.dev";
         }
@@ -162,8 +163,9 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                 setLoading(true);
                 setTimeout(() => {
                     setLoading(false);
-                    addMsg("assistant", dict.step2);
-                    setOptions(["__CTA__"]); // Special flag for the final CTA buttons
+                    // Single bubble card for final CTA
+                    addMsg("assistant", dict.step2Title, true);
+                    setOptions([]);
                 }, 600);
             }
         } else if (step === 3) {
@@ -205,12 +207,11 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
             const data = await res.json();
             if (res.ok) {
                 addMsg("assistant", data.reply);
-                // After AI explanation, force CTA
+                // After AI explanation, force CTA card
                 setLoading(true);
                 setTimeout(() => {
                     setLoading(false);
-                    addMsg("assistant", dict.step2);
-                    setOptions(["__CTA__"]);
+                    addMsg("assistant", dict.step2Title, true);
                 }, 1000);
             }
         } catch (e) {
@@ -249,12 +250,45 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                     <div ref={listRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6 scroll-smooth">
                         {messages.map((m) => (
                             <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2`}>
-                                <div className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${m.role === "user"
-                                        ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-tr-none"
-                                        : "bg-white/10 text-white/90 border border-white/5 rounded-tl-none backdrop-blur-md"
-                                    }`}>
-                                    {m.content}
-                                </div>
+                                {m.isContactCard ? (
+                                    <div className="w-full max-w-[85%] bg-white/10 rounded-2xl p-5 border border-white/5 backdrop-blur-md shadow-lg">
+                                        <p className="text-sm font-semibold text-white/90 mb-4">{m.content}</p>
+                                        <div className="space-y-3">
+                                            <button
+                                                onClick={() => handleCTA("whatsapp")}
+                                                className="w-full flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 transition-all group"
+                                            >
+                                                <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
+                                                    <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
+                                                </div>
+                                                <span className="text-sm font-medium text-white/80 group-hover:text-white transition-colors">
+                                                    {dict.whatsapp}
+                                                </span>
+                                                <div className="ms-auto h-2 w-2 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            </button>
+
+                                            <button
+                                                onClick={() => handleCTA("email")}
+                                                className="w-full flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 transition-all group"
+                                            >
+                                                <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
+                                                    <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
+                                                </div>
+                                                <span className="text-sm font-medium text-white/80 group-hover:text-white transition-colors">
+                                                    {dict.email}
+                                                </span>
+                                                <div className="ms-auto h-2 w-2 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${m.role === "user"
+                                            ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-tr-none"
+                                            : "bg-white/10 text-white/90 border border-white/5 rounded-tl-none backdrop-blur-md"
+                                        }`}>
+                                        {m.content}
+                                    </div>
+                                )}
                             </div>
                         ))}
                         {loading && (
@@ -269,37 +303,16 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                     {/* Interactive Footer */}
                     <div className="p-6 bg-gradient-to-b from-transparent to-black/40 border-t border-white/5">
                         {options.length > 0 && (
-                            <div className={`flex flex-wrap gap-2 mb-6 ${options[0] === "__CTA__" ? "justify-center gap-10" : ""}`}>
-                                {options[0] === "__CTA__" ? (
-                                    <>
-                                        {/* WhatsApp Button */}
-                                        <button
-                                            onClick={() => handleCTA("whatsapp")}
-                                            className="group relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all hover:scale-110 hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] active:scale-95"
-                                        >
-                                            <MessageCircle className="h-7 w-7 text-white" />
-                                            <span className="absolute -inset-1 rounded-full bg-indigo-500/20 blur-sm group-hover:bg-indigo-500/40 transition-all animate-pulse" />
-                                        </button>
-                                        {/* Email Button */}
-                                        <button
-                                            onClick={() => handleCTA("email")}
-                                            className="group relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all hover:scale-110 hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] active:scale-95"
-                                        >
-                                            <Mail className="h-7 w-7 text-white" />
-                                            <span className="absolute -inset-1 rounded-full bg-indigo-500/20 blur-sm group-hover:bg-indigo-500/40 transition-all animate-pulse" />
-                                        </button>
-                                    </>
-                                ) : (
-                                    options.map((opt) => (
-                                        <button
-                                            key={opt}
-                                            onClick={() => handleOption(opt)}
-                                            className="rounded-full bg-white/10 px-5 py-2.5 text-xs font-semibold text-white/80 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-purple-600 hover:text-white hover:scale-105 transition-all border border-white/10 active:scale-95"
-                                        >
-                                            {opt}
-                                        </button>
-                                    ))
-                                )}
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                {options.map((opt) => (
+                                    <button
+                                        key={opt}
+                                        onClick={() => handleOption(opt)}
+                                        className="rounded-full bg-white/10 px-5 py-2.5 text-xs font-semibold text-white/80 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-purple-600 hover:text-white hover:scale-105 transition-all border border-white/10 active:scale-95"
+                                    >
+                                        {opt}
+                                    </button>
+                                ))}
                             </div>
                         )}
 
