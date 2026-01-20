@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { Locale } from "@/lib/i18n";
 import { MessageCircle, Mail } from "lucide-react";
+import Portal from "@/components/ui/Portal";
 
 type Role = "user" | "assistant";
 type Lang = "ar" | "en";
@@ -49,6 +50,7 @@ function t(lang: Lang) {
 export default function ChatWidget({ locale }: { locale: Locale }) {
     const [open, setOpen] = React.useState(false);
     const [converted, setConverted] = React.useState(false);
+    const [mounted, setMounted] = React.useState(false);
     const lang: Lang = (locale as Lang) || "en";
     const dict = t(lang);
 
@@ -62,8 +64,9 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
-    // PERSISTENCE & HYDRATION
+    // Initial hydration/persistence
     React.useEffect(() => {
+        setMounted(true);
         const saved = localStorage.getItem("zivra_lead_context");
         if (saved) setLead(JSON.parse(saved));
 
@@ -71,13 +74,25 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         if (isConv === "true") setConverted(true);
     }, []);
 
+    // Manage body overflow when chat is open
+    React.useEffect(() => {
+        if (open) {
+            // Only lock scroll on mobile viewports for better UX, or all? User asked to enforce it.
+            const originalStyle = window.getComputedStyle(document.body).overflow;
+            document.body.style.overflow = 'hidden';
+            return () => {
+                document.body.style.overflow = originalStyle;
+            };
+        }
+    }, [open]);
+
     React.useEffect(() => {
         if (Object.keys(lead).length > 0) {
             localStorage.setItem("zivra_lead_context", JSON.stringify(lead));
         }
     }, [lead]);
 
-    // INITIALIZATION
+    // Initial messages
     React.useEffect(() => {
         if (messages.length === 0) {
             setMessages([{ id: "init", role: "assistant", content: dict.step0 }]);
@@ -95,9 +110,6 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content, isContactCard }]);
     };
 
-    /**
-     * ADVANCE FLOW (State Machine)
-     */
     const sendEvent = async (eventName: string, value: string, updateLead: Partial<LeadData> = {}) => {
         const newLead = { ...lead, ...updateLead };
         setLead(newLead);
@@ -216,148 +228,152 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
     const isRtl = lang === "ar";
 
+    if (!mounted) return null;
+
     return (
         <>
-            {/* 🎯 MAIN WIDGET HOLDER (TOPMOST STACKING CONTEXT) */}
-            <div
-                dir={isRtl ? "rtl" : "ltr"}
-                className={`fixed bottom-24 right-5 z-[9999] w-[400px] max-w-[calc(100vw-40px)] h-[600px] transition-all duration-500 ease-out 
-                    ${open ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'}`}
-            >
-                {/* 1. VISUAL LAYER (Background, Blur, Borders) - NO INTERCEPT */}
-                <div className="absolute inset-0 z-0 rounded-3xl border border-white/10 bg-black/80 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-none select-none" aria-hidden="true" />
+            {/* 1. PORTAL CONTENT: The actual Chat Modal */}
+            <Portal>
+                <div
+                    dir={isRtl ? "rtl" : "ltr"}
+                    className={`fixed bottom-24 right-5 md:right-8 z-[9999] w-[400px] max-w-[calc(100vw-40px)] h-[600px] transition-all duration-500 ease-out 
+                        ${open ? 'opacity-100 translate-y-0 visible pointer-events-auto' : 'opacity-0 translate-y-5 invisible pointer-events-none'}`}
+                >
+                    {/* Visual/Decoration Layer (Pointer events: none) */}
+                    <div className="absolute inset-0 z-0 rounded-3xl border border-white/10 bg-black/80 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-none select-none" />
 
-                {/* 2. INTERACTIVE LAYER - ALL CLICKS HAPPEN HERE */}
-                <div className="relative z-50 flex flex-col h-full rounded-3xl pointer-events-auto overflow-hidden">
+                    {/* Interactive Content Layer (Pointer events: auto) */}
+                    <div className="relative z-10 flex flex-col h-full rounded-3xl pointer-events-auto overflow-hidden">
 
-                    {/* Header */}
-                    <div className="flex items-center justify-between border-b border-white/5 px-6 py-5 bg-white/5 pointer-events-auto relative z-20">
-                        <div className="flex items-center gap-4 pointer-events-none select-none">
-                            <div className="relative h-11 w-11 rounded-full overflow-hidden border border-white/10 ring-2 ring-indigo-500/20">
-                                <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-bold text-white tracking-tight">ZIZO Assistant</h3>
-                                <div className="flex items-center gap-1.5 text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-                                    {isRtl ? 'نشط الآن' : 'Active Now'}
+                        {/* Header */}
+                        <div className="flex items-center justify-between border-b border-white/5 px-6 py-5 bg-white/5 relative z-20 pointer-events-auto">
+                            <div className="flex items-center gap-4 pointer-events-none">
+                                <div className="relative h-11 w-11 rounded-full overflow-hidden border border-white/10 ring-2 ring-indigo-500/20">
+                                    <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-bold text-white tracking-tight">ZIZO Assistant</h3>
+                                    <div className="flex items-center gap-1.5 text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                                        {isRtl ? 'نشط الآن' : 'Active Now'}
+                                    </div>
                                 </div>
                             </div>
+                            <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(false); }}
+                                className="h-8 w-8 flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-all cursor-pointer pointer-events-auto"
+                            >
+                                <span className="text-lg">✕</span>
+                            </button>
                         </div>
-                        <button
-                            type="button"
-                            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(false); }}
-                            className="h-8 w-8 flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-all cursor-pointer pointer-events-auto relative z-30"
+
+                        {/* Message History */}
+                        <div
+                            ref={listRef}
+                            className="flex-1 overflow-y-auto px-6 py-8 space-y-6 scroll-smooth pointer-events-auto relative z-10 overscroll-contain"
                         >
-                            <span className="text-lg">✕</span>
-                        </button>
-                    </div>
+                            {messages.map((m) => (
+                                <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2`}>
+                                    {m.isContactCard ? (
+                                        <div className="w-full max-w-[85%] bg-white/10 rounded-2xl p-5 border border-white/5 backdrop-blur-md shadow-lg relative pointer-events-auto z-20">
+                                            <p className="text-sm font-semibold text-white/90 mb-4">{m.content}</p>
+                                            <div className="space-y-3 pointer-events-auto">
+                                                <button
+                                                    type="button"
+                                                    onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCTA("whatsapp"); }}
+                                                    className="w-full flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 transition-all group cursor-pointer pointer-events-auto relative z-30"
+                                                >
+                                                    <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
+                                                        <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
+                                                    </div>
+                                                    <span className="text-sm font-medium text-white/80 group-hover:text-white transition-colors">
+                                                        {dict.whatsapp}
+                                                    </span>
+                                                    <div className="ms-auto h-2 w-2 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                </button>
 
-                    {/* Messages Area */}
-                    <div
-                        ref={listRef}
-                        className="flex-1 overflow-y-auto px-6 py-8 space-y-6 scroll-smooth pointer-events-auto relative z-10 overscroll-contain"
-                    >
-                        {messages.map((m) => (
-                            <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2`}>
-                                {m.isContactCard ? (
-                                    <div className="w-full max-w-[85%] bg-white/10 rounded-2xl p-5 border border-white/5 backdrop-blur-md shadow-lg relative z-20 pointer-events-auto">
-                                        <p className="text-sm font-semibold text-white/90 mb-4 pointer-events-none select-none">{m.content}</p>
-                                        <div className="space-y-3 pointer-events-auto">
-                                            <button
-                                                type="button"
-                                                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCTA("whatsapp"); }}
-                                                className="w-full flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 transition-all group cursor-pointer pointer-events-auto relative z-30"
-                                            >
-                                                <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative pointer-events-none">
-                                                    <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
-                                                </div>
-                                                <span className="text-sm font-medium text-white/80 group-hover:text-white transition-colors pointer-events-none">
-                                                    {dict.whatsapp}
-                                                </span>
-                                                <div className="ms-auto h-2 w-2 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCTA("email"); }}
-                                                className="w-full flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 transition-all group cursor-pointer pointer-events-auto relative z-30"
-                                            >
-                                                <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative pointer-events-none">
-                                                    <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
-                                                </div>
-                                                <span className="text-sm font-medium text-white/80 group-hover:text-white transition-colors pointer-events-none">
-                                                    {dict.email}
-                                                </span>
-                                                <div className="ms-auto h-2 w-2 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                                            </button>
+                                                <button
+                                                    type="button"
+                                                    onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCTA("email"); }}
+                                                    className="w-full flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 transition-all group cursor-pointer pointer-events-auto relative z-30"
+                                                >
+                                                    <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
+                                                        <Image src="/images/zivra-logo.jpg" alt="" fill className="object-cover" />
+                                                    </div>
+                                                    <span className="text-sm font-medium text-white/80 group-hover:text-white transition-colors">
+                                                        {dict.email}
+                                                    </span>
+                                                    <div className="ms-auto h-2 w-2 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm relative z-20 ${m.role === "user"
-                                        ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-tr-none"
-                                        : "bg-white/10 text-white/90 border border-white/5 rounded-tl-none backdrop-blur-md"
-                                        }`}>
-                                        {m.content}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                        {loading && (
-                            <div className="flex justify-start">
-                                <div className="bg-white/5 rounded-2xl rounded-tl-none px-4 py-2 text-indigo-400 text-[10px] font-bold tracking-widest uppercase animate-pulse">
-                                    {dict.typing}
+                                    ) : (
+                                        <div className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm relative z-20 ${m.role === "user"
+                                                ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-tr-none"
+                                                : "bg-white/10 text-white/90 border border-white/5 rounded-tl-none backdrop-blur-md"
+                                            }`}>
+                                            {m.content}
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Interactive Footer (Choices & Input) */}
-                    <div className="p-6 bg-gradient-to-t from-black/60 to-transparent border-t border-white/5 relative z-50 pointer-events-auto">
-                        <div className="flex flex-wrap gap-2 mb-6 pointer-events-auto">
-                            {options.map((opt) => (
-                                <button
-                                    key={opt}
-                                    type="button"
-                                    onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleOption(opt); }}
-                                    className="rounded-full bg-white/10 px-5 py-2.5 text-xs font-semibold text-white/80 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-purple-600 hover:text-white hover:scale-105 transition-all border border-white/10 active:scale-95 cursor-pointer pointer-events-auto relative z-[60]"
-                                >
-                                    {opt}
-                                </button>
                             ))}
+                            {loading && (
+                                <div className="flex justify-start">
+                                    <div className="bg-white/5 rounded-2xl rounded-tl-none px-4 py-2 text-indigo-400 text-[10px] font-bold tracking-widest uppercase animate-pulse">
+                                        {dict.typing}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
-                        {!converted && (
-                            <div className="relative flex items-center gap-3 pointer-events-auto">
-                                <input
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                                    placeholder={dict.placeholder}
-                                    className="flex-1 h-12 rounded-2xl border border-white/5 bg-white/10 px-5 text-sm text-white placeholder:text-white/20 focus:border-indigo-500/50 outline-none transition-all pointer-events-auto relative z-[60]"
-                                />
-                                <button
-                                    type="button"
-                                    onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); sendMessage(); }}
-                                    disabled={loading || !input.trim()}
-                                    className="h-12 w-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-20 disabled:grayscale cursor-pointer pointer-events-auto relative z-[60]"
-                                >
-                                    <span className={`text-lg transition-transform ${isRtl ? 'rotate-180' : ''} pointer-events-none`}>➤</span>
-                                </button>
+                        {/* Interactive Footer */}
+                        <div className="p-6 bg-gradient-to-t from-black/60 to-transparent border-t border-white/5 relative z-50 pointer-events-auto">
+                            <div className="flex flex-wrap gap-2 mb-6 pointer-events-auto">
+                                {options.map((opt) => (
+                                    <button
+                                        key={opt}
+                                        type="button"
+                                        onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleOption(opt); }}
+                                        className="rounded-full bg-white/10 px-5 py-2.5 text-xs font-semibold text-white/80 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-purple-600 hover:text-white hover:scale-105 transition-all border border-white/10 active:scale-95 cursor-pointer pointer-events-auto relative z-[60]"
+                                    >
+                                        {opt}
+                                    </button>
+                                ))}
                             </div>
-                        )}
+
+                            {!converted && (
+                                <div className="relative flex items-center gap-3 pointer-events-auto">
+                                    <input
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                                        placeholder={dict.placeholder}
+                                        className="flex-1 h-12 rounded-2xl border border-white/5 bg-white/10 px-5 text-sm text-white placeholder:text-white/20 focus:border-indigo-500/50 outline-none transition-all pointer-events-auto relative z-[60]"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); sendMessage(); }}
+                                        disabled={loading || !input.trim()}
+                                        className="h-12 w-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-20 disabled:grayscale cursor-pointer pointer-events-auto relative z-[60]"
+                                    >
+                                        <span className={`text-lg transition-transform ${isRtl ? 'rotate-180' : ''}`}>➤</span>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </Portal>
 
-            {/* 🎯 FLOAT TRIGGER BUTTON (HIGHER THAN CHAT MODAL) */}
+            {/* 2. TRIGGER BUTTON (Lives in the layout flow, but has higher Z-index) */}
             <button
                 type="button"
-                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(!open); }}
-                className="fixed bottom-6 right-6 z-[20000] h-18 w-18 md:h-20 md:w-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-[0_10px_40px_rgba(99,102,241,0.4)] hover:scale-110 hover:shadow-[0_15px_50px_rgba(99,102,241,0.6)] active:scale-90 transition-all duration-500 flex items-center justify-center group overflow-hidden cursor-pointer pointer-events-auto"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(!open); }}
+                className="fixed bottom-6 right-6 z-[10000] h-18 w-18 md:h-20 md:w-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-[0_10px_40px_rgba(99,102,241,0.4)] hover:scale-110 hover:shadow-[0_15px_50px_rgba(99,102,241,0.6)] active:scale-90 transition-all duration-500 flex items-center justify-center group overflow-hidden cursor-pointer pointer-events-auto"
             >
                 {open ? (
-                    <span className="text-2xl font-light pointer-events-none">✕</span>
+                    <span className="text-2xl font-light">✕</span>
                 ) : (
                     <div className="relative h-full w-full flex items-center justify-center pointer-events-none">
                         <div className="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors" />
@@ -367,7 +383,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                     </div>
                 )}
                 {!open && messages.length === 0 && !converted && (
-                    <span className="absolute top-2 right-2 h-4 w-4 bg-red-500 rounded-full border-2 border-black animate-bounce pointer-events-none" />
+                    <span className="absolute top-2 right-2 h-4 w-4 bg-red-500 rounded-full border-2 border-black animate-bounce" />
                 )}
             </button>
         </>
