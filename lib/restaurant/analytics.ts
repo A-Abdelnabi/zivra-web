@@ -7,7 +7,7 @@ export async function logRestaurantInteraction(tenantId: string, type: Interacti
     // Track via general analytics too if available
     try {
         const { trackEvent } = await import('@/lib/analytics');
-        trackEvent(`restaurant_${type}`, { tenantId });
+        trackEvent(`restaurant_${type}` as any, { tenantId });
     } catch (e) {
         // Analytics not initialized or missing
     }

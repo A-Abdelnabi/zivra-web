@@ -12,7 +12,11 @@ export type TrackingEvent =
     | 'pricing_view'
     | 'pricing_cta_click'
     | 'lead_capture_submit'
-    | 'lead_capture_view';
+    | 'lead_capture_view'
+    | 'restaurant_whatsapp_click'
+    | 'restaurant_call_click'
+    | 'restaurant_menu_view'
+    | 'restaurant_consent_accept';
 
 export interface EventParams {
     language?: string;
