@@ -16,7 +16,7 @@ type Msg = {
 type ApiResponse = {
     reply: string;
     options?: string[];
-    recommendedPackage?: string | null;
+    mode?: "A" | "B";
     error?: string;
 };
 
@@ -28,22 +28,24 @@ function t(lang: Lang) {
             title: "خيارات سريعة:",
             initialOptions: [
                 "مطعم / كافيه",
+                "عيادة / طبي",
                 "فندق / سياحة",
                 "شركة خدمات",
                 "متجر إلكتروني",
-                "SaaS / Startup",
-                "سوشيال ميديا"
+                "Startup / SaaS",
+                "سوشيال ميديا / محتوى",
+                "غير متأكد"
             ],
-            whatsapp: "واتساب",
-            email: "إيميل",
+            whatsapp: "واتساب 💬",
+            email: "إيميل ✉️",
             placeholder: "اكتب هنا...",
             send: "إرسال",
-            typing: "المساعد يكتب...",
+            typing: "زيزو يكتب...",
             enter: "اضغط Enter للإرسال",
             errServer: (d: string) => `⚠️ مشكلة بالاتصال: ${d}`,
             errConn: "⚠️ خطأ في الاتصال. حاول مرة ثانية.",
             fallback: "تمام، كمل معي.",
-            waText: "هلا زيفرا! حاب أستفسر عن الباقات والحلول الذكية لشغلي.",
+            waText: "هلا زيفرا! حاب أستفسر عن الحلول والخدمات لمشروعي.",
         };
     }
 
@@ -52,15 +54,17 @@ function t(lang: Lang) {
         init: "Hi 👋 I'm ZIZO AI Assistant. To help you best, what type of business are you running?",
         title: "Quick Options:",
         initialOptions: [
-            "Restaurant / Café",
+            "Restaurant / Cafe",
+            "Clinic / Medical",
             "Hotel / Tourism",
             "Service Business",
             "E-commerce",
-            "SaaS / Startup",
-            "Social Media"
+            "Startup / SaaS",
+            "Social Media / Content",
+            "Not sure yet"
         ],
-        whatsapp: "WhatsApp",
-        email: "Email",
+        whatsapp: "WhatsApp 💬",
+        email: "Email ✉️",
         placeholder: "Type your message...",
         send: "Send",
         typing: "ZIZO is typing…",
@@ -68,13 +72,13 @@ function t(lang: Lang) {
         errServer: (d: string) => `⚠️ Connection issue: ${d}`,
         errConn: "⚠️ Connection error. Please try again.",
         fallback: "Got it, tell me more.",
-        waText: "Hi ZIVRA! I'd like to discuss the packages and tech solutions for my business.",
+        waText: "Hi ZIVRA! I'd like to discuss the services and solutions for my business.",
     };
 }
 
 export default function ChatWidget({ locale }: { locale: Locale }) {
     const [open, setOpen] = React.useState(false);
-    const lang: Lang = locale as Lang;
+    const lang: Lang = (locale as Lang) || "en";
 
     const [input, setInput] = React.useState("");
     const [loading, setLoading] = React.useState(false);
@@ -113,6 +117,9 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         const text = (customText ?? input).trim();
         if (!text || loading) return;
 
+        // Reset options immediately after choice
+        setOptions([]);
+
         const userMsg: Msg = {
             id: crypto.randomUUID(),
             role: "user",
@@ -123,7 +130,6 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         setMessages(nextMessages);
         setInput("");
         setLoading(true);
-        setOptions([]);
 
         try {
             const res = await fetch("/api/chat", {
@@ -146,18 +152,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
             }
 
             addMsg("assistant", data.reply || t(lang).fallback);
-
-            // Collect final options
-            let finalOptions = data.options || [];
-
-            // If the AI didn't provide WhatsApp/Email as options but seems to be closing, or just generally:
-            // Let's ensure WhatsApp and Email are always options if we want to push the sale
-            if (finalOptions.length === 0 || nextMessages.length > 4) {
-                if (!finalOptions.includes("WhatsApp")) finalOptions.push("WhatsApp");
-                if (!finalOptions.includes("Email")) finalOptions.push("Email");
-            }
-
-            setOptions(finalOptions);
+            setOptions(data.options || []);
 
         } catch {
             addMsg("assistant", t(lang).errConn);
@@ -212,8 +207,8 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                             >
                                 <div
                                     className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ${m.role === "user"
-                                            ? "bg-primary text-white rounded-tr-sm shadow-lg shadow-primary/10"
-                                            : "bg-white/10 text-white/90 border border-white/5 rounded-tl-sm"
+                                        ? "bg-primary text-white rounded-tr-sm shadow-lg shadow-primary/10"
+                                        : "bg-white/10 text-white/90 border border-white/5 rounded-tl-sm shadow-sm"
                                         }`}
                                 >
                                     {m.content}
@@ -235,8 +230,9 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                         {options.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-4">
                                 {options.map((opt) => {
-                                    const isWhatsApp = opt === "WhatsApp" || opt === "واتساب";
-                                    const isEmail = opt === "Email" || opt === "إيميل";
+                                    const rawOpt = opt.toLowerCase();
+                                    const isWhatsApp = rawOpt.includes("whatsapp") || rawOpt.includes("واتساب");
+                                    const isEmail = rawOpt.includes("email") || rawOpt.includes("إيميل");
 
                                     if (isWhatsApp) {
                                         return (
@@ -247,7 +243,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                                 rel="noopener noreferrer"
                                                 className="flex items-center gap-1.5 rounded-full bg-green-600/20 px-4 py-2 text-xs font-bold text-green-400 border border-green-500/30 hover:bg-green-600/30 transition-all hover:scale-105"
                                             >
-                                                <span className="text-sm">💬</span> {t(lang).whatsapp}
+                                                <span className="text-sm">💬</span> {opt}
                                             </a>
                                         );
                                     }
@@ -258,7 +254,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                                 href="mailto:info@zivra.co"
                                                 className="flex items-center gap-1.5 rounded-full bg-blue-600/20 px-4 py-2 text-xs font-bold text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 transition-all hover:scale-105"
                                             >
-                                                <span className="text-sm">✉️</span> {t(lang).email}
+                                                <span className="text-sm">✉️</span> {opt}
                                             </a>
                                         );
                                     }
