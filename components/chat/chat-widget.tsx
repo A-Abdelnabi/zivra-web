@@ -19,6 +19,8 @@ type LeadData = {
     businessType?: string;
     selectedService?: string;
     goal?: string;
+    platforms?: string[];
+    lastUserMessage?: string;
 };
 
 function t(lang: Lang) {
@@ -30,16 +32,17 @@ function t(lang: Lang) {
             step2: "عشان نعطيك اقتراح مناسب وتسعير سريع، تواصل معنا:\n\n✅ واتساب: https://wa.me/358401604442\n✅ إيميل: hello@zivra.dev\n\nوبالرسالة اكتب:\n1) نوع النشاط\n2) الهدف اللي تبيه\n3) أفضل وقت نتواصل معك",
             consultReq: "إيش المزايا؟ / باقة الأنسب لي؟",
             goalQuestion: "وش أهم هدف لك الحين؟",
-            whatsapp: "تواصل عبر واتساب",
-            email: "تواصل عبر البريد",
+            whatsapp: "واتساب 💬",
+            email: "إيميل ✉️",
             placeholder: "أكتب استفسارك هنا...",
-            typing: "ZIZO يكتب...",
+            typing: "المساعد يكتب...",
             whatsappLink: "https://wa.me/358401604442",
             emailAddr: "hello@zivra.dev",
             bizTypes: ["مطعم / كافيه", "عيادة / طبي", "فندق / سياحة", "شركة خدمات", "متجر إلكتروني", "Startup / SaaS", "غير متأكد بعد"],
-            services: ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth", "ساعدوني في الاختيار"],
+            services: ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth Engine", "ساعدوني في الاختيار"],
             goals: ["زيادة المبيعات", "زيادة العملاء", "توفير الوقت / أتمتة", "تحسين الخدمة", "إطلاق سريع"],
-            waTemplate: (biz: string, goal: string) => `هلا ZIVRA! حاب أستفسر عن حلولكم. نشاطي هو ${biz || '...'} وهدفي هو ${goal || '...'} وأفضل وقت للتواصل معي هو...`
+            errPopup: "يبدو أن المتصفح حظر فتح النافذة. فضلاً اضغط هنا للواتساب: ",
+            emailSubject: "استفسار مشروع - ZIVRA"
         };
     }
 
@@ -50,17 +53,45 @@ function t(lang: Lang) {
         step2: "To give you a precise recommendation and a quick quote, please contact us:\n\n✅ WhatsApp: https://wa.me/358401604442\n✅ Email: hello@zivra.dev\n\nWhen you message us, tell us:\n1) Your business type\n2) What you want to achieve\n3) Best time to contact you",
         consultReq: "What are the benefits? / Help me choose.",
         goalQuestion: "What’s your main goal right now?",
-        whatsapp: "Contact via WhatsApp",
-        email: "Contact via Email",
+        whatsapp: "WhatsApp 💬",
+        email: "Email ✉️",
         placeholder: "Type your message...",
         typing: "ZIZO is typing...",
         whatsappLink: "https://wa.me/358401604442",
         emailAddr: "hello@zivra.dev",
         bizTypes: ["Restaurant / Café", "Clinic / Medical", "Hotel / Tourism", "Service Business", "E-commerce", "Startup / SaaS", "Not sure yet"],
-        services: ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth", "Help me choose"],
+        services: ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth Engine", "Help me choose"],
         goals: ["Increase sales", "Get more leads", "Save time / automate", "Improve support", "Launch fast"],
-        waTemplate: (biz: string, goal: string) => `Hi ZIVRA! I'd like to discuss your tech solutions. My business is ${biz || '...'} and my goal is ${goal || '...'} and the best time to reach me is...`
+        errPopup: "It seems your browser blocked the window. Please click here for WhatsApp: ",
+        emailSubject: "Project Inquiry - ZIVRA"
     };
+}
+
+function buildContactMessage(lead: LeadData, lang: Lang) {
+    const isAr = lang === 'ar';
+    const lines = [];
+
+    if (isAr) {
+        lines.push("هلا زيفرا! (zivra.dev)");
+        if (lead.businessType) lines.push(`نوع النشاط: ${lead.businessType}`);
+        if (lead.selectedService) lines.push(`الخدمة المطلوبة: ${lead.selectedService}`);
+        if (lead.goal) lines.push(`الهدف الأساسي: ${lead.goal}`);
+        if (lead.platforms && lead.platforms.length > 0) lines.push(`المنصات: ${lead.platforms.join(', ')}`);
+        lines.push("");
+        lines.push("حاب أعرف تفاصيل أكثر عن الباقات المتاحة وكيف نبدأ.");
+        lines.push("أرسلت بواسطة دردشة الموقع.");
+    } else {
+        lines.push("Hi ZIVRA! (zivra.dev)");
+        if (lead.businessType) lines.push(`Business Type: ${lead.businessType}`);
+        if (lead.selectedService) lines.push(`Service Interested: ${lead.selectedService}`);
+        if (lead.goal) lines.push(`Main Goal: ${lead.goal}`);
+        if (lead.platforms && lead.platforms.length > 0) lines.push(`Platforms: ${lead.platforms.join(', ')}`);
+        lines.push("");
+        lines.push("I'd like to get more details on your packages and how to start.");
+        lines.push("Sent from ZIVRA website chat.");
+    }
+
+    return lines.join("\n");
 }
 
 export default function ChatWidget({ locale }: { locale: Locale }) {
@@ -107,19 +138,24 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content }]);
     };
 
-    const captureAndSyncLead = async (update: Partial<LeadData>) => {
+    const captureAndSyncLead = async (update: Partial<LeadData>, type: string = "lead_update") => {
         const newLead = { ...lead, ...update };
         setLead(newLead);
 
-        // Sync to server via the chat API even without a message to trigger webhook
         try {
             await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    messages: [], // Minimal message payload
+                    messages: [],
                     lang,
-                    leadData: { ...newLead, locale: lang }
+                    leadData: {
+                        ...newLead,
+                        locale: lang,
+                        type,
+                        timestamp: new Date().toISOString(),
+                        pageUrl: typeof window !== "undefined" ? window.location.href : ""
+                    }
                 }),
             });
         } catch (e) {
@@ -128,11 +164,32 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
     };
 
     const handleOption = async (opt: string) => {
+        const isWhatsApp = opt.includes("WhatsApp") || opt.includes("واتساب");
+        const isEmail = opt.includes("Email") || opt.includes("إيميل");
+
+        if (isWhatsApp || isEmail) {
+            const method = isWhatsApp ? "whatsapp" : "email";
+            const message = buildContactMessage(lead, lang);
+
+            await captureAndSyncLead({ lastUserMessage: `Clicked ${method} CTA` }, "contact_click");
+
+            if (isWhatsApp) {
+                const waUrl = `https://wa.me/358401604442?text=${encodeURIComponent(message)}`;
+                const win = window.open(waUrl, "_blank", "noopener,noreferrer");
+                if (!win) {
+                    addMsg("assistant", `${dict.errPopup} ${waUrl}`);
+                }
+            } else {
+                const mailtoUrl = `mailto:hello@zivra.dev?subject=${encodeURIComponent(dict.emailSubject)}&body=${encodeURIComponent(message)}`;
+                window.location.href = mailtoUrl;
+            }
+            return;
+        }
+
         addMsg("user", opt);
         setOptions([]);
 
         if (step === 0) {
-            // Business Type chosen
             setStep(1);
             await captureAndSyncLead({ businessType: opt });
             setLoading(true);
@@ -142,7 +199,6 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                 setOptions(dict.services);
             }, 600);
         } else if (step === 1) {
-            // Service chosen or help me choose
             await captureAndSyncLead({ selectedService: opt });
             if (opt.includes("choose") || opt.includes("اختيار")) {
                 handleAskConsultation();
@@ -151,23 +207,15 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                 setTimeout(() => {
                     setLoading(false);
                     addMsg("assistant", dict.step2);
-                    setOptions(["WhatsApp 💬", "Email ✉️", dict.consultReq]);
+                    setOptions([dict.whatsapp, dict.email, dict.consultReq]);
                 }, 600);
             }
-        } else if (step === 2 || opt === dict.consultReq) {
-            if (opt.includes("WhatsApp")) {
-                window.open(`https://wa.me/358401604442?text=${encodeURIComponent(dict.waTemplate(lead.businessType || '', lead.goal || ''))}`, "_blank");
-                captureAndSyncLead({ lastUserMessage: "Clicked WhatsApp CTA" });
-            } else if (opt.includes("Email")) {
-                window.location.href = `mailto:hello@zivra.dev?subject=Project Inquiry&body=${encodeURIComponent(dict.waTemplate(lead.businessType || '', lead.goal || ''))}`;
-                captureAndSyncLead({ lastUserMessage: "Clicked Email CTA" });
-            } else {
-                handleAskConsultation();
-            }
         } else if (step === 3) {
-            // Goal chosen
             await captureAndSyncLead({ goal: opt });
-            sendMessage(opt); // Send to AI for the 4-6 bullet tailored explanation
+            // Send to AI for explanation
+            sendMessage(opt);
+        } else if (opt === dict.consultReq) {
+            handleAskConsultation();
         }
     };
 
@@ -204,7 +252,11 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
             const data = await res.json();
             if (res.ok) {
                 addMsg("assistant", data.reply);
-                setOptions(data.options || ["WhatsApp 💬", "Email ✉️"]);
+                if (data.options && data.options.length > 0) {
+                    setOptions(data.options);
+                } else {
+                    setOptions([dict.whatsapp, dict.email]);
+                }
             }
         } catch (e) {
             addMsg("assistant", lang === 'ar' ? 'عفواً، واجهت مشكلة.' : 'Sorry, something went wrong.');
@@ -225,14 +277,14 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                 <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-white">ZIZO Assistant</h3>
+                                <h3 className="text-sm font-bold text-white leading-tight">ZIZO Assistant</h3>
                                 <div className="flex items-center gap-1.5 text-[10px] text-green-400 font-medium tracking-wider uppercase">
                                     <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
                                     {isRtl ? 'متصل الآن' : 'Online Now'}
                                 </div>
                             </div>
                         </div>
-                        <button onClick={() => setOpen(false)} className="text-white/40 hover:text-white transition-colors">✕</button>
+                        <button onClick={() => setOpen(false)} className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white transition-colors">✕</button>
                     </div>
 
                     <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth">
@@ -277,10 +329,10 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
             <button
                 onClick={() => setOpen(!open)}
-                className="fixed bottom-6 right-6 z-[9999] h-16 w-16 rounded-full bg-primary text-white shadow-2xl hover:scale-110 transition-all flex items-center justify-center"
+                className="fixed bottom-6 right-6 z-[9999] h-16 w-16 rounded-full bg-primary text-white shadow-2xl hover:scale-110 transition-all flex items-center justify-center group"
             >
                 {open ? <span className="text-xl">✕</span> : (
-                    <div className="relative h-11 w-11 rounded-full overflow-hidden border-2 border-white/20">
+                    <div className="relative h-11 w-11 rounded-full overflow-hidden border-2 border-white/20 group-hover:border-white/40">
                         <Image src="/images/zivra-logo.jpg" alt="Chat" fill className="object-cover" />
                     </div>
                 )}
