@@ -13,303 +13,277 @@ type Msg = {
     content: string;
 };
 
-type ApiResponse = {
-    reply: string;
-    options?: string[];
-    mode?: "A" | "B";
-    error?: string;
+type LeadData = {
+    name?: string;
+    email?: string;
+    businessType?: string;
+    selectedService?: string;
+    goal?: string;
 };
 
 function t(lang: Lang) {
     if (lang === "ar") {
         return {
             welcome: "ZIVRA AI",
-            init: "يا هلا 👋 أنا زيزو مساعدك الذكي. عشان أقدر أخدمك صح، وش نوع بزنسك؟",
-            title: "خيارات سريعة:",
-            initialOptions: [
-                "مطعم / كافيه",
-                "عيادة / طبي",
-                "فندق / سياحة",
-                "شركة خدمات",
-                "متجر إلكتروني",
-                "Startup / SaaS",
-                "سوشيال ميديا / محتوى",
-                "غير متأكد"
-            ],
-            whatsapp: "واتساب 💬",
-            email: "إيميل ✉️",
-            placeholder: "اكتب هنا...",
-            send: "إرسال",
-            typing: "زيزو يكتب...",
-            enter: "اضغط Enter للإرسال",
-            errServer: (d: string) => `⚠️ مشكلة بالاتصال: ${d}`,
-            errConn: "⚠️ خطأ في الاتصال. حاول مرة ثانية.",
-            fallback: "تمام، كمل معي.",
-            waText: "هلا زيفرا! حاب أستفسر عن الحلول والخدمات لمشروعي.",
+            step0: "هلا 👋 أنا مساعد ZIZO. بس بسألك سؤال سريع وبعدين أعرض لك خدماتنا. وش نوع نشاطك؟",
+            step1: "تمام. هذه خدماتنا - اختر اللي يناسبك، أو تواصل معنا ونرتّب لك أفضل خيار.",
+            step2: "عشان نعطيك اقتراح مناسب وتسعير سريع، تواصل معنا:\n\n✅ واتساب: https://wa.me/358401604442\n✅ إيميل: hello@zivra.dev\n\nوبالرسالة اكتب:\n1) نوع النشاط\n2) الهدف اللي تبيه\n3) أفضل وقت نتواصل معك",
+            consultReq: "إيش المزايا؟ / باقة الأنسب لي؟",
+            goalQuestion: "وش أهم هدف لك الحين؟",
+            whatsapp: "تواصل عبر واتساب",
+            email: "تواصل عبر البريد",
+            placeholder: "أكتب استفسارك هنا...",
+            typing: "ZIZO يكتب...",
+            whatsappLink: "https://wa.me/358401604442",
+            emailAddr: "hello@zivra.dev",
+            bizTypes: ["مطعم / كافيه", "عيادة / طبي", "فندق / سياحة", "شركة خدمات", "متجر إلكتروني", "Startup / SaaS", "غير متأكد بعد"],
+            services: ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth", "ساعدوني في الاختيار"],
+            goals: ["زيادة المبيعات", "زيادة العملاء", "توفير الوقت / أتمتة", "تحسين الخدمة", "إطلاق سريع"],
+            waTemplate: (biz: string, goal: string) => `هلا ZIVRA! حاب أستفسر عن حلولكم. نشاطي هو ${biz || '...'} وهدفي هو ${goal || '...'} وأفضل وقت للتواصل معي هو...`
         };
     }
 
     return {
         welcome: "ZIVRA AI",
-        init: "Hi 👋 I'm ZIZO AI Assistant. To help you best, what type of business are you running?",
-        title: "Quick Options:",
-        initialOptions: [
-            "Restaurant / Cafe",
-            "Clinic / Medical",
-            "Hotel / Tourism",
-            "Service Business",
-            "E-commerce",
-            "Startup / SaaS",
-            "Social Media / Content",
-            "Not sure yet"
-        ],
-        whatsapp: "WhatsApp 💬",
-        email: "Email ✉️",
+        step0: "Hi 👋 I’m ZIZO AI Assistant. I’ll ask 1 quick question, then I’ll show you our services. What type of business are you?",
+        step1: "Perfect. Here’s what we can help you with. Pick anything, or just contact us and we’ll guide you.",
+        step2: "To give you a precise recommendation and a quick quote, please contact us:\n\n✅ WhatsApp: https://wa.me/358401604442\n✅ Email: hello@zivra.dev\n\nWhen you message us, tell us:\n1) Your business type\n2) What you want to achieve\n3) Best time to contact you",
+        consultReq: "What are the benefits? / Help me choose.",
+        goalQuestion: "What’s your main goal right now?",
+        whatsapp: "Contact via WhatsApp",
+        email: "Contact via Email",
         placeholder: "Type your message...",
-        send: "Send",
-        typing: "ZIZO is typing…",
-        enter: "Press Enter to send",
-        errServer: (d: string) => `⚠️ Connection issue: ${d}`,
-        errConn: "⚠️ Connection error. Please try again.",
-        fallback: "Got it, tell me more.",
-        waText: "Hi ZIVRA! I'd like to discuss the services and solutions for my business.",
+        typing: "ZIZO is typing...",
+        whatsappLink: "https://wa.me/358401604442",
+        emailAddr: "hello@zivra.dev",
+        bizTypes: ["Restaurant / Café", "Clinic / Medical", "Hotel / Tourism", "Service Business", "E-commerce", "Startup / SaaS", "Not sure yet"],
+        services: ["Website / Landing Page", "Web App / Dashboard", "AI Chatbot", "Automation (n8n)", "Lead Follow-up", "Social Media Growth", "Help me choose"],
+        goals: ["Increase sales", "Get more leads", "Save time / automate", "Improve support", "Launch fast"],
+        waTemplate: (biz: string, goal: string) => `Hi ZIVRA! I'd like to discuss your tech solutions. My business is ${biz || '...'} and my goal is ${goal || '...'} and the best time to reach me is...`
     };
 }
 
 export default function ChatWidget({ locale }: { locale: Locale }) {
     const [open, setOpen] = React.useState(false);
     const lang: Lang = (locale as Lang) || "en";
+    const dict = t(lang);
 
-    const [input, setInput] = React.useState("");
-    const [loading, setLoading] = React.useState(false);
-    const [options, setOptions] = React.useState<string[]>([]);
     const [messages, setMessages] = React.useState<Msg[]>([]);
+    const [options, setOptions] = React.useState<string[]>([]);
+    const [loading, setLoading] = React.useState(false);
+    const [input, setInput] = React.useState("");
+
+    // Lead state
+    const [lead, setLead] = React.useState<LeadData>({});
+    const [step, setStep] = React.useState(0);
 
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
+    // Persist lead to localStorage
+    React.useEffect(() => {
+        const saved = localStorage.getItem("zivra_lead_context");
+        if (saved) setLead(JSON.parse(saved));
+    }, []);
+
+    React.useEffect(() => {
+        if (Object.keys(lead).length > 0) {
+            localStorage.setItem("zivra_lead_context", JSON.stringify(lead));
+        }
+    }, [lead]);
+
+    // Initialize flow
     React.useEffect(() => {
         if (open && messages.length === 0) {
-            const dict = t(lang);
-            setMessages([{ id: "init", role: "assistant", content: dict.init }]);
-            setOptions(dict.initialOptions);
+            setMessages([{ id: "init", role: "assistant", content: dict.step0 }]);
+            setOptions(dict.bizTypes);
         }
-    }, [open, lang, messages.length]);
+    }, [open, messages.length, dict]);
 
     React.useEffect(() => {
-        if (!open) return;
-        listRef.current?.scrollTo({
-            top: listRef.current.scrollHeight,
-            behavior: "smooth",
-        });
+        listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
     }, [messages, open]);
 
-    function addMsg(role: Role, content: string) {
+    const addMsg = (role: Role, content: string) => {
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content }]);
-    }
+    };
 
-    function getWhatsAppLink() {
-        const phoneNumber = "358401604442";
-        const text = t(lang).waText;
-        return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
-    }
+    const captureAndSyncLead = async (update: Partial<LeadData>) => {
+        const newLead = { ...lead, ...update };
+        setLead(newLead);
 
-    async function sendMessage(customText?: string) {
-        const text = (customText ?? input).trim();
-        if (!text || loading) return;
+        // Sync to server via the chat API even without a message to trigger webhook
+        try {
+            await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    messages: [], // Minimal message payload
+                    lang,
+                    leadData: { ...newLead, locale: lang }
+                }),
+            });
+        } catch (e) {
+            console.error("Lead sync error", e);
+        }
+    };
 
-        // Reset options immediately after choice
+    const handleOption = async (opt: string) => {
+        addMsg("user", opt);
         setOptions([]);
 
-        const userMsg: Msg = {
-            id: crypto.randomUUID(),
-            role: "user",
-            content: text,
-        };
+        if (step === 0) {
+            // Business Type chosen
+            setStep(1);
+            await captureAndSyncLead({ businessType: opt });
+            setLoading(true);
+            setTimeout(() => {
+                setLoading(false);
+                addMsg("assistant", dict.step1);
+                setOptions(dict.services);
+            }, 600);
+        } else if (step === 1) {
+            // Service chosen or help me choose
+            await captureAndSyncLead({ selectedService: opt });
+            if (opt.includes("choose") || opt.includes("اختيار")) {
+                handleAskConsultation();
+            } else {
+                setLoading(true);
+                setTimeout(() => {
+                    setLoading(false);
+                    addMsg("assistant", dict.step2);
+                    setOptions(["WhatsApp 💬", "Email ✉️", dict.consultReq]);
+                }, 600);
+            }
+        } else if (step === 2 || opt === dict.consultReq) {
+            if (opt.includes("WhatsApp")) {
+                window.open(`https://wa.me/358401604442?text=${encodeURIComponent(dict.waTemplate(lead.businessType || '', lead.goal || ''))}`, "_blank");
+                captureAndSyncLead({ lastUserMessage: "Clicked WhatsApp CTA" });
+            } else if (opt.includes("Email")) {
+                window.location.href = `mailto:hello@zivra.dev?subject=Project Inquiry&body=${encodeURIComponent(dict.waTemplate(lead.businessType || '', lead.goal || ''))}`;
+                captureAndSyncLead({ lastUserMessage: "Clicked Email CTA" });
+            } else {
+                handleAskConsultation();
+            }
+        } else if (step === 3) {
+            // Goal chosen
+            await captureAndSyncLead({ goal: opt });
+            sendMessage(opt); // Send to AI for the 4-6 bullet tailored explanation
+        }
+    };
 
-        const nextMessages = [...messages, userMsg];
-        setMessages(nextMessages);
+    const handleAskConsultation = () => {
+        setStep(3);
+        setLoading(true);
+        setTimeout(() => {
+            setLoading(false);
+            addMsg("assistant", dict.goalQuestion);
+            setOptions(dict.goals);
+        }, 600);
+    };
+
+    const sendMessage = async (override?: string) => {
+        const text = (override ?? input).trim();
+        if (!text || loading) return;
+
+        if (!override) addMsg("user", text);
         setInput("");
         setLoading(true);
+        setOptions([]);
 
         try {
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    messages: nextMessages.map((m) => ({
-                        role: m.role,
-                        content: m.content,
-                    })),
-                    lang: lang,
+                    messages: [...messages, { role: "user", content: text }].map(m => ({ role: m.role, content: m.content })),
+                    lang,
+                    leadData: { ...lead, locale: lang }
                 }),
             });
 
-            const data: ApiResponse = await res.json().catch(() => ({}));
-
-            if (!res.ok) {
-                addMsg("assistant", t(lang).errServer("Internal Error"));
-                return;
+            const data = await res.json();
+            if (res.ok) {
+                addMsg("assistant", data.reply);
+                setOptions(data.options || ["WhatsApp 💬", "Email ✉️"]);
             }
-
-            addMsg("assistant", data.reply || t(lang).fallback);
-            setOptions(data.options || []);
-
-        } catch {
-            addMsg("assistant", t(lang).errConn);
+        } catch (e) {
+            addMsg("assistant", lang === 'ar' ? 'عفواً، واجهت مشكلة.' : 'Sorry, something went wrong.');
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const isRtl = lang === "ar";
 
     return (
         <>
             {open && (
-                <div
-                    dir={isRtl ? "rtl" : "ltr"}
-                    className="fixed bottom-24 right-5 z-[99999] w-[400px] max-w-[calc(100vw-40px)] overflow-hidden rounded-2xl border border-white/10 bg-black/80 backdrop-blur-2xl shadow-2xl transition-all flex flex-col h-[600px] animate-in slide-in-from-bottom-5 duration-300"
-                >
-                    {/* Header */}
-                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-4 shrink-0 bg-white/5">
+                <div dir={isRtl ? "rtl" : "ltr"} className="fixed bottom-24 right-5 z-[9999] w-[400px] max-w-[calc(100vw-40px)] rounded-2xl border border-white/10 bg-black/80 backdrop-blur-2xl shadow-2xl flex flex-col h-[600px] animate-in slide-in-from-bottom-5 duration-300">
+                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-4 bg-white/5">
                         <div className="flex items-center gap-3">
                             <div className="relative h-10 w-10 rounded-full overflow-hidden border border-white/20">
-                                <Image
-                                    src="/images/zivra-logo.jpg"
-                                    alt="Zivra"
-                                    fill
-                                    className="object-cover"
-                                />
+                                <Image src="/images/zivra-logo.jpg" alt="Zivra" fill className="object-cover" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-white leading-tight">ZIZO Assistant</h3>
-                                <div className="flex items-center gap-1.5">
+                                <h3 className="text-sm font-bold text-white">ZIZO Assistant</h3>
+                                <div className="flex items-center gap-1.5 text-[10px] text-green-400 font-medium tracking-wider uppercase">
                                     <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                                    <span className="text-[10px] text-white/50 uppercase tracking-wider font-medium">{isRtl ? 'متصل الآن' : 'Online Now'}</span>
+                                    {isRtl ? 'متصل الآن' : 'Online Now'}
                                 </div>
                             </div>
                         </div>
-
-                        <button
-                            onClick={() => setOpen(false)}
-                            className="h-8 w-8 flex items-center justify-center rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
-                        >
-                            <span className="text-lg">✕</span>
-                        </button>
+                        <button onClick={() => setOpen(false)} className="text-white/40 hover:text-white transition-colors">✕</button>
                     </div>
 
-                    {/* Messages */}
                     <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth">
                         {messages.map((m) => (
-                            <div
-                                key={m.id}
-                                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-                            >
-                                <div
-                                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ${m.role === "user"
-                                        ? "bg-primary text-white rounded-tr-sm shadow-lg shadow-primary/10"
-                                        : "bg-white/10 text-white/90 border border-white/5 rounded-tl-sm shadow-sm"
-                                        }`}
-                                >
+                            <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                                <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap shadow-sm ${m.role === "user" ? "bg-primary text-white rounded-tr-sm" : "bg-white/10 text-white/90 rounded-tl-sm border border-white/5"
+                                    }`}>
                                     {m.content}
                                 </div>
                             </div>
                         ))}
-                        {loading && (
-                            <div className="flex justify-start">
-                                <div className="bg-white/5 rounded-2xl rounded-tl-sm px-4 py-3 text-white/40 text-xs animate-pulse border border-white/5">
-                                    {t(lang).typing}
-                                </div>
-                            </div>
-                        )}
+                        {loading && <div className="text-xs text-white/30 italic px-2">{dict.typing}</div>}
                     </div>
 
-                    {/* Footer / Input */}
                     <div className="p-4 bg-white/5 border-t border-white/10">
-                        {/* Dynamic Recommendations */}
                         {options.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-4">
-                                {options.map((opt) => {
-                                    const rawOpt = opt.toLowerCase();
-                                    const isWhatsApp = rawOpt.includes("whatsapp") || rawOpt.includes("واتساب");
-                                    const isEmail = rawOpt.includes("email") || rawOpt.includes("إيميل");
-
-                                    if (isWhatsApp) {
-                                        return (
-                                            <a
-                                                key={opt}
-                                                href={getWhatsAppLink()}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex items-center gap-1.5 rounded-full bg-green-600/20 px-4 py-2 text-xs font-bold text-green-400 border border-green-500/30 hover:bg-green-600/30 transition-all hover:scale-105"
-                                            >
-                                                <span className="text-sm">💬</span> {opt}
-                                            </a>
-                                        );
-                                    }
-                                    if (isEmail) {
-                                        return (
-                                            <a
-                                                key={opt}
-                                                href="mailto:info@zivra.co"
-                                                className="flex items-center gap-1.5 rounded-full bg-blue-600/20 px-4 py-2 text-xs font-bold text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 transition-all hover:scale-105"
-                                            >
-                                                <span className="text-sm">✉️</span> {opt}
-                                            </a>
-                                        );
-                                    }
-                                    return (
-                                        <button
-                                            key={opt}
-                                            type="button"
-                                            onClick={() => sendMessage(opt)}
-                                            className="rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white hover:bg-white/20 transition-all border border-white/10 hover:border-white/20 active:scale-95"
-                                        >
-                                            {opt}
-                                        </button>
-                                    );
-                                })}
+                                {options.map((opt) => (
+                                    <button
+                                        key={opt}
+                                        onClick={() => handleOption(opt)}
+                                        className="rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white hover:bg-primary hover:scale-105 transition-all border border-white/10"
+                                    >
+                                        {opt}
+                                    </button>
+                                ))}
                             </div>
                         )}
-
-                        <div className="relative flex items-center gap-2">
+                        <div className="flex items-center gap-2">
                             <input
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                                placeholder={t(lang).placeholder}
-                                className="flex-1 h-12 rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none placeholder:text-white/20 focus:border-primary/50 transition-colors"
+                                placeholder={dict.placeholder}
+                                className="flex-1 h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white focus:border-primary/50 outline-none"
                             />
-                            <button
-                                onClick={() => sendMessage()}
-                                disabled={loading || !input.trim()}
-                                className="h-12 w-12 flex items-center justify-center rounded-xl bg-primary text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-30 disabled:hover:scale-100"
-                            >
-                                <span className={isRtl ? 'rotate-180' : ''}>➤</span>
-                            </button>
+                            <button onClick={() => sendMessage()} disabled={loading} className="h-11 w-11 flex items-center justify-center rounded-xl bg-primary text-white transition-transform active:scale-95">➤</button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Float Trigger */}
             <button
-                onClick={() => setOpen((v) => !v)}
-                className="fixed bottom-6 right-6 z-[99999] h-16 w-16 flex items-center justify-center rounded-full bg-primary text-white shadow-2xl shadow-primary/20 hover:scale-110 active:scale-95 transition-all duration-300 group"
+                onClick={() => setOpen(!open)}
+                className="fixed bottom-6 right-6 z-[9999] h-16 w-16 rounded-full bg-primary text-white shadow-2xl hover:scale-110 transition-all flex items-center justify-center"
             >
-                {open ? (
-                    <span className="text-xl">✕</span>
-                ) : (
-                    <div className="relative h-11 w-11 rounded-full overflow-hidden border-2 border-white/20 group-hover:border-white/40 transition-colors">
-                        <Image
-                            src="/images/zivra-logo.jpg"
-                            alt="Chat"
-                            fill
-                            className="object-cover"
-                        />
+                {open ? <span className="text-xl">✕</span> : (
+                    <div className="relative h-11 w-11 rounded-full overflow-hidden border-2 border-white/20">
+                        <Image src="/images/zivra-logo.jpg" alt="Chat" fill className="object-cover" />
                     </div>
                 )}
-                {/* Notification Badge */}
                 {!open && messages.length === 0 && (
                     <span className="absolute -top-1 -right-1 h-5 w-5 bg-blue-500 rounded-full border-2 border-[#0a0a0c] flex items-center justify-center text-[10px] font-bold">1</span>
                 )}
