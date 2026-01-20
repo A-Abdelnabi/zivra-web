@@ -34,6 +34,7 @@ export interface RestaurantTenant {
             en: string;
             ar: string;
         };
+        status: 'draft' | 'live';
     };
     menu: MenuItem[];
 }

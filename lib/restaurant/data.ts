@@ -19,6 +19,7 @@ export const MOCK_RESTAURANTS: Record<string, RestaurantTenant> = {
                 en: "By continuing, you agree to our data collection for order processing and AI interaction under Saudi PDPL laws.",
                 ar: "من خلال المتابعة، فإنك توافق على جمع بياناتنا لمعالجة الطلبات والتفاعل مع الذكاء الاصطناعي بموجب قوانين نظام حماية البيانات الشخصية السعودي.",
             },
+            status: 'live'
         },
         menu: [
             {

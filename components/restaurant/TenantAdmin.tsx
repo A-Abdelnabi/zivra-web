@@ -3,7 +3,7 @@
 import * as React from "react";
 import { RestaurantTenant, Locale } from "@/lib/restaurant/types";
 import { getTenantBySlug } from "@/lib/restaurant/data";
-import { BarChart3, Settings, Menu as MenuIcon, Eye, MessageCircle, Phone, Save } from "lucide-react";
+import { BarChart3, Settings, Menu as MenuIcon, Eye, MessageCircle, Phone, Save, CheckCircle2, Circle, Layout, Image as ImageIcon, MapPin } from "lucide-react";
 
 export default function TenantAdmin({ slug, locale }: { slug: string; locale: Locale }) {
     const [tenant, setTenant] = React.useState<RestaurantTenant | null>(null);
@@ -27,6 +27,13 @@ export default function TenantAdmin({ slug, locale }: { slug: string; locale: Lo
         { label: locale === 'ar' ? 'طلبات مكتملة' : 'Conversion Rate', val: '14%', icon: BarChart3, color: 'text-purple-500' },
     ];
 
+    const onboardingSteps = [
+        { id: 'info', icon: Layout, title: locale === 'ar' ? 'بيانات المطعم' : 'Restaurant Info', completed: !!tenant.name.en && !!tenant.logoUrl },
+        { id: 'menu', icon: MenuIcon, title: locale === 'ar' ? 'إدخال القائمة' : 'Menu Digitization', completed: tenant.menu.length > 0 },
+        { id: 'contact', icon: Phone, title: locale === 'ar' ? 'إعدادات التواصل' : 'Contact Config', completed: !!tenant.whatsapp },
+        { id: 'privacy', icon: Settings, title: locale === 'ar' ? 'الخصوصية' : 'Privacy Settings', completed: !!tenant.settings.privacyText.ar },
+    ];
+
     return (
         <div className={`min-h-screen bg-[#050505] text-white ${isRtl ? 'font-cairo' : 'font-inter'}`} dir={isRtl ? "rtl" : "ltr"}>
             {/* Admin Header */}
@@ -38,17 +45,46 @@ export default function TenantAdmin({ slug, locale }: { slug: string; locale: Lo
                         <p className="text-xs text-zinc-500">{tenant.name[locale]}</p>
                     </div>
                 </div>
-                <button className="h-10 px-6 rounded-xl bg-primary text-white text-xs font-bold flex items-center gap-2 hover:scale-105 transition-all">
-                    <Save size={14} />
-                    {locale === 'ar' ? 'حفظ التغييرات' : 'Save Changes'}
-                </button>
+                <div className="flex items-center gap-4">
+                    <div className="hidden md:flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+                        <div className={`h-2 w-2 rounded-full ${tenant.settings.status === 'live' ? 'bg-green-500 shadow-[0_0_10px_#22c55e]' : 'bg-orange-500 shadow-[0_0_10px_#f97316]'}`} />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                            {tenant.settings.status === 'live' ? (locale === 'ar' ? 'مباشر' : 'Live') : (locale === 'ar' ? 'إسوداد' : 'Draft')}
+                        </span>
+                    </div>
+                    <button className="h-10 px-6 rounded-xl bg-primary text-white text-xs font-bold flex items-center gap-2 hover:scale-105 transition-all">
+                        <Save size={14} />
+                        {locale === 'ar' ? 'حفظ التغييرات' : 'Save Changes'}
+                    </button>
+                </div>
             </header>
 
             <main className="container mx-auto px-4 py-8">
+                {/* Onboarding Checklist (SOP) */}
+                <section className="mb-10">
+                    <div className="bg-zinc-900/40 border border-white/5 p-8 rounded-[40px]">
+                        <h3 className="text-xl font-black mb-8 flex items-center gap-3">
+                            {locale === 'ar' ? 'خطوات تفعيل النظام' : 'Setup Checklist'}
+                            <span className="text-[10px] text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-widest ml-auto">Onboarding</span>
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            {onboardingSteps.map((s, idx) => (
+                                <div key={s.id} className="relative">
+                                    <div className={`h-14 w-14 rounded-2xl flex items-center justify-center mb-4 transition-all ${s.completed ? 'bg-green-500/10 text-green-500' : 'bg-zinc-800 text-zinc-500'}`}>
+                                        {s.completed ? <CheckCircle2 size={24} /> : <s.icon size={24} />}
+                                    </div>
+                                    <h4 className="text-sm font-bold text-white mb-1">{s.title}</h4>
+                                    <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">Step {idx + 1}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
                     {stats.map(s => (
-                        <div key={s.label} className="bg-zinc-900/50 border border-white/5 p-6 rounded-3xl">
+                        <div key={s.label} className="bg-zinc-900/50 border border-white/5 p-6 rounded-3xl relative group">
                             <div className={`h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center mb-4 ${s.color}`}>
                                 <s.icon size={20} />
                             </div>
