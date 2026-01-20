@@ -4,7 +4,7 @@ import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, MessageCircle, ArrowRight, ShieldCheck, CreditCard, Clock, Store, Target } from "lucide-react";
 import { SignupState, INITIAL_SIGNUP_STATE, ServiceIntent, BusinessType } from "@/lib/signup/types";
-import { getSignupState, saveSignupState, getRecommendedPlan } from "@/lib/signup/store";
+import { getSignupState, saveSignupState, getRecommendedPlan, initializeState } from "@/lib/signup/store";
 import { trackEvent } from "@/lib/analytics";
 import { getPricing, formatPrice, VerticalType } from "@/lib/pricing";
 
@@ -13,14 +13,14 @@ export default function SignupFlow({ locale, params }: { locale: 'ar' | 'en'; pa
     const isRtl = locale === 'ar';
 
     React.useEffect(() => {
-        const saved = getSignupState();
+        const initialized = initializeState(locale);
         setState({
-            ...saved,
-            businessType: (params.businessType as BusinessType) || saved.businessType,
-            intent: (params.service as ServiceIntent) || saved.intent,
-            source: params.source || saved.source,
+            ...initialized,
+            businessType: (params.businessType as BusinessType) || initialized.businessType,
+            intent: (params.service as ServiceIntent) || initialized.intent,
+            source: params.source || initialized.source,
             lang: locale,
-            selectedPlanId: params.service ? getRecommendedPlan(params.service as ServiceIntent) : saved.selectedPlanId
+            selectedPlanId: params.service ? getRecommendedPlan(params.service as ServiceIntent) : initialized.selectedPlanId
         });
         trackEvent('signup_view', { source: params.source, intent: params.service });
     }, [params, locale]);
@@ -79,12 +79,35 @@ export default function SignupFlow({ locale, params }: { locale: 'ar' | 'en'; pa
 
                 {/* Always Visible Help */}
                 <div className="mt-12 flex justify-center">
-                    <button className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-sm font-medium">
+                    <a
+                        href={`https://wa.me/9665XXXXXXXX?text=${encodeURIComponent(locale === 'ar' ? 'أحتاج مساعدة في التسجيل في ZIVRA' : 'I need help with ZIVRA signup')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-sm font-medium bg-white/5 px-6 py-3 rounded-full border border-white/5"
+                    >
                         <MessageCircle size={18} className="text-primary" />
                         {locale === 'ar' ? 'تحتاج مساعدة؟ تواصل واتساب' : 'Need help? Talk to us on WhatsApp'}
-                    </button>
+                    </a>
                 </div>
             </div>
+
+            {/* Sticky Floating Lead Trap */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="fixed bottom-8 right-8 z-[100]"
+            >
+                <a
+                    href={`https://wa.me/9665XXXXXXXX?text=${encodeURIComponent(locale === 'ar' ? 'أحتاج مساعدة فورية' : 'I need help now')}`}
+                    target="_blank"
+                    className="h-14 w-14 bg-green-500 text-white rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:scale-110 transition-all group"
+                >
+                    <MessageCircle size={28} />
+                    <div className="absolute right-16 bg-black text-white px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        {locale === 'ar' ? 'تحدث معنا الآن' : 'Talk to us now'}
+                    </div>
+                </a>
+            </motion.div>
         </div>
     );
 }
@@ -224,10 +247,15 @@ function Step4({ locale, state, onAction }: any) {
                 <button
                     disabled={state.loading}
                     onClick={() => onAction('later')}
-                    className="h-20 bg-white/5 border border-white/10 hover:border-white/30 rounded-[28px] flex items-center justify-center gap-3 transition-all text-white font-bold"
+                    className="h-20 bg-white/5 border border-white/10 hover:border-white/30 rounded-[28px] flex flex-col items-center justify-center transition-all text-white"
                 >
-                    <Clock size={20} className="text-zinc-500" />
-                    {locale === 'ar' ? 'تفعيل تجريبي / ادفع لاحقاً' : 'Activate Trial / Pay Later'}
+                    <div className="flex items-center gap-2">
+                        <Clock size={16} className="text-zinc-500" />
+                        <span className="font-bold">{locale === 'ar' ? 'تفعيل تجريبي بضمان ZIVRA' : 'Activate 14-Day Free Deposit'}</span>
+                    </div>
+                    <span className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mt-1">
+                        {locale === 'ar' ? 'ابدأ الآن وادفع لاحقاً' : 'Start now, pay later'}
+                    </span>
                 </button>
             </div>
 

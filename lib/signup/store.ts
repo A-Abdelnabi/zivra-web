@@ -18,6 +18,15 @@ export function clearSignupState() {
     sessionStorage.removeItem(STORAGE_KEY);
 }
 
+export function initializeState(currentLocale: 'ar' | 'en'): SignupState {
+    const saved = getSignupState();
+    if (saved.lang !== currentLocale) {
+        clearSignupState();
+        return { ...INITIAL_SIGNUP_STATE, lang: currentLocale };
+    }
+    return saved;
+}
+
 /**
  * Logic to determine the best plan based on intent
  */
