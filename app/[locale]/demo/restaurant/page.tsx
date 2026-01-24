@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 
 export default function RestaurantDemoEntry() {
@@ -141,8 +140,8 @@ export default function RestaurantDemoEntry() {
                                     type="button"
                                     onClick={() => { setChannel(c as any); setContactVal(""); }}
                                     className={`h-10 rounded-lg text-xs font-bold uppercase tracking-wide border transition-all ${channel === c
-                                            ? "bg-indigo-600 border-indigo-500 text-white"
-                                            : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                                        ? "bg-indigo-600 border-indigo-500 text-white"
+                                        : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
                                         }`}
                                 >
                                     {c}
