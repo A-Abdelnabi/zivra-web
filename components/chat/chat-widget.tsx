@@ -42,16 +42,22 @@ const BIZ_OPTIONS = {
 const SERVICE_OPTIONS = {
     en: [
         "Website / Landing Page",
-        "AI Chatbot",
-        "WhatsApp Automation",
-        "Marketing / Social Media",
+        "Digital Menu / QR Menu",
+        "WhatsApp Ordering",
+        "AI Sales/Support Chatbot",
+        "Social Media Management",
+        "Media Buying / Ads",
+        "Automation (n8n / CRM)",
         "I need help"
     ],
     ar: [
         "موقع / صفحة هبوط",
-        "شات بوت ذكي",
-        "أتمتة واتساب",
-        "تسويق وسوشيال ميديا",
+        "منيو رقمي / باركود",
+        "طلب عبر الواتساب",
+        "شات بوت ذكي للمبيعات",
+        "إدارة حسابات السوشيال ميديا",
+        "إعلانات ممولة / Ads",
+        "أتمتة (CRM / n8n)",
         "محتاج مساعدة"
     ]
 };
@@ -111,6 +117,15 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         if (path.includes('/sa/restaurants')) {
             welcomeMsg = lang === 'ar' ? "أهلًا 👋 تبغى تفعّل أتمتة الطلبات لمطعمك؟" : "Hi 👋 Want to activate order automation for your restaurant?";
             initialOptions = lang === 'ar' ? ["نعم، عندي مطعم/كافيه", "حاب أستفسر"] : ["Yes, I have a restaurant/café", "I have an inquiry"];
+        } else if (path.includes('/demo/restaurant/')) {
+            // DEMO FLOW: Deterministic & Instant
+            // Slug is present implies we are in a specific demo
+            welcomeMsg = lang === 'ar' ? "أهلًا 👋 إيش الخدمة اللي تحتاجها لمطعمك الحين؟" : "Hi 👋 What do you need for your restaurant right now?";
+            initialOptions = SERVICE_OPTIONS[lang];
+            // We set step to 1 immediately in the effect below by checking path again or managing state
+            // But here we just set the initial msg/options.
+            // Actually, for this flow we want to START at Step 1 (Services). 
+            // So we'll handle the SetStep(1) in the state initialization or effect.
         } else if (path.includes('/restaurants')) {
             welcomeMsg = lang === 'ar' ? "أهلًا 👋 تبغى تأتمت طلبات مطعمك أو المنيو؟" : "Hi 👋 Want to automate your restaurant orders or menu?";
             initialOptions = lang === 'ar' ? ["أتمتة الطلبات", "حجز طاولات", "استفسارات المنيو"] : ["Order Automation", "Table Booking", "Menu Inquiries"];
@@ -146,18 +161,26 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         }
     }, [messages, open, loading]);
 
-    // Tracking for chat_open & Auto-open for /sa/restaurants
+    // Tracking for chat_open & Auto-open for /sa/restaurants or /demo/restaurant
     React.useEffect(() => {
         if (open) {
             track('chat_open', { source: 'chat', language: lang });
         }
 
         const path = window.location.pathname;
-        if (path.includes('/sa/restaurants') && !open) {
-            const timer = setTimeout(() => setOpen(true), 1500);
+        if ((path.includes('/sa/restaurants') || path.includes('/demo/restaurant/')) && !open) {
+            const timer = setTimeout(() => setOpen(true), 1000); // Slightly faster for demo
             return () => clearTimeout(timer);
         }
     }, [open, lang]);
+
+    // Special initialization for Demo Flow to skip Step 0
+    React.useEffect(() => {
+        const path = window.location.pathname;
+        if (path.includes('/demo/restaurant/') && mounted) {
+            setStep(1); // Force step 1 (Services)
+        }
+    }, [mounted]);
 
     const addMsg = (role: Role, content: string, isContactCard: boolean = false) => {
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, content, isContactCard }]);
@@ -219,7 +242,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
             service: serviceInterest || "",
             phone: method === "whatsapp" ? "Visitor clicked WA" : "",
             email: method === "email" ? "Visitor clicked Email" : "",
-            source: "chat" as const,
+            source: window.location.pathname.includes('/demo/') ? "demo" : "chat",
             notes: `Lang: ${lang}, URL: ${window.location.href}`,
         };
 

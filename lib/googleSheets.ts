@@ -6,7 +6,7 @@ export interface LeadPayload {
     service?: string;
     phone?: string;
     email?: string;
-    source: 'chat' | 'contact_form' | 'demo_form' | 'unknown';
+    source: 'chat' | 'contact_form' | 'demo_form' | 'demo' | 'unknown';
     notes?: string;
 }
 

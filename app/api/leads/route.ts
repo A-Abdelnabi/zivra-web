@@ -10,7 +10,7 @@ const leadSchema = z.object({
     service: z.string().optional(),
     phone: z.string().optional(),
     email: z.string().optional(),
-    source: z.enum(['chat', 'contact_form', 'demo_form', 'unknown']),
+    source: z.enum(['chat', 'contact_form', 'demo_form', 'demo', 'unknown']),
     notes: z.string().optional(),
 });
 
