@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Locale } from "@/lib/i18n";
-import { Send, RefreshCw, MessageCircle, Mail } from "lucide-react";
+import { Send, RefreshCw, MessageCircle, Mail, Phone } from "lucide-react";
 import Portal from "@/components/ui/Portal";
 import { track } from "@/lib/track";
 
@@ -119,13 +119,15 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
             initialOptions = lang === 'ar' ? ["نعم، عندي مطعم/كافيه", "حاب أستفسر"] : ["Yes, I have a restaurant/café", "I have an inquiry"];
         } else if (path.includes('/demo/restaurant/')) {
             // DEMO FLOW: Deterministic & Instant
-            // Slug is present implies we are in a specific demo
-            welcomeMsg = lang === 'ar' ? "أهلًا 👋 إيش الخدمة اللي تحتاجها لمطعمك الحين؟" : "Hi 👋 What do you need for your restaurant right now?";
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get('name') || "";
+            const businessName = name ? (lang === 'ar' ? name : name) : (lang === 'ar' ? "مطعمك" : "your restaurant");
+
+            welcomeMsg = lang === 'ar'
+                ? `أهلًا ${businessName} 👋 إيش الخدمة اللي تحتاجها الحين؟`
+                : `Hi ${businessName} 👋 What do you need right now?`;
+
             initialOptions = SERVICE_OPTIONS[lang];
-            // We set step to 1 immediately in the effect below by checking path again or managing state
-            // But here we just set the initial msg/options.
-            // Actually, for this flow we want to START at Step 1 (Services). 
-            // So we'll handle the SetStep(1) in the state initialization or effect.
         } else if (path.includes('/restaurants')) {
             welcomeMsg = lang === 'ar' ? "أهلًا 👋 تبغى تأتمت طلبات مطعمك أو المنيو؟" : "Hi 👋 Want to automate your restaurant orders or menu?";
             initialOptions = lang === 'ar' ? ["أتمتة الطلبات", "حجز طاولات", "استفسارات المنيو"] : ["Order Automation", "Table Booking", "Menu Inquiries"];
@@ -232,32 +234,45 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         }, 600);
     };
 
-    const handleCTA = async (method: "whatsapp" | "email") => {
-        const businessType = messages.find(m => BIZ_OPTIONS[lang].includes(m.content))?.content;
-        const serviceInterest = messages.find(m => SERVICE_OPTIONS[lang].includes(m.content))?.content;
+    const handleCTA = async (userChoice?: "whatsapp" | "email" | "phone") => {
+        const params = new URLSearchParams(window.location.search);
+
+        // 1. Determine contact method
+        // If passed explicitly (user clicked button), use it.
+        // Otherwise, fallback to url param 'channel' or default to whatsapp.
+        const channelParam = params.get('channel') as "whatsapp" | "email" | "phone" | null;
+        const method = userChoice || channelParam || "whatsapp";
+
+        // 2. Gather Data
+        const businessType = messages.find(m => BIZ_OPTIONS[lang].includes(m.content))?.content || params.get('type') || "";
+        const serviceInterest = messages.find(m => SERVICE_OPTIONS[lang].includes(m.content))?.content || "";
+        const contactVal = params.get('contact') || "";
 
         const leadData = {
-            name: "", // Not captured in chat yet
-            businessType: businessType || "",
-            service: serviceInterest || "",
-            phone: method === "whatsapp" ? "Visitor clicked WA" : "",
-            email: method === "email" ? "Visitor clicked Email" : "",
+            name: params.get('name') || "",
+            businessType: businessType,
+            service: serviceInterest,
+            phone: (method === "whatsapp" || method === "phone") ? contactVal : "",
+            email: method === "email" ? contactVal : "",
             source: window.location.pathname.includes('/demo/') ? "demo" : "chat",
-            notes: `Lang: ${lang}, URL: ${window.location.href}`,
+            notes: `Converted via Chat. Method: ${method}. City: ${params.get('city') || 'N/A'}. Lang: ${lang}`,
         };
 
-        // Post to leads API for CRM
+        // 3. Post to leads
         fetch('/api/leads', {
             method: 'POST',
             body: JSON.stringify(leadData)
         }).catch(() => { });
 
+        // 4. Action
         if (method === "whatsapp") {
             track('contact_whatsapp_click', { source: 'chat', language: lang });
             window.open("https://wa.me/358401604442", "_blank");
-        } else {
+        } else if (method === "email") {
             track('contact_email_click', { source: 'chat', language: lang });
-            window.location.href = `mailto:hello@zivra.dev?subject=ZIVRA Inquiry (${lang === 'ar' ? 'طلب استفسار' : 'Inquiry'})`;
+            window.location.href = `mailto:hello@zivra.dev?subject=ZIVRA Inquiry (${serviceInterest})`;
+        } else if (method === "phone") {
+            window.location.href = `tel:+358401604442`;
         }
     };
 
@@ -337,31 +352,65 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                         <div className="w-full max-w-[95%] bg-indigo-600/10 rounded-3xl p-6 border-2 border-indigo-500/30 backdrop-blur-md shadow-2xl space-y-4">
                                             <p className="text-sm font-bold text-white mb-2 leading-relaxed">{m.content}</p>
 
-                                            <button
-                                                onClick={() => handleCTA("whatsapp")}
-                                                className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-[0.98] border border-white/10 rounded-2xl p-4 transition-all group"
-                                            >
-                                                <div className="h-11 w-11 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
-                                                    <MessageCircle className="text-white" size={20} />
-                                                </div>
-                                                <div className="flex-1 text-start">
-                                                    <span className="text-sm font-black text-white block uppercase tracking-wide">{dict.whatsapp}</span>
-                                                    <span className="text-[10px] text-indigo-400 uppercase tracking-widest font-bold">{dict.whatsappSub}</span>
-                                                </div>
-                                            </button>
+                                            {(() => {
+                                                // Dynamic Logic for Contact Button in Chat
+                                                // If we are in demo flow, default to what user picked.
+                                                const params = new URLSearchParams(window.location.search);
+                                                const channel = params.get('channel');
 
-                                            <button
-                                                onClick={() => handleCTA("email")}
-                                                className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-[0.98] border border-white/10 rounded-2xl p-4 transition-all group"
-                                            >
-                                                <div className="h-11 w-11 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
-                                                    <Mail className="text-white/60" size={20} />
-                                                </div>
-                                                <div className="flex-1 text-start">
-                                                    <span className="text-sm font-black text-white block uppercase tracking-wide">{dict.email}</span>
-                                                    <span className="text-[10px] text-white/30 uppercase tracking-widest font-bold">{dict.emailSub}</span>
-                                                </div>
-                                            </button>
+                                                // Always show WhatsApp + Email? Or prioritize user choice?
+                                                // Req said: "Immediately show contact methods based on what user selected"
+                                                // So if user picked Phone -> Show Call button.
+
+                                                return (
+                                                    <>
+                                                        {(!channel || channel === 'whatsapp') && (
+                                                            <button
+                                                                onClick={() => handleCTA("whatsapp")}
+                                                                className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-[0.98] border border-white/10 rounded-2xl p-4 transition-all group"
+                                                            >
+                                                                <div className="h-11 w-11 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+                                                                    <MessageCircle className="text-white" size={20} />
+                                                                </div>
+                                                                <div className="flex-1 text-start">
+                                                                    <span className="text-sm font-black text-white block uppercase tracking-wide">{dict.whatsapp}</span>
+                                                                    <span className="text-[10px] text-indigo-400 uppercase tracking-widest font-bold">{dict.whatsappSub}</span>
+                                                                </div>
+                                                            </button>
+                                                        )}
+
+                                                        {channel === 'phone' && (
+                                                            <button
+                                                                onClick={() => handleCTA("phone")}
+                                                                className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-[0.98] border border-white/10 rounded-2xl p-4 transition-all group"
+                                                            >
+                                                                <div className="h-11 w-11 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+                                                                    <Phone className="text-white" size={20} />
+                                                                </div>
+                                                                <div className="flex-1 text-start">
+                                                                    <span className="text-sm font-black text-white block uppercase tracking-wide">{isRtl ? 'اتصل بنا' : 'Call Us'}</span>
+                                                                    <span className="text-[10px] text-indigo-400 uppercase tracking-widest font-bold">{isRtl ? 'مكالمة هاتفية' : 'Direct Call'}</span>
+                                                                </div>
+                                                            </button>
+                                                        )}
+
+                                                        {channel === 'email' && (
+                                                            <button
+                                                                onClick={() => handleCTA("email")}
+                                                                className="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:scale-[0.98] border border-white/10 rounded-2xl p-4 transition-all group"
+                                                            >
+                                                                <div className="h-11 w-11 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+                                                                    <Mail className="text-white/60" size={20} />
+                                                                </div>
+                                                                <div className="flex-1 text-start">
+                                                                    <span className="text-sm font-black text-white block uppercase tracking-wide">{dict.email}</span>
+                                                                    <span className="text-[10px] text-white/30 uppercase tracking-widest font-bold">{dict.emailSub}</span>
+                                                                </div>
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                );
+                                            })()}
                                         </div>
                                     ) : (
                                         <div className={`max-w-[85%] rounded-2xl px-5 py-4 text-sm leading-relaxed shadow-lg ${m.role === "user"
