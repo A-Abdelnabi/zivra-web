@@ -177,5 +177,49 @@
         "cta": "If you'd like to start or need a custom quote, message us on WhatsApp and mention this package.",
         "whatsappBtn": "WhatsApp",
         "emailBtn": "Email"
+    },
+    "demo": {
+        "entry": {
+            "title": "Start Your Free Demo",
+            "subtitle": "No signup required • Instant Access",
+            "nameLabel": "Business Name",
+            "namePlaceholder": "Ex: Burger Station",
+            "typeLabel": "Type",
+            "cityLabel": "City",
+            "cityPlaceholder": "Optional",
+            "contactLabel": "Preferred Contact Method",
+            "types": {
+                "restaurant": "Restaurant",
+                "cafe": "Café",
+                "cloud_kitchen": "Cloud Kitchen",
+                "catering": "Catering",
+                "other": "Other"
+            },
+            "contactPlaceholder": {
+                "email": "name@example.com",
+                "phone": "Phone Number (e.g. +966...)"
+            },
+            "cta": {
+                "default": "Start Live Demo",
+                "loading": "Setting up..."
+            },
+            "footer": "100% Free • No Commitments"
+        },
+        "page": {
+            "officialWebsite": "Official Website",
+            "orderNow": "Order Now",
+            "nav": {
+                "home": "Home",
+                "menu": "Menu",
+                "locations": "Locations",
+                "contact": "Contact"
+            },
+            "hero": {
+                "poweredBy": "Powered by ZIVRA",
+                "welcome": "Welcome to",
+                "description": "This is an auto-generated demo page. Check the smart chatbot below to see how we serve your guests instantly.",
+                "tryMe": "Try me!"
+            }
+        }
     }
 }
