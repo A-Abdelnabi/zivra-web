@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Locale } from "@/lib/i18n";
 import { Send, RefreshCw, MessageCircle, Mail } from "lucide-react";
 import Portal from "@/components/ui/Portal";
-import { trackEvent } from "@/lib/analytics";
+import { track } from "@/lib/track";
 
 type Role = "assistant" | "user";
 type Lang = "ar" | "en";
@@ -149,7 +149,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
     // Tracking for chat_open & Auto-open for /sa/restaurants
     React.useEffect(() => {
         if (open) {
-            trackEvent('chat_open', { language: lang });
+            track('chat_open', { source: 'chat', language: lang });
         }
 
         const path = window.location.pathname;
@@ -172,9 +172,9 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
 
         // Tracking
         if (step === 0) {
-            trackEvent('business_selected', { business_type: val, language: lang });
+            track('business_selected', { business_type: val, source: 'chat', language: lang });
         } else if (step === 1) {
-            trackEvent('service_selected', { service_type: val, language: lang });
+            track('service_selected', { service_interest: val, source: 'chat', language: lang });
         }
 
         const nextStep = (step + 1) as ChatStep;
@@ -209,12 +209,31 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
         }, 600);
     };
 
-    const handleCTA = (method: "whatsapp" | "email") => {
+    const handleCTA = async (method: "whatsapp" | "email") => {
+        const businessType = messages.find(m => BIZ_OPTIONS[lang].includes(m.content))?.content;
+        const serviceInterest = messages.find(m => SERVICE_OPTIONS[lang].includes(m.content))?.content;
+
+        const leadData = {
+            name: "", // Not captured in chat yet
+            businessType: businessType || "",
+            service: serviceInterest || "",
+            phone: method === "whatsapp" ? "Visitor clicked WA" : "",
+            email: method === "email" ? "Visitor clicked Email" : "",
+            source: "chat" as const,
+            notes: `Lang: ${lang}, URL: ${window.location.href}`,
+        };
+
+        // Post to leads API for CRM
+        fetch('/api/leads', {
+            method: 'POST',
+            body: JSON.stringify(leadData)
+        }).catch(() => { });
+
         if (method === "whatsapp") {
-            trackEvent('contact_whatsapp_click', { language: lang });
+            track('contact_whatsapp_click', { source: 'chat', language: lang });
             window.open("https://wa.me/358401604442", "_blank");
         } else {
-            trackEvent('contact_email_click', { language: lang });
+            track('contact_email_click', { source: 'chat', language: lang });
             window.location.href = `mailto:hello@zivra.dev?subject=ZIVRA Inquiry (${lang === 'ar' ? 'طلب استفسار' : 'Inquiry'})`;
         }
     };

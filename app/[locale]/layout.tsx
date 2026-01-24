@@ -62,19 +62,23 @@ export default async function LocaleLayout({
         <html lang={locale} dir={dir} className="dark">
             <head>
                 {/* Google Analytics */}
-                <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX" />
-                <script
-                    dangerouslySetInnerHTML={{
-                        __html: `
-                            window.dataLayer = window.dataLayer || [];
-                            function gtag(){dataLayer.push(arguments);}
-                            gtag('js', new Date());
-                            gtag('config', 'G-XXXXXXXXXX', {
-                                page_path: window.location.pathname,
-                            });
-                        `,
-                    }}
-                />
+                {process.env.NEXT_PUBLIC_GA4_ID && (
+                    <>
+                        <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA4_ID}`} />
+                        <script
+                            dangerouslySetInnerHTML={{
+                                __html: `
+                                    window.dataLayer = window.dataLayer || [];
+                                    function gtag(){dataLayer.push(arguments);}
+                                    gtag('js', new Date());
+                                    gtag('config', '${process.env.NEXT_PUBLIC_GA4_ID}', {
+                                        page_path: window.location.pathname,
+                                    });
+                                `,
+                            }}
+                        />
+                    </>
+                )}
             </head>
             <body className={`${fontClass} ${locale === 'ar' ? 'font-cairo' : 'font-inter'} min-h-screen bg-background text-foreground antialiased pb-28`}>
                 <Providers>

@@ -18,6 +18,7 @@ import {
 import { useState, useEffect } from 'react';
 import { Locale, Dictionary } from '@/lib/i18n';
 import { Reveal } from '@/components/motion/Reveal';
+import { track } from '@/lib/track';
 
 export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,8 +39,25 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
 
     async function onSubmit(data: ContactFormData) {
         setIsSubmitting(true);
+        const leadData = {
+            name: data.name,
+            email: data.email,
+            businessType: data.service,
+            service: data.service,
+            phone: "", // Not in basic contact form usually
+            source: 'contact_form' as const,
+            notes: `Message: ${data.message}${data.platforms?.length ? ` | Platforms: ${data.platforms.join(', ')}` : ''}`,
+        };
+
         try {
+            track('contact_form_submit', { source: 'form_main', language: locale, ...data });
+            // Submit to existing action
             await submitContactForm(data);
+            // Also submit to leads API for CRM
+            await fetch('/api/leads', {
+                method: 'POST',
+                body: JSON.stringify(leadData)
+            });
             setSuccess(true);
             form.reset();
         } catch (error) {
@@ -171,8 +189,8 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                                                             form.setValue('platforms', newValue);
                                                         }}
                                                         className={`px-3 py-1.5 rounded-full text-xs transition-all border ${isSelected
-                                                                ? "bg-blue-600 border-blue-400 text-white"
-                                                                : "bg-white/5 border-white/10 text-white/60 hover:border-white/20"
+                                                            ? "bg-blue-600 border-blue-400 text-white"
+                                                            : "bg-white/5 border-white/10 text-white/60 hover:border-white/20"
                                                             }`}
                                                     >
                                                         {plat.name}

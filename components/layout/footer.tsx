@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Locale, Dictionary } from '@/lib/i18n';
+import { track } from '@/lib/track';
 
 export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     const currentYear = new Date().getFullYear();
@@ -27,9 +30,9 @@ export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                 </div>
 
                 <nav className="flex gap-8 text-sm text-muted-foreground">
-                    <a href="#contact" className="hover:text-foreground transition-colors">{dict.footer.contact}</a>
-                    <a href="#services" className="hover:text-foreground transition-colors">{dict.footer.services}</a>
-                    <a href="#pricing" className="hover:text-foreground transition-colors">{dict.footer.packages}</a>
+                    <a href="#contact" onClick={() => track('contact_form_submit', { source: 'footer' })} className="hover:text-foreground transition-colors">{dict.footer.contact}</a>
+                    <a href="#services" onClick={() => track('pricing_view', { source: 'footer' })} className="hover:text-foreground transition-colors">{dict.footer.services}</a>
+                    <a href="#pricing" onClick={() => track('pricing_view', { source: 'footer' })} className="hover:text-foreground transition-colors">{dict.footer.packages}</a>
                     <span className="hover:text-foreground transition-colors cursor-pointer">{dict.footer.privacy}</span>
                     <span className="hover:text-foreground transition-colors cursor-pointer">{dict.footer.terms}</span>
                 </nav>

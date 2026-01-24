@@ -1,16 +1,16 @@
 "use client";
 
 import * as React from "react";
+import { useEffect } from "react";
 
 import { Check } from "lucide-react";
 import { Locale, Dictionary } from '@/lib/i18n';
 import { getPricing, formatPrice, formatSetup, VerticalType, PRICING_DATA } from '@/lib/pricing';
 import { motion } from 'framer-motion';
 import { Reveal, RevealList, RevealItem } from '@/components/motion/Reveal';
-import { trackEvent } from '@/lib/analytics';
-import { useEffect } from 'react';
+import { track } from '@/lib/track';
 
-const WHATSAPP_LINK = "https://wa.me/9665XXXXXXXX";
+const WHATSAPP_LINK = "https://wa.me/358401604442";
 
 function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
     const pricing = PRICING_DATA.starter;
@@ -22,7 +22,20 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
 
     const handleCTA = () => {
         setLoading(true);
-        trackEvent('pricing_cta_click', { plan_id: plan.id, language: locale });
+        const leadData = {
+            name: "",
+            businessType: "Restaurant",
+            service: plan.name,
+            phone: "Visitor clicked Demo",
+            email: "",
+            source: 'demo_form' as const,
+            notes: `Pricing CTA click | Loc: ${locale}`,
+        };
+        track('book_demo_click', { language: locale, ...leadData });
+        fetch('/api/leads', {
+            method: 'POST',
+            body: JSON.stringify(leadData)
+        }).catch(() => { });
         // Direct to demo for the single offer
         window.location.href = `/${locale}/signup?service=ordering&source=pricing`;
     };
@@ -95,7 +108,7 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
 
 export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     useEffect(() => {
-        trackEvent('pricing_view', { language: locale });
+        track('pricing_view', { source: 'pricing', language: locale });
     }, [locale]);
 
     const plan = dict.pricing.plans[0];

@@ -1,6 +1,7 @@
 "use client";
 
 import { Locale } from '@/lib/i18n';
+import { track } from '@/lib/track';
 
 export default function WhatsAppButton({ locale }: { locale: Locale }) {
     const phoneNumber = "358401604442";
@@ -12,9 +13,25 @@ export default function WhatsAppButton({ locale }: { locale: Locale }) {
     const encodedMessage = encodeURIComponent(message);
     const href = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
+    const handleClick = () => {
+        const leadData = {
+            locale,
+            page_url: window.location.href,
+            source: 'sticky_whatsapp' as const,
+            contact_method: 'whatsapp',
+            user_agent: navigator.userAgent,
+        };
+        track('contact_whatsapp_click', leadData);
+        fetch('/api/leads', {
+            method: 'POST',
+            body: JSON.stringify(leadData)
+        }).catch(() => { });
+    };
+
     return (
         <a
             href={href}
+            onClick={handleClick}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Chat on WhatsApp"

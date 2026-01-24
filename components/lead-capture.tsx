@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { X, MessageCircle, Send } from "lucide-react";
-import { trackEvent } from "@/lib/analytics";
+import { track } from "@/lib/track";
 import { Locale } from "@/lib/i18n";
 
 export default function LeadCapture({ locale }: { locale: Locale }) {
@@ -17,7 +17,7 @@ export default function LeadCapture({ locale }: { locale: Locale }) {
             const hasDismissed = localStorage.getItem("zivra_lead_dismissed");
             if (!hasDismissed && !submitted) {
                 setShow(true);
-                trackEvent('lead_capture_view', { trigger: 'timer', language: locale });
+                track('lead_capture_view', { source: 'form_popup', language: locale });
             }
         }, 30000);
 
@@ -33,22 +33,26 @@ export default function LeadCapture({ locale }: { locale: Locale }) {
         e.preventDefault();
         if (!emailOrWa.trim()) return;
 
-        trackEvent('lead_capture_submit', {
+        const isEmail = emailOrWa.includes('@');
+        const leadData = {
+            name: name,
+            email: isEmail ? emailOrWa : "",
+            phone: !isEmail ? emailOrWa : "",
+            source: 'unknown' as const,
+            notes: `Capture Popup | Loc: ${locale}`,
+        };
+
+        track('lead_capture_submit', {
             language: locale,
-            has_name: !!name.trim()
+            has_name: !!name.trim(),
+            ...leadData
         });
 
-        // Silent submit to webhook or API
+        // POST to leads API for CRM
         try {
-            await fetch('/api/webhooks/leads', {
+            await fetch('/api/leads', {
                 method: 'POST',
-                body: JSON.stringify({
-                    name,
-                    contact: emailOrWa,
-                    language: locale,
-                    url: window.location.href,
-                    timestamp: new Date().toISOString()
-                })
+                body: JSON.stringify(leadData)
             });
         } catch (e) { /* Silent fail */ }
 

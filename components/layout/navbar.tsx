@@ -11,6 +11,7 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { Locale, Dictionary } from '@/lib/i18n';
+import { track } from '@/lib/track';
 
 export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     const pathname = usePathname();
@@ -112,6 +113,7 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     <Button size="sm" asChild>
                         <a
                             href={`/${locale}/signup`}
+                            onClick={() => track('book_demo_click', { source: 'header_cta', language: locale })}
                         >
                             {dict.hero.ctaPrimary}
                         </a>

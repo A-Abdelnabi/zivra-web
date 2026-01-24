@@ -41,6 +41,21 @@ export default function SignupFlow({ locale, params }: { locale: 'ar' | 'en'; pa
         updateState({ loading: true, paymentMode: mode });
 
         try {
+            // New: Post to leads API for CRM
+            const leadData = {
+                name: state.businessName,
+                email: state.email,
+                phone: state.whatsapp,
+                businessType: state.businessType || "Restaurant",
+                service: state.intent || "Ordering",
+                source: 'demo_form' as const,
+                notes: `City: ${state.city}, Platform: ${state.selectedPlanId}, Mode: ${mode}`,
+            };
+            fetch('/api/leads', {
+                method: 'POST',
+                body: JSON.stringify(leadData)
+            }).catch(() => { });
+
             // Simulated API call to create tenant/lead
             const res = await fetch('/api/tenant/create', {
                 method: 'POST',
