@@ -1,0 +1,225 @@
+{
+    "nav": {
+        "services": "Palvelut",
+        "packages": "Paketit",
+        "contact": "Ota yhteyttä",
+        "getStarted": "Aloita nyt"
+    },
+    "hero": {
+        "badge": "AI-Vetoinen Tulojen Automatisointi",
+        "title": "Myyntikone <span>Eksponentiaaliseen Kasvuun.</span>",
+        "subtitle": "Skaalaa tulojasi ilman manuaalista työtä.",
+        "description": "Rakennamme korkean konversion myyntijärjestelmiä, jotka yhdistävät kustomoidut verkkosivut, tekoälyagentit, WhatsApp-automaation ja kohdennetut mainokset kasvattaaksesi liiketoimintaasi 24/7.",
+        "ctaPrimary": "Varaa Myyntistrategia",
+        "ctaSecondary": "Katso Ravintolademo"
+    },
+    "services": {
+        "title": "Täyden Palvelun Tulojärjestelmät",
+        "subtitle": "Emme rakenna vain verkkosivuja – rakennamme digitaalisia moottoreita, jotka tuottavat, karsivat ja clousaavat liidejä.",
+        "items": [
+            {
+                "title": "AI & Myyntiautomaatio",
+                "description": "Kustomoidut AI-agentit, jotka käsittelevät kyselyt, karsivat liidit ja varaavat tapaamiset kaikissa kanavissa."
+            },
+            {
+                "title": "WhatsApp & Chatbotit",
+                "description": "Automatisoidut WhatsApp-virrat ja liidibotit, jotka muuttavat liikenteen keskusteluiksi välittömästi."
+            },
+            {
+                "title": "Verkkosivut & Suppilot",
+                "description": "Huipputehokkaat laskeutumissivut ja konversio-optimoidut suppilot, jotka on rakennettu nopeutta ja myyntiä varten."
+            },
+            {
+                "title": "Sosiaalisen Median Hallinta",
+                "description": "Strateginen sisällöntuotanto ja yhteisönhallinta brändin auktoriteetin ja orgaanisen tavoittavuuden rakentamiseksi."
+            },
+            {
+                "title": "Mediamainonta & Kampanjat",
+                "description": "ROI-keskeiset mainoskampanjat Googlessa, Metassa ja TikTokissa liikenteen ja myynnin skaalaamiseksi."
+            },
+            {
+                "title": "CRM & Liidien Hallinta",
+                "description": "Liididatan saumaton integrointi kustomoituihin CRM-järjestelmiin ja automatisoidut seurantaviestit."
+            }
+        ]
+    },
+    "automation": {
+        "title": "Täysin Automatisoitu Työnkulku",
+        "subtitle": "Yhdistämme työkalusi ja automatisoimme työnkulut käyttäen n8n:ää, AI-agentteja ja älykkäitä integraatioita.",
+        "badge": "Automaatio",
+        "items": [
+            {
+                "title": "Liidien Karsinta",
+                "description": "Karsi, hoivaa ja reititä liidit myyntitiimillesi automaattisesti ilman ihmisen väliintuloa."
+            },
+            {
+                "title": "WhatsApp Myyntivirta",
+                "description": "Lähetä vahvistukset, muistutukset ja seurantaviestit WhatsApp API:n kautta pysyvyyden parantamiseksi."
+            },
+            {
+                "title": "Kustomoidut Ekosysteemit",
+                "description": "Yhdistä CRM, kalenteri, mainokset ja maksuportaalit yhdeksi yhtenäiseksi järjestelmäksi."
+            }
+        ]
+    },
+    "pricing": {
+        "badge": "Kasvupaketit",
+        "title": "Valitse Kasvumoottorisi",
+        "subtitle": "Läpinäkyvä hinnoittelu yrityksille, jotka ovat valmiita automatisoimaan tulonsa ja skaalautumaan.",
+        "plans": [
+            {
+                "id": "starter",
+                "name": "Starter Automation",
+                "tagline": "Täydellinen yksinyrittäjille ja pienille tiimeille",
+                "price": "$249",
+                "setup": "$999 aloitusmaksu",
+                "bullets": [
+                    "Kustomoitu Laskeutumissivu",
+                    "Perus AI Chatbot",
+                    "WhatsApp Liidien Keräys",
+                    "CRM Integraatio",
+                    "Sähköpostiautomaatio"
+                ],
+                "cta": "Aloita Starter"
+            },
+            {
+                "id": "growth",
+                "name": "Growth Sales Engine",
+                "tagline": "Ultimaattinen ratkaisu skaalautuville yrityksille",
+                "price": "$549",
+                "setup": "$1,999 aloitusmaksu",
+                "bullets": [
+                    "Täyden Konversion Verkkosivu",
+                    "Edistynyt AI Myyntiagentti",
+                    "Automatisoitu WhatsApp Myyntivirta",
+                    "Liidien Karsintajärjestelmä",
+                    "Suorituskyvyn Kojelauta"
+                ],
+                "cta": "Aloita Growth"
+            },
+            {
+                "id": "scale",
+                "name": "Scale & Ads",
+                "tagline": "Kaikki mitä tarvitset dominointiin",
+                "price": "$999",
+                "setup": "$3,999 aloitusmaksu",
+                "bullets": [
+                    "Kaikki Growth-paketista",
+                    "Mainoskampanjoiden Hallinta",
+                    "Meta & Google Ads Asennus",
+                    "Sisältöstrategia",
+                    "Prioriteettituki"
+                ],
+                "cta": "Aloita Skaalaus"
+            },
+            {
+                "id": "custom",
+                "name": "Custom / Enterprise",
+                "tagline": "Räätälöity suuren mittakaavan operaatioille",
+                "price": "Kustomoitu",
+                "setup": "Muuttuva",
+                "bullets": [
+                    "Kustomoidut Web-sovellukset",
+                    "Monimutkaiset n8n Työnkulut",
+                    "Täysi Markkinoinnin Ulkoistus",
+                    "Omistettu Asiakkuuspäällikkö",
+                    "Kustomoitu SLA"
+                ],
+                "cta": "Ota Yhteyttä"
+            }
+        ],
+        "disclaimer": "Kaikki hinnat Yhdysvaltain dollareissa. Vakio kuukausitilaus. Aloitusmaksu on kertamaksu."
+    },
+    "social_pricing": null,
+    "contact": {
+        "title": "Rakennetaan Yhdessä",
+        "subtitle": "Kerro meille projektistasi. Palaamme asiaan 24 tunnin kuluessa.",
+        "form": {
+            "name": "Nimesi",
+            "email": "Sähköpostiosoite",
+            "service": "Mitä tarvitset?",
+            "servicePlaceholder": "Valitse palvelu",
+            "message": "Kerro meille projektistasi",
+            "submit": "Lähetä Viesti",
+            "submitting": "Lähetetään...",
+            "success": "Viesti lähetetty! Olemme yhteydessä pian.",
+            "error": "Lähetys epäonnistui. Yritä uudelleen."
+        },
+        "services": [
+            "Verkkosivujen Kehitys",
+            "Web-sovellus",
+            "AI Chatbot",
+            "Täysi Hallintapaketti",
+            "Sosiaalisen Median Kasvu",
+            "Automaatio & Integraatio",
+            "Muu / Konsultaatio"
+        ]
+    },
+    "footer": {
+        "tagline": "Verkkosivut • Sovellukset • AI • Hallinta",
+        "contact": "Yhteystiedot",
+        "services": "Palvelut",
+        "packages": "Paketit",
+        "privacy": "Tietosuoja",
+        "terms": "Ehdot",
+        "copyright": "© {year} ZIVRA. Kaikki oikeudet pidätetään."
+    },
+    "trust": {
+        "title": "Johtavien yritysten luottama"
+    },
+    "whatsapp": {
+        "message": "Hei ZIVRA! Haluaisin keskustella teknologiaratkaisuista yritykselleni."
+    },
+    "chat": {
+        "welcome": "Hei! Olen ZIVRAn AI-assistentti. Miten voin auttaa yritystäsi skaalautumaan tänään?",
+        "placeholder": "Kysy automaatiosta, verkkosivuista tai somesta...",
+        "recommendationPrefix": "Tarpeidesi perusteella suosittelen: ",
+        "cta": "Jos haluat aloittaa tai tarvitset kustomoidun tarjouksen, laita viestiä WhatsAppissa ja mainitse tämä paketti.",
+        "whatsappBtn": "WhatsApp",
+        "emailBtn": "Sähköposti"
+    },
+    "demo": {
+        "entry": {
+            "title": "Aloita Ilmainen Demo",
+            "subtitle": "Ei rekisteröitymistä • Välitön pääsy",
+            "nameLabel": "Yrityksen Nimi",
+            "namePlaceholder": "Esim: Burger Station",
+            "typeLabel": "Tyyppi",
+            "cityLabel": "Kaupunki",
+            "cityPlaceholder": "Valinnainen",
+            "contactLabel": "Toivottu Yhteydenottotapa",
+            "types": {
+                "restaurant": "Ravintola",
+                "cafe": "Kahvila",
+                "cloud_kitchen": "Pilviravintola",
+                "catering": "Pitopalvelu",
+                "other": "Muu"
+            },
+            "contactPlaceholder": {
+                "email": "nimi@esimerkki.com",
+                "phone": "Puhelinnumero (esim. +358...)"
+            },
+            "cta": {
+                "default": "Aloita Live Demo",
+                "loading": "Valmistellaan..."
+            },
+            "footer": "100% Ilmainen • Ei Sitoutumista"
+        },
+        "page": {
+            "officialWebsite": "Virallinen Verkkosivu",
+            "orderNow": "Tilaa Nyt",
+            "nav": {
+                "home": "Koti",
+                "menu": "Menu",
+                "locations": "Sijainnit",
+                "contact": "Yhteystiedot"
+            },
+            "hero": {
+                "poweredBy": "Powered by ZIVRA",
+                "welcome": "Tervetuloa",
+                "description": "Tämä on automaattisesti luotu demosivu. Testaa älykästä chatbotia alla nähdäksesi, miten palvelemme asiakkaitasi välittömästi.",
+                "tryMe": "Kokeile minua!"
+            }
+        }
+    }
+}

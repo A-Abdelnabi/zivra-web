@@ -112,6 +112,16 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                         >
                             AR
                         </a>
+                        <a
+                            href={switchLocale('fi')}
+                            onClick={(e) => handleLocaleSwitch(e, 'fi')}
+                            className={`flex items-center gap-1 text-xs font-medium px-3 py-1 transition-colors ${locale === 'fi'
+                                ? 'bg-white/10 text-foreground'
+                                : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                        >
+                            FI
+                        </a>
                     </div>
                     <Button size="sm" asChild>
                         <a
@@ -165,6 +175,16 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                                         }`}
                                 >
                                     العربية
+                                </a>
+                                <a
+                                    href={switchLocale('fi')}
+                                    onClick={(e) => handleLocaleSwitch(e, 'fi')}
+                                    className={`flex-1 text-center py-2 px-4 rounded-lg border transition-colors ${locale === 'fi'
+                                        ? 'bg-white/10 border-white/20'
+                                        : 'border-white/10 hover:border-white/20'
+                                        }`}
+                                >
+                                    Suomi
                                 </a>
                             </div>
 

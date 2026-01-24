@@ -8,7 +8,7 @@ import Portal from "@/components/ui/Portal";
 import { track } from "@/lib/track";
 
 type Role = "assistant" | "user";
-type Lang = "ar" | "en";
+type Lang = "ar" | "en" | "fi";
 
 type Msg = {
     id: string;
@@ -36,6 +36,14 @@ const BIZ_OPTIONS = {
         "شركة خدمات",
         "شركة تقنية / SaaS",
         "مو متأكد حالياً"
+    ],
+    fi: [
+        "Ravintola / Kahvila",
+        "Klinikka / Lääkäri",
+        "Verkkokauppa",
+        "Palveluyritys",
+        "Startup / SaaS",
+        "En ole vielä varma"
     ]
 };
 
@@ -59,6 +67,16 @@ const SERVICE_OPTIONS = {
         "إعلانات ممولة / Ads",
         "أتمتة (CRM / n8n)",
         "محتاج مساعدة"
+    ],
+    fi: [
+        "Verkkosivut / Laskeutumissivu",
+        "Digitaalinen Menu / QR",
+        "WhatsApp-tilaus",
+        "AI Myynti/Tuki Chatbot",
+        "Somen Hallinta",
+        "Mediamainonta / Ads",
+        "Automaatio (n8n / CRM)",
+        "Tarvitsen apua"
     ]
 };
 
@@ -77,6 +95,22 @@ function getDict(lang: Lang) {
             typing: "جاري المعالجة...",
             closed: "تم التحويل • تواصل معنا أعلاه",
             reset: "إعادة تعيين"
+        };
+    }
+    if (lang === "fi") {
+        return {
+            title: "ZIZO Myyntiassistentti",
+            step0: "Hei 👋 Olen ZIZO. Millainen yritys sinulla on?",
+            step1: "Hienoa 👍 Mitä tarvitset juuri nyt?",
+            step2: "Täydellistä 👌 Miten haluaisit jatkaa?",
+            whatsapp: "WhatsApp",
+            whatsappSub: "Nopein vastaus",
+            email: "Sähköposti",
+            emailSub: "Pyydä virallinen tarjous",
+            placeholder: "Nopea kysely...",
+            typing: "ZIZO käsittelee...",
+            closed: "Muunnettu • Ota yhteyttä yllä",
+            reset: "Nollaa Chat"
         };
     }
     return {
