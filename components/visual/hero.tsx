@@ -125,7 +125,14 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     </Button>
                     <Button variant="ghost" size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] text-white/50 hover:text-white" asChild>
                         <Link href="/demo/restaurant">
-                            <MessageCircle size={20} className="text-green-500 mr-2" />
+                            <div className="relative w-5 h-5 mr-3 rounded-full overflow-hidden border border-white/20">
+                                <Image
+                                    src="/images/zivra-logo.jpg"
+                                    alt="ZIVRA"
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
                             {dict.hero.ctaSecondary}
                         </Link>
                     </Button>
