@@ -6,74 +6,129 @@
         "getStarted": "Get Started"
     },
     "hero": {
-        "badge": "Restaurant AI + Automation",
-        "title": "One smart system for restaurants to get <span>more orders.</span>",
-        "subtitle": "Digital Menu, WhatsApp Ordering & AI Agents.",
-        "description": "We help restaurants automate ordering, manage digital menus, and convert customers 24/7 with specialized AI assistants.",
-        "ctaPrimary": "Start Restaurant Demo",
-        "ctaSecondary": "Talk on WhatsApp"
+        "badge": "AI-First Revenue Automation",
+        "title": "The Sales Engine for <span>Exponential Growth.</span>",
+        "subtitle": "Scale your revenue with Zero-Intervention Automation.",
+        "description": "We build high-converting sales systems that combine custom websites, AI agents, WhatsApp automation, and targeted ads to grow your business 24/7.",
+        "ctaPrimary": "Book Sales Strategy",
+        "ctaSecondary": "See Restaurant Demo"
     },
     "services": {
-        "title": "What We Build",
-        "subtitle": "We don't just write code – we build digital engines for your business growth.",
+        "title": "Full-Stack Revenue Systems",
+        "subtitle": "We don't just build websites – we build digital engines that generate, qualify, and close leads.",
         "items": [
             {
-                "title": "Website Development",
-                "description": "Fast, modern, and responsive websites. From landing pages to complex corporate sites, built for SEO and speed."
+                "title": "AI & Sales Automation",
+                "description": "Custom AI agents that handle inquiries, qualify leads, and book appointments across all channels."
             },
             {
-                "title": "Web Application",
-                "description": "Custom dashboards, admin panels, and SaaS products. We build robust tools to run your business."
+                "title": "WhatsApp & Chatbots",
+                "description": "Automated WhatsApp flows and lead-gen bots that convert traffic into conversations instantly."
             },
             {
-                "title": "AI Chatbots",
-                "description": "24/7 customer support, lead generation, and sales assistants trained specifically on your business data."
+                "title": "Websites & Funnels",
+                "description": "High-performance landing pages and conversion-optimized funnels built for speed and sales."
             },
             {
-                "title": "Full Management",
-                "description": "Relax while we handle everything. Updates, content changes, security monitoring, and hosting."
+                "title": "Social Media Management",
+                "description": "Strategic content and community management to build brand authority and organic reach."
+            },
+            {
+                "title": "Media Buying & Campaigns",
+                "description": "ROI-focused ad campaigns on Google, Meta, and TikTok to scale your traffic and sales."
+            },
+            {
+                "title": "CRM & Lead Management",
+                "description": "Seamless integration of lead data into custom CRM systems and automated follow-up sequences."
             }
         ]
     },
     "automation": {
-        "title": "AI-First Automation",
+        "title": "Zero-Intervention Workflow",
         "subtitle": "We connect your tools and automate workflows using n8n, AI agents, and smart integrations.",
         "badge": "Automation",
         "items": [
             {
-                "title": "Lead Follow-up",
-                "description": "Automatically qualify, nurture, and route leads to your team."
+                "title": "Lead Qualification",
+                "description": "Automatically qualify, nurture, and route leads to your sales team without human effort."
             },
             {
-                "title": "WhatsApp Automation",
-                "description": "Send confirmations, reminders, and updates via WhatsApp API."
+                "title": "WhatsApp Sales Flow",
+                "description": "Send confirmations, reminders, and follow-ups via WhatsApp API to boost retention."
             },
             {
-                "title": "Custom Workflows",
-                "description": "Connect your CRM, calendar, payment gateway, and more."
+                "title": "Custom Ecosystems",
+                "description": "Connect your CRM, calendar, ads, and payment gateway into one unified system."
             }
         ]
     },
     "pricing": {
-        "badge": "Single Offer",
-        "title": "ZIVRA Restaurant Starter",
-        "subtitle": "Everything you need to automate your restaurant and start taking orders today.",
+        "badge": "Growth Plans",
+        "title": "Choose Your Growth Engine",
+        "subtitle": "Transparent pricing for businesses ready to automate their revenue and scale.",
         "plans": [
             {
                 "id": "starter",
-                "name": "ZIVRA Restaurant Starter",
-                "tagline": "The ultimate setup for modern restaurants",
+                "name": "Starter Automation",
+                "tagline": "Perfect for soloists and small teams",
+                "price": "$249",
+                "setup": "$999 setup",
                 "bullets": [
-                    "Digital Menu",
-                    "WhatsApp Ordering",
-                    "AI Assistant (Arabic & English)",
-                    "Full Setup",
-                    "Basic Support"
+                    "Custom Landing Page",
+                    "Basic AI Chatbot",
+                    "WhatsApp Lead Capture",
+                    "CRM Integration",
+                    "Email Automation"
                 ],
-                "cta": "Start Restaurant Demo"
+                "cta": "Start Starter"
+            },
+            {
+                "id": "growth",
+                "name": "Growth Sales Engine",
+                "tagline": "The ultimate setup for scaling businesses",
+                "price": "$549",
+                "setup": "$1,999 setup",
+                "bullets": [
+                    "Full Conversion Website",
+                    "Advanced AI Sales Agent",
+                    "Automated WhatsApp Sales Flow",
+                    "Lead Qualification System",
+                    "Performance Dashboard"
+                ],
+                "cta": "Start Growth"
+            },
+            {
+                "id": "scale",
+                "name": "Scale & Ads",
+                "tagline": "Everything you need to dominate",
+                "price": "$999",
+                "setup": "$3,999 setup",
+                "bullets": [
+                    "Everything in Growth",
+                    "Ad Campaign Management",
+                    "Meta & Google Ads Setup",
+                    "Content Strategy",
+                    "Priority Support"
+                ],
+                "cta": "Start Scaling"
+            },
+            {
+                "id": "custom",
+                "name": "Custom / Enterprise",
+                "tagline": "Tailored for large-scale operations",
+                "price": "Custom",
+                "setup": "Variable",
+                "bullets": [
+                    "Custom Web Applications",
+                    "Complex n8n Workflows",
+                    "Full Marketing Outsourcing",
+                    "Dedicated Account Manager",
+                    "Custom SLA"
+                ],
+                "cta": "Talk to Us"
             }
         ],
-        "disclaimer": "All prices are in USD. Standard monthly subscription."
+        "disclaimer": "All prices are in USD. Standard monthly subscription. Setup fee is a one-time payment."
     },
     "social_pricing": null,
     "contact": {

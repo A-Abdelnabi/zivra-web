@@ -1,12 +1,12 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AppWindow, Bot, Code2, Settings2 } from 'lucide-react';
+import { Bot, Code2, Share2, Megaphone, Database, MessageSquare } from 'lucide-react';
 import { Locale, Dictionary } from '@/lib/i18n';
 import { motion } from 'framer-motion';
 import { Reveal, RevealList, RevealItem } from '@/components/motion/Reveal';
 
-const iconMap = [Code2, AppWindow, Bot, Settings2];
+const iconMap = [Bot, MessageSquare, Code2, Share2, Megaphone, Database];
 
 export function Services({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     return (
@@ -22,7 +22,7 @@ export function Services({ locale, dict }: { locale: Locale; dict: Dictionary })
                 </Reveal>
 
                 <RevealList>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {dict.services.items.map((service, index) => {
                             const Icon = iconMap[index];
                             return (

@@ -59,8 +59,8 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
         <header className="fixed top-0 left-0 right-0 z-50 glass">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 {/* Logo */}
-                <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-xl tracking-tighter">
-                    <div className="relative w-[28px] h-[28px] md:w-[36px] md:h-[36px] rounded-full overflow-hidden shrink-0">
+                <Link href={`/${locale}`} className="flex items-center gap-2 group">
+                    <div className="relative w-[36px] h-[36px] md:w-[42px] md:h-[42px] rounded-full overflow-hidden shrink-0 transition-transform duration-500 group-hover:scale-110">
                         <Image
                             src="/images/zivra-logo.jpg"
                             alt="ZIVRA Logo"
@@ -68,7 +68,10 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                             className="object-cover"
                         />
                     </div>
-                    ZIVRA
+                    <div className="flex flex-col -gap-1">
+                        <span className="font-bold text-xl md:text-2xl tracking-tighter leading-none">ZIVRA</span>
+                        <span className="hidden md:block text-[8px] font-black uppercase tracking-[0.2em] text-primary">Zero-Intervention Revenue Automation</span>
+                    </div>
                 </Link>
 
                 {/* Desktop Nav */}

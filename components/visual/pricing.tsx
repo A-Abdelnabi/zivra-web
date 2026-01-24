@@ -5,7 +5,6 @@ import { useEffect } from "react";
 
 import { Check } from "lucide-react";
 import { Locale, Dictionary } from '@/lib/i18n';
-import { getPricing, formatPrice, formatSetup, VerticalType, PRICING_DATA } from '@/lib/pricing';
 import { motion } from 'framer-motion';
 import { Reveal, RevealList, RevealItem } from '@/components/motion/Reveal';
 import { track } from '@/lib/track';
@@ -13,46 +12,44 @@ import { track } from '@/lib/track';
 const WHATSAPP_LINK = "https://wa.me/358401604442";
 
 function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
-    const pricing = PRICING_DATA.starter;
-
-    const priceText = formatPrice(pricing.monthlyUSD, locale);
-    const setupText = formatSetup(pricing.setupUSD, locale);
-
     const [loading, setLoading] = React.useState(false);
 
     const handleCTA = () => {
         setLoading(true);
         const leadData = {
             name: "",
-            businessType: "Restaurant",
+            businessType: "Multi-Industry",
             service: plan.name,
-            phone: "Visitor clicked Demo",
+            phone: "Visitor clicked CTA",
             email: "",
             source: 'demo_form' as const,
-            notes: `Pricing CTA click | Loc: ${locale}`,
+            notes: `Pricing Plan: ${plan.name} | Loc: ${locale}`,
         };
         track('book_demo_click', { language: locale, ...leadData });
         fetch('/api/leads', {
             method: 'POST',
             body: JSON.stringify(leadData)
         }).catch(() => { });
-        // Direct to demo for the single offer
-        window.location.href = `/${locale}/signup?service=ordering&source=pricing`;
+        // Direct to signup/contact with relevant plan
+        window.location.href = `/${locale}/signup?service=${plan.id}&source=pricing`;
     };
 
     return (
         <RevealItem>
             <div
                 className={[
-                    "relative mx-auto max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 transition-all duration-500",
+                    "relative mx-auto w-full rounded-3xl border border-white/10 bg-white/[0.04] p-8 transition-all duration-500 flex flex-col h-full",
                     "shadow-[0_0_80px_rgba(139,92,246,0.1)] backdrop-blur-xl",
                     "ring-1 ring-purple-500/40",
                     "hover:bg-white/[0.06] hover:border-white/20"
                 ].join(" ")}
             >
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border border-purple-500/40 bg-purple-500/20 px-4 py-1.5 text-xs font-bold text-purple-200 z-10 uppercase tracking-widest">
-                    {locale === 'ar' ? 'الباقة الشاملة' : 'All-In-One Package'}
-                </div>
+                {/* Badge for featured/most popular */}
+                {plan.id === 'growth' && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border border-purple-500/40 bg-purple-500 px-4 py-1.5 text-xs font-bold text-white z-10 uppercase tracking-widest shadow-lg shadow-purple-500/50">
+                        {locale === 'ar' ? 'الأكثر شيوعاً' : 'Most Popular'}
+                    </div>
+                )}
 
                 <div className={locale === 'ar' ? 'text-right' : ''}>
                     <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
@@ -60,11 +57,11 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
                 </div>
 
                 <div className={`mt-8 ${locale === 'ar' ? 'text-right' : ''}`}>
-                    <div className="text-4xl font-black text-white tracking-tight">{priceText}</div>
-                    <div className="mt-2 text-sm font-medium text-purple-300/80">{setupText}</div>
+                    <div className="text-4xl font-black text-white tracking-tight">{plan.price}</div>
+                    <div className="mt-2 text-sm font-medium text-purple-300/80">{plan.setup}</div>
                 </div>
 
-                <ul className="mt-8 space-y-4 text-sm text-white/80">
+                <ul className="mt-8 space-y-4 text-sm text-white/80 flex-1">
                     {plan.bullets.map((b: string) => (
                         <li key={b} className="flex items-start gap-3">
                             <Check className={`mt-0.5 h-5 w-5 text-purple-400 shrink-0 ${locale === 'ar' ? 'order-2' : ''}`} />
@@ -81,8 +78,8 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
                     whileHover={{ scale: 1.02 }}
                     className={[
                         "mt-10 inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-lg font-bold transition-all shadow-xl shadow-purple-500/20",
-                        "bg-purple-500 text-white hover:bg-purple-400 hover:shadow-purple-500/40",
-                        "focus:outline-none focus:ring-2 focus:ring-purple-400/60 disabled:opacity-50",
+                        plan.id === 'growth' ? "bg-purple-500 text-white" : "bg-white/10 text-white border border-white/10",
+                        "hover:shadow-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-400/60 disabled:opacity-50",
                     ].join(" ")}
                 >
                     {loading ? (
@@ -111,10 +108,8 @@ export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictio
         track('pricing_view', { source: 'pricing', language: locale });
     }, [locale]);
 
-    const plan = dict.pricing.plans[0];
-
     return (
-        <section id="packages" className="mx-auto w-full max-w-6xl px-4 py-24 mb-12">
+        <section id="packages" className="mx-auto w-full max-w-7xl px-4 py-24 mb-12">
             <Reveal>
                 <div className="text-center mb-16">
                     <div className="mx-auto inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-bold text-white/50 backdrop-blur-sm uppercase tracking-widest">
@@ -130,8 +125,10 @@ export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictio
                 </div>
             </Reveal>
 
-            <div className="flex justify-center">
-                <PlanCard plan={plan} locale={locale} />
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+                {dict.pricing.plans.map((p: any) => (
+                    <PlanCard key={p.id} plan={p} locale={locale} />
+                ))}
             </div>
 
             <Reveal delay={0.5}>

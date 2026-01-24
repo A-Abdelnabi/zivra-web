@@ -13,8 +13,8 @@ export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
         <footer className="border-t border-white/5 bg-[#0a0a0b] py-12">
             <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div>
-                    <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-xl tracking-tighter">
-                        <div className="relative w-6 h-6 md:w-7 md:h-7 rounded-full overflow-hidden shrink-0">
+                    <Link href={`/${locale}`} className="flex items-center gap-2 group">
+                        <div className="relative w-8 h-8 rounded-full overflow-hidden shrink-0 transition-transform duration-500 group-hover:rotate-12">
                             <Image
                                 src="/images/zivra-logo.jpg"
                                 alt="ZIVRA Logo"
@@ -22,9 +22,12 @@ export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                                 className="object-cover"
                             />
                         </div>
-                        ZIVRA.dev
+                        <div className="flex flex-col">
+                            <span className="font-bold text-xl tracking-tighter leading-none">ZIVRA.dev</span>
+                            <span className="text-[7px] font-black uppercase tracking-widest text-primary mt-0.5">Zero-Intervention Revenue Automation</span>
+                        </div>
                     </Link>
-                    <p className="text-sm text-muted-foreground mt-2">
+                    <p className="text-sm text-muted-foreground mt-4 max-w-xs">
                         {dict.footer.tagline}
                     </p>
                 </div>
