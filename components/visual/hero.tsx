@@ -123,13 +123,12 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                             <ChevronRight className={`transition-transform duration-300 group-hover:translate-x-1 ${locale === 'ar' ? 'mr-2 rotate-180 group-hover:-translate-x-1' : 'ml-2'} h-5 w-5`} />
                         </Link>
                     </Button>
-                    <button
-                        onClick={() => window.open("https://wa.me/9665XXXXXXXX", "_blank")}
-                        className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-semibold"
-                    >
-                        <MessageCircle size={20} className="text-green-500" />
-                        {dict.hero.ctaSecondary}
-                    </button>
+                    <Button variant="ghost" size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] text-white/50 hover:text-white" asChild>
+                        <Link href="/demo/restaurant">
+                            <MessageCircle size={20} className="text-green-500 mr-2" />
+                            {dict.hero.ctaSecondary}
+                        </Link>
+                    </Button>
                 </motion.div>
             </motion.div>
         </section>
