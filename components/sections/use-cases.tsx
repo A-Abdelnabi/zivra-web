@@ -2,50 +2,63 @@
 
 import { Reveal, RevealList, RevealItem } from "@/components/motion/Reveal";
 import { Locale, Dictionary } from "@/lib/i18n";
-import { Building2, Stethoscope, Coffee, ArrowRight } from "lucide-react";
+import { Magnet, TrendingUp, Megaphone, Zap, ArrowRight } from "lucide-react";
 
 export default function UseCases({ locale }: { locale: Locale; dict: Dictionary }) {
     const isRtl = locale === 'ar';
 
     const cases = [
         {
-            id: "restaurant",
-            icon: <Coffee className="text-orange-500" size={24} />,
-            title: isRtl ? "المطاعم والكافيهات" : "Restaurants & Cafés",
+            id: "leads",
+            icon: <Magnet className="text-blue-500" size={24} />,
+            title: isRtl ? "شركات تعتمد على العملاء المحتملين" : "Lead-Driven Businesses",
             problem: isRtl
-                ? "استقبال الطلبات وقت الزحمة عبر الواتساب يشتت الفريق."
-                : "Managing rush-hour orders via manual WhatsApp chats is chaotic.",
+                ? "العملاء يأتون من قنوات كثيرة بدون تنظيم واضح."
+                : "Leads come from many channels, but nothing is organized.",
             solution: isRtl
-                ? "أتمتة الطلبات عبر منيو رقمي وربطه بنظام المحاسبة."
-                : "Automate ordering with a digital menu synced to your POS.",
-            result: isRtl ? "توفير ~25% من وقت الموظفين." : "Save ~25% of staff efficiency.",
-            color: "from-orange-500/10 to-transparent"
-        },
-        {
-            id: "clinic",
-            icon: <Stethoscope className="text-blue-500" size={24} />,
-            title: isRtl ? "العيادات والمراكز الطبية" : "Clinics & Medical Centers",
-            problem: isRtl
-                ? "فقدان مواعيد بسبب تأخر الرد على استفسارات العملاء."
-                : "Losing appointments due to delayed responses to simple inquiries.",
-            solution: isRtl
-                ? "مساعد ذكاء اصطناعي يحجز المواعيد ويرد على الأسئلة الشائعة 24/7."
-                : "AI assistant that handles booking and FAQs 24/7.",
-            result: isRtl ? "تقليل المكالمات الفائتة بنسبة 40%." : "Reduce missed inquiries by ~40%.",
+                ? "ZIVRA تجمع كل العملاء من الإعلانات، واتساب، الموقع، والسوشيال ميديا في نظام مبيعات واحد."
+                : "ZIVRA centralizes all leads from ads, WhatsApp, website, and social media into one automated sales system.",
+            result: isRtl ? "تحويل أعلى، رد أسرع، وعدم ضياع أي فرصة." : "Higher conversion, faster response, zero missed opportunities.",
             color: "from-blue-500/10 to-transparent"
         },
         {
-            id: "service",
-            icon: <Building2 className="text-emerald-500" size={24} />,
-            title: isRtl ? "قطاع الخدمات (صيانة/تجميل)" : "Service Businesses",
+            id: "sales",
+            icon: <TrendingUp className="text-emerald-500" size={24} />,
+            title: isRtl ? "فرق مبيعات وشركات في مرحلة نمو" : "Sales Teams & Growth Companies",
             problem: isRtl
-                ? "صعوبة متابعة العملاء المحتملين يدوياً."
-                : "Difficulty following up with leads manually via spreadsheets.",
+                ? "المبيعات تعتمد على الأفراد وليس الأنظمة."
+                : "Sales performance depends on people, not systems.",
             solution: isRtl
-                ? "ربط الواتساب بنظام CRM لتسجيل المواعيد فوراً."
-                : "Inject WhatsApp leads directly into a mini-CRM for instant follow-up.",
-            result: isRtl ? "زيادة معدل تحوير العملاء 30%." : "Boost conversion rate by ~30%.",
+                ? "مبيعات مدعومة بالذكاء الاصطناعي، CRM، متابعات تلقائية، ولوحات تحكم."
+                : "AI-assisted sales flows, CRM pipelines, automated follow-ups, and performance tracking.",
+            result: isRtl ? "صفقات أكثر، دورة بيع أقصر، ورؤية كاملة للإدارة." : "More closed deals, shorter sales cycles, full sales visibility.",
             color: "from-emerald-500/10 to-transparent"
+        },
+        {
+            id: "marketing",
+            icon: <Megaphone className="text-purple-500" size={24} />,
+            title: isRtl ? "شركات تعتمد على التسويق والإعلانات" : "Marketing-Heavy Companies",
+            problem: isRtl
+                ? "نصرف على الإعلانات بدون معرفة ما الذي يحقق نتائج حقيقية."
+                : "We spend on ads but don’t know what actually converts.",
+            solution: isRtl
+                ? "ZIVRA تربط الإعلانات، الصفحات، الشات الذكي، وCRM في Funnel واحد قابل للقياس."
+                : "ZIVRA connects media buying, landing pages, AI chat, and CRM into one measurable funnel.",
+            result: isRtl ? "عائد أعلى، تتبع أوضح، ونمو قابل للتوسع." : "Better ROI, clear attribution, scalable growth.",
+            color: "from-purple-500/10 to-transparent"
+        },
+        {
+            id: "automation",
+            icon: <Zap className="text-orange-500" size={24} />,
+            title: isRtl ? "شركات تعاني من ضغط تشغيلي" : "Operationally Busy Businesses",
+            problem: isRtl
+                ? "رسائل كثيرة، متابعات يدوية، وضغط يومي."
+                : "Too many messages, follow-ups, and manual tasks.",
+            solution: isRtl
+                ? "أتمتة التوجيه، المتابعات، دعم العملاء، والعمليات الداخلية."
+                : "Automation for lead routing, reminders, customer support, and internal workflows.",
+            result: isRtl ? "مجهود أقل، توظيف أقل، وتركيز أكبر على النمو." : "Less workload, fewer hires, more focus on growth.",
+            color: "from-orange-500/10 to-transparent"
         }
     ];
 
@@ -57,21 +70,21 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                 <Reveal>
                     <div className="text-center mb-16 space-y-4">
                         <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
-                            {isRtl ? "لمن تم بناء ZIVRA؟" : "Who ZIVRA is built for"}
+                            {isRtl ? "لمن تم بناء ZIVRA" : "Who ZIVRA is built for"}
                         </h2>
                         <p className="text-white/50 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
                             {isRtl
-                                ? "نحن لا نبني فقط برمجيات، نحن نصمم حلولاً تزيد من مبيعاتك وتوفر وقتك في القطاعات الأكثر حيوية."
-                                : "We don't just build software. We engineer systems that scale sales and save time for high-growth sectors."}
+                                ? "للشركات التي تبحث عن نمو مستدام، مبيعات مؤتمتة، ورؤية كاملة بدون فوضى."
+                                : "Companies that want predictable growth, automated sales, and full visibility — without chaos."}
                         </p>
                     </div>
                 </Reveal>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <RevealList delay={0.2} staggerChildren={0.1}>
                         {cases.map((c) => (
                             <RevealItem key={c.id}>
-                                <div className={`relative group p-8 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-500 bg-gradient-to-b ${c.color}`}>
+                                <div className={`relative group p-8 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-500 bg-gradient-to-b ${c.color} h-full`}>
                                     <div className="mb-6 p-3 bg-white/5 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-500">
                                         {c.icon}
                                     </div>
@@ -120,10 +133,10 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                 <Reveal delay={0.8}>
                     <div className="mt-16 text-center">
                         <button
-                            onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
+                            onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
                             className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-white/90 transition-all"
                         >
-                            {isRtl ? "ابدأ الآن" : "Start now"}
+                            {isRtl ? "احجز استراتيجية مبيعات" : "Book Sales Strategy"}
                             <ArrowRight size={18} className={`${isRtl ? 'rotate-180' : ''} group-hover:translate-x-1 transition-transform`} />
                         </button>
                     </div>
@@ -132,3 +145,4 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
         </section>
     );
 }
+
