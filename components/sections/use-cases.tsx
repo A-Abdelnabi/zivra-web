@@ -7,57 +7,95 @@ import { Magnet, TrendingUp, Megaphone, Zap, ArrowRight } from "lucide-react";
 export default function UseCases({ locale }: { locale: Locale; dict: Dictionary }) {
     const isRtl = locale === 'ar';
 
+    const t = (en: string, ar: string, fi: string) => {
+        if (locale === 'ar') return ar;
+        if (locale === 'fi') return fi;
+        return en;
+    };
+
     const cases = [
         {
             id: "leads",
             icon: <Magnet className="text-blue-500" size={24} />,
-            title: isRtl ? "شركات تعتمد على العملاء المحتملين" : "Lead-Driven Businesses",
-            problem: isRtl
-                ? "العملاء يأتون من قنوات كثيرة بدون تنظيم واضح."
-                : "Leads come from many channels, but nothing is organized.",
-            solution: isRtl
-                ? "ZIVRA تجمع كل العملاء من الإعلانات، واتساب، الموقع، والسوشيال ميديا في نظام مبيعات واحد."
-                : "ZIVRA centralizes all leads from ads, WhatsApp, website, and social media into one automated sales system.",
-            result: isRtl ? "تحويل أعلى، رد أسرع، وعدم ضياع أي فرصة." : "Higher conversion, faster response, zero missed opportunities.",
+            title: t("Lead-Driven Businesses", "شركات تعتمد على العملاء المحتملين", "Liidivetoiset yritykset"),
+            problem: t(
+                "Leads come from many channels, but nothing is organized.",
+                "العملاء يأتون من قنوات كثيرة بدون تنظيم واضح.",
+                "Liidejä tulee monista kanavista, mutta mikään ei ole organisoitua."
+            ),
+            solution: t(
+                "ZIVRA centralizes all leads from ads, WhatsApp, website, and social media into one automated sales system.",
+                "ZIVRA تجمع كل العملاء من الإعلانات، واتساب، الموقع، والسوشيال ميديا في نظام مبيعات واحد.",
+                "ZIVRA keskittää kaikki liidit mainoksista, WhatsAppista, verkkosivuilta ja somesta yhteen automatisoituun myyntijärjestelmään."
+            ),
+            result: t(
+                "Higher conversion, faster response, zero missed opportunities.",
+                "تحويل أعلى، رد أسرع، وعدم ضياع أي فرصة.",
+                "Parempi konversio, nopeampi vastaus, nolla menetettyä mahdollisuutta."
+            ),
             color: "from-blue-500/10 to-transparent"
         },
         {
             id: "sales",
             icon: <TrendingUp className="text-emerald-500" size={24} />,
-            title: isRtl ? "فرق مبيعات وشركات في مرحلة نمو" : "Sales Teams & Growth Companies",
-            problem: isRtl
-                ? "المبيعات تعتمد على الأفراد وليس الأنظمة."
-                : "Sales performance depends on people, not systems.",
-            solution: isRtl
-                ? "مبيعات مدعومة بالذكاء الاصطناعي، CRM، متابعات تلقائية، ولوحات تحكم."
-                : "AI-assisted sales flows, CRM pipelines, automated follow-ups, and performance tracking.",
-            result: isRtl ? "صفقات أكثر، دورة بيع أقصر، ورؤية كاملة للإدارة." : "More closed deals, shorter sales cycles, full sales visibility.",
+            title: t("Sales Teams & Growth Companies", "فرق مبيعات وشركات في مرحلة نمو", "Myyntitiimit ja kasvuyritykset"),
+            problem: t(
+                "Sales performance depends on people, not systems.",
+                "المبيعات تعتمد على الأفراد وليس الأنظمة.",
+                "Myynnin tulos riippuu ihmisistä, ei järjestelmistä."
+            ),
+            solution: t(
+                "AI-assisted sales flows, CRM pipelines, automated follow-ups, and performance tracking.",
+                "مبيعات مدعومة بالذكاء الاصطناعي، CRM، متابعات تلقائية، ولوحات تحكم.",
+                "Tekoälyavusteiset myyntiputket, CRM, automaattiset seurannat ja suorituskyvyn seuranta."
+            ),
+            result: t(
+                "More closed deals, shorter sales cycles, full sales visibility.",
+                "صفقات أكثر، دورة بيع أقصر، ورؤية كاملة للإدارة.",
+                "Enemmän kauppoja, lyhyemmät myyntisyklit, täysi näkyvyys myyntiin."
+            ),
             color: "from-emerald-500/10 to-transparent"
         },
         {
             id: "marketing",
             icon: <Megaphone className="text-purple-500" size={24} />,
-            title: isRtl ? "شركات تعتمد على التسويق والإعلانات" : "Marketing-Heavy Companies",
-            problem: isRtl
-                ? "نصرف على الإعلانات بدون معرفة ما الذي يحقق نتائج حقيقية."
-                : "We spend on ads but don’t know what actually converts.",
-            solution: isRtl
-                ? "ZIVRA تربط الإعلانات، الصفحات، الشات الذكي، وCRM في Funnel واحد قابل للقياس."
-                : "ZIVRA connects media buying, landing pages, AI chat, and CRM into one measurable funnel.",
-            result: isRtl ? "عائد أعلى، تتبع أوضح، ونمو قابل للتوسع." : "Better ROI, clear attribution, scalable growth.",
+            title: t("Marketing-Heavy Companies", "شركات تعتمد على التسويق والإعلانات", "Markkinointivetoiset yritykset"),
+            problem: t(
+                "We spend on ads but don’t know what actually converts.",
+                "نصرف على الإعلانات بدون معرفة ما الذي يحقق نتائج حقيقية.",
+                "Käytämme rahaa mainoksiin, mutta emme tiedä mikä oikeasti tuottaa tulosta."
+            ),
+            solution: t(
+                "ZIVRA connects media buying, landing pages, AI chat, and CRM into one measurable funnel.",
+                "ZIVRA تربط الإعلانات، الصفحات، الشات الذكي، وCRM في Funnel واحد قابل للقياس.",
+                "ZIVRA yhdistää mediamyynnin, laskeutumissivut, tekoälychatin ja CRM:n yhdeksi mitattavaksi suppiloksi."
+            ),
+            result: t(
+                "Better ROI, clear attribution, scalable growth.",
+                "عائد أعلى، تتبع أوضح، ونمو قابل للتوسع.",
+                "Parempi ROI, selkeä attribuutio, skaalautuva kasvu."
+            ),
             color: "from-purple-500/10 to-transparent"
         },
         {
             id: "automation",
             icon: <Zap className="text-orange-500" size={24} />,
-            title: isRtl ? "شركات تعاني من ضغط تشغيلي" : "Operationally Busy Businesses",
-            problem: isRtl
-                ? "رسائل كثيرة، متابعات يدوية، وضغط يومي."
-                : "Too many messages, follow-ups, and manual tasks.",
-            solution: isRtl
-                ? "أتمتة التوجيه، المتابعات، دعم العملاء، والعمليات الداخلية."
-                : "Automation for lead routing, reminders, customer support, and internal workflows.",
-            result: isRtl ? "مجهود أقل، توظيف أقل، وتركيز أكبر على النمو." : "Less workload, fewer hires, more focus on growth.",
+            title: t("Operationally Busy Businesses", "شركات تعاني من ضغط تشغيلي", "Operatiivisesti kiireiset yritykset"),
+            problem: t(
+                "Too many messages, follow-ups, and manual tasks.",
+                "رسائل كثيرة، متابعات يدوية، وضغط يومي.",
+                "Liikaa viestejä, seurantoja ja manuaalisia tehtäviä."
+            ),
+            solution: t(
+                "Automation for lead routing, reminders, customer support, and internal workflows.",
+                "أتمتة التوجيه، المتابعات، دعم العملاء، والعمليات الداخلية.",
+                "Automaatio liidien ohjaukseen, muistutuksiin, asiakastukeen ja sisäisiin työnkulkuihin."
+            ),
+            result: t(
+                "Less workload, fewer hires, more focus on growth.",
+                "مجهود أقل، توظيف أقل، وتركيز أكبر على النمو.",
+                "Vähemmän työkuormaa, vähemmän rekrytointeja, enemmän fokusta kasvuun."
+            ),
             color: "from-orange-500/10 to-transparent"
         }
     ];
@@ -70,12 +108,14 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                 <Reveal>
                     <div className="text-center mb-16 space-y-4">
                         <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
-                            {isRtl ? "لمن تم بناء ZIVRA" : "Who ZIVRA is built for"}
+                            {t("Who ZIVRA is built for", "لمن تم بناء ZIVRA", "Kenelle ZIVRA on tehty")}
                         </h2>
                         <p className="text-white/50 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-                            {isRtl
-                                ? "للشركات التي تبحث عن نمو مستدام، مبيعات مؤتمتة، ورؤية كاملة بدون فوضى."
-                                : "Companies that want predictable growth, automated sales, and full visibility — without chaos."}
+                            {t(
+                                "Companies that want predictable growth, automated sales, and full visibility — without chaos.",
+                                "للشركات التي تبحث عن نمو مستدام، مبيعات مؤتمتة، ورؤية كاملة بدون فوضى.",
+                                "Yrityksille, jotka haluavat ennustettavaa kasvua, automatisoitua myyntiä ja täydellistä näkyvyyttä – ilman kaaosta."
+                            )}
                         </p>
                     </div>
                 </Reveal>
@@ -94,7 +134,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                                     <div className="space-y-6">
                                         <div className="space-y-2">
                                             <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold">
-                                                {isRtl ? "المشكلة" : "Problem"}
+                                                {t("Problem", "المشكلة", "Ongelma")}
                                             </span>
                                             <p className="text-sm text-white/60 leading-relaxed italic">
                                                 "{c.problem}"
@@ -103,7 +143,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
 
                                         <div className="space-y-2">
                                             <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold">
-                                                {isRtl ? "الحل" : "Solution"}
+                                                {t("Solution", "الحل", "Ratkaisu")}
                                             </span>
                                             <p className="text-sm text-white/80 leading-relaxed font-semibold">
                                                 {c.solution}
@@ -115,7 +155,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                                                 <div className="h-8 w-1 bg-indigo-500 rounded-full" />
                                                 <div>
                                                     <span className="text-[10px] uppercase tracking-widest text-indigo-400 font-bold block">
-                                                        {isRtl ? "النتيجة المتوقعة" : "Expected Result"}
+                                                        {t("Expected Result", "النتيجة المتوقعة", "Odotettu tulos")}
                                                     </span>
                                                     <p className="text-base font-bold text-white">
                                                         {c.result}
@@ -136,7 +176,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                             onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
                             className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-white/90 transition-all"
                         >
-                            {isRtl ? "احجز استراتيجية مبيعات" : "Book Sales Strategy"}
+                            {t("Book Sales Strategy", "احجز استراتيجية مبيعات", "Varaa myyntistrategia")}
                             <ArrowRight size={18} className={`${isRtl ? 'rotate-180' : ''} group-hover:translate-x-1 transition-transform`} />
                         </button>
                     </div>
@@ -145,4 +185,5 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
         </section>
     );
 }
+
 
