@@ -34,7 +34,13 @@ export function StickyCTA({ locale, label }: { locale: Locale; label: string }) 
                         className="w-full h-14 rounded-full shadow-[0_20px_40px_rgba(139,92,246,0.3)] bg-primary text-white text-lg font-bold group border border-white/10 backdrop-blur-md"
                         asChild
                     >
-                        <a href="#pricing">
+                        <a
+                            href="#contact"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                        >
                             {label}
                             <ChevronRight className={`transition-transform duration-300 group-hover:translate-x-1 ${isRtl ? 'mr-2 rotate-180 group-hover:-translate-x-1' : 'ml-2'} h-5 w-5`} />
                         </a>
