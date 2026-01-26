@@ -64,11 +64,11 @@ export default function DemoEntryForm({ locale, dict }: DemoEntryProps) {
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+        <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-6 md:p-10 shadow-saas"
+                className="w-full max-w-lg bg-white border border-border rounded-3xl p-6 md:p-10 shadow-saas"
             >
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold text-foreground">
@@ -92,7 +92,7 @@ export default function DemoEntryForm({ locale, dict }: DemoEntryProps) {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder={dict.demo.entry.namePlaceholder}
-                            className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-foreground placeholder:text-muted-foreground focus:border-primary/50 outline-none transition-colors"
+                            className="w-full h-12 bg-muted border border-border rounded-xl px-4 text-foreground placeholder:text-muted-foreground focus:border-primary/50 outline-none transition-colors"
                         />
                     </div>
 
@@ -105,7 +105,7 @@ export default function DemoEntryForm({ locale, dict }: DemoEntryProps) {
                             <select
                                 value={type}
                                 onChange={(e) => setType(e.target.value)}
-                                className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-2 md:px-4 text-foreground outline-none appearance-none"
+                                className="w-full h-12 bg-muted border border-border rounded-xl px-2 md:px-4 text-foreground outline-none appearance-none"
                             >
                                 <option value="Restaurant">{dict.demo.entry.types.restaurant}</option>
                                 <option value="Café">{dict.demo.entry.types.cafe}</option>
@@ -123,7 +123,7 @@ export default function DemoEntryForm({ locale, dict }: DemoEntryProps) {
                                 value={city}
                                 onChange={(e) => setCity(e.target.value)}
                                 placeholder={dict.demo.entry.cityPlaceholder}
-                                className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-foreground focus:border-primary/50 outline-none"
+                                className="w-full h-12 bg-muted border border-border rounded-xl px-4 text-foreground focus:border-primary/50 outline-none"
                             />
                         </div>
                     </div>
@@ -140,8 +140,8 @@ export default function DemoEntryForm({ locale, dict }: DemoEntryProps) {
                                     type="button"
                                     onClick={() => { setChannel(c as any); setContactVal(""); }}
                                     className={`h-10 rounded-lg text-xs font-bold uppercase tracking-wide border transition-all ${channel === c
-                                        ? "bg-primary border-primary text-white"
-                                        : "bg-slate-50 border-slate-200 text-muted-foreground hover:bg-slate-100"
+                                        ? "bg-primary border-primary text-foreground"
+                                        : "bg-muted border-border text-muted-foreground hover:bg-slate-100"
                                         }`}
                                 >
                                     {c}
@@ -161,14 +161,14 @@ export default function DemoEntryForm({ locale, dict }: DemoEntryProps) {
                             value={contactVal}
                             onChange={(e) => setContactVal(e.target.value)}
                             placeholder={contactPlaceholder}
-                            className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-foreground focus:border-primary/50 outline-none transition-colors"
+                            className="w-full h-12 bg-muted border border-border rounded-xl px-4 text-foreground focus:border-primary/50 outline-none transition-colors"
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading || !name.trim() || !contactVal.trim()}
-                        className="w-full h-14 bg-primary rounded-xl font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100 mt-6 flex items-center justify-center gap-2"
+                        className="w-full h-14 bg-primary rounded-xl font-bold text-foreground shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100 mt-6 flex items-center justify-center gap-2"
                     >
                         {loading ? (
                             <span className="animate-pulse">{dict.demo.entry.cta.loading}</span>

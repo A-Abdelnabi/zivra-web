@@ -58,7 +58,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
         },
         {
             id: "marketing",
-            icon: <Megaphone className="text-indigo-400" size={24} />,
+            icon: <Megaphone className="text-secondary" size={24} />,
             title: t("Marketing-Heavy Companies", "شركات تعتمد على التسويق والإعلانات", "Markkinointivetoiset yritykset"),
             problem: t(
                 "We spend on ads but don’t know what actually converts.",
@@ -75,11 +75,11 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                 "عائد أعلى، تتبع أوضح، ونمو قابل للتوسع.",
                 "Parempi ROI, selkeä attribuutio, skaalautuva kasvu."
             ),
-            color: "from-indigo-400/10 to-transparent"
+            color: "from-secondary/10 to-transparent"
         },
         {
             id: "automation",
-            icon: <Zap className="text-rose-400" size={24} />,
+            icon: <Zap className="text-primary" size={24} />,
             title: t("Operationally Busy Businesses", "شركات تعاني من ضغط تشغيلي", "Operatiivisesti kiireiset yritykset"),
             problem: t(
                 "Too many messages, follow-ups, and manual tasks.",
@@ -96,7 +96,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                 "مجهود أقل، توظيف أقل، وتركيز أكبر على النمو.",
                 "Vähemmän työkuormaa, vähemmän rekrytointeja, enemmän fokusta kasvuun."
             ),
-            color: "from-rose-400/10 to-transparent"
+            color: "from-primary/10 to-transparent"
         }
     ];
 
@@ -124,8 +124,8 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                     <RevealList delay={0.2} staggerChildren={0.1}>
                         {cases.map((c) => (
                             <RevealItem key={c.id}>
-                                <div className={`relative group p-8 rounded-3xl border border-slate-100 bg-white hover:shadow-saas transition-all duration-500 h-full`}>
-                                    <div className="mb-6 p-3 bg-slate-50 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-500">
+                                <div className={`relative group p-8 rounded-3xl border border-border bg-white hover:shadow-saas transition-all duration-500 h-full hover:border-primary/30 shadow-sm shadow-border/50`}>
+                                    <div className="mb-6 p-4 bg-primary/5 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-500 text-primary">
                                         {c.icon}
                                     </div>
 
@@ -136,7 +136,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                                             <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
                                                 {t("Problem", "المشكلة", "Ongelma")}
                                             </span>
-                                            <p className="text-sm text-muted-foreground leading-relaxed italic">
+                                            <p className="text-sm text-secondary-foreground leading-relaxed italic">
                                                 "{c.problem}"
                                             </p>
                                         </div>
@@ -150,7 +150,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                                             </p>
                                         </div>
 
-                                        <div className="pt-6 border-t border-slate-100 mt-auto">
+                                        <div className="pt-6 border-t border-border mt-auto">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-8 w-1 bg-primary rounded-full" />
                                                 <div>
@@ -174,7 +174,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                     <div className="mt-16 text-center">
                         <button
                             onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                            className="group inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-bold rounded-full hover:bg-primary/90 transition-all shadow-xl shadow-primary/20"
+                            className="group inline-flex items-center gap-2 px-8 py-4 bg-primary text-foreground font-bold rounded-2xl hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 hover:shadow-primary/30 active:scale-95"
                         >
                             {t("Book Sales Strategy", "احجز استراتيجية مبيعات", "Varaa myyntistrategia")}
                             <ArrowRight size={18} className={`${isRtl ? 'rotate-180' : ''} group-hover:translate-x-1 transition-transform`} />

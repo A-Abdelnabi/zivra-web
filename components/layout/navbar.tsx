@@ -56,7 +56,7 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     };
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 bg-[#F7F9FB]/80 backdrop-blur-lg border-b border-slate-100">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-[#F8FBFA]/80 backdrop-blur-lg border-b border-white/50 shadow-sm shadow-[#8EEAD4]/5">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 {/* Logo */}
                 <Link href={`/${locale}`} className="flex items-center gap-2 group">

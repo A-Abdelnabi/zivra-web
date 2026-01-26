@@ -103,10 +103,10 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     {dict.hero.badge}
                 </motion.div>
 
-                <div className="relative mx-auto mt-8 flex max-w-[240px] items-center justify-center p-2 rounded-full border border-primary/20 bg-white/50 backdrop-blur-sm shadow-sm">
-                    <span className="mr-2 text-sm font-bold text-foreground">{locale === 'ar' ? 'شاهد الديمو' : 'Watch Demo'}</span>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110">
-                        <Play size={14} fill="currentColor" />
+                <div className="relative mx-auto mt-8 flex max-w-[240px] items-center justify-center p-2 rounded-2xl border border-white bg-white/60 backdrop-blur-md shadow-saas">
+                    <span className="mr-3 text-sm font-bold text-foreground/90">{locale === 'ar' ? 'شاهد الديمو' : 'Watch Demo'}</span>
+                    <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/20 text-primary-foreground hover:bg-primary transition-colors duration-300">
+                        <Play size={14} fill="currentColor" className="text-foreground" />
                     </button>
                 </div>
                 <motion.h1
@@ -135,7 +135,7 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                    <Button size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] shadow-xl shadow-primary/20 bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                    <Button size="lg" className="h-14 px-10 text-xl font-bold rounded-2xl group transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-primary/20 bg-primary text-foreground hover:bg-primary/90 hover:shadow-primary/30" asChild>
                         <a
                             href={`/${locale}#contact`}
                             onClick={(e) => handleScroll(e, '#contact')}
@@ -144,11 +144,11 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                             <ArrowRight className={`ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 ${locale === 'ar' ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
                         </a>
                     </Button>
-                    <Button variant="outline" size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900" asChild>
+                    <Button variant="outline" size="lg" className="h-14 px-10 text-xl font-bold rounded-2xl group transition-transform hover:scale-[1.02] active:scale-[0.98] text-foreground/80 border-secondary bg-white hover:bg-secondary hover:text-foreground hover:border-secondary shadow-lg shadow-black/5" asChild>
                         <a
                             href={`/${locale}/demo`}
                         >
-                            <div className="relative w-5 h-5 mr-3 rounded-full overflow-hidden border border-slate-200">
+                            <div className="relative w-5 h-5 mr-3 rounded-full overflow-hidden border border-slate-100">
                                 <Image
                                     src="/images/zivra-logo.jpg"
                                     alt="ZIVRA"

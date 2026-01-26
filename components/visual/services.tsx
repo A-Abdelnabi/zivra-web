@@ -27,16 +27,16 @@ export function Services({ locale, dict }: { locale: Locale; dict: Dictionary })
                             const Icon = iconMap[index];
                             return (
                                 <RevealItem key={index}>
-                                    <Card className="bg-white group hover:shadow-saas transition-all duration-500 h-full border-slate-100 hover:border-primary/20 hover:-translate-y-1 active:scale-[0.98]">
+                                    <Card className="bg-white group hover:shadow-saas transition-all duration-500 h-full border-border hover:border-primary/30 hover:-translate-y-1 active:scale-[0.98] shadow-sm shadow-border/50">
                                         <CardHeader>
                                             <motion.div
                                                 whileHover={{ scale: 1.1, y: -2 }}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 relative"
+                                                className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 relative"
                                             >
                                                 {/* Breathing Icon Effect */}
                                                 <div className="icon-breathing">
-                                                    <Icon className="h-6 w-6 text-primary transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(139,92,246,0.3)]" />
+                                                    <Icon className="h-6 w-6 text-primary transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(142,234,212,0.5)]" />
                                                 </div>
 
                                                 {/* Subtle Glow Bloom on Hover */}

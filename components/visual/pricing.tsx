@@ -38,14 +38,14 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
         <RevealItem>
             <div
                 className={[
-                    "relative mx-auto w-full rounded-3xl border border-slate-100 bg-white p-8 transition-all duration-500 flex flex-col h-full",
-                    "shadow-saas",
-                    "hover:border-primary/20 hover:-translate-y-1"
+                    "relative mx-auto w-full rounded-3xl border border-border bg-white p-8 transition-all duration-500 flex flex-col h-full",
+                    "shadow-saas shadow-border/50",
+                    "hover:border-primary/40 hover:-translate-y-1"
                 ].join(" ")}
             >
                 {/* Badge for featured/most popular */}
                 {plan.id === 'growth' && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border border-primary/40 bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground z-10 uppercase tracking-widest shadow-lg shadow-primary/50">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border border-primary/40 bg-primary px-4 py-1.5 text-xs font-bold text-foreground z-10 uppercase tracking-widest shadow-lg shadow-primary/30">
                         {locale === 'ar' ? 'الأكثر شيوعاً' : 'Most Popular'}
                     </div>
                 )}
@@ -77,7 +77,7 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
                     whileHover={{ scale: 1.02 }}
                     className={[
                         "mt-10 inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-lg font-bold transition-all shadow-xl shadow-primary/10",
-                        plan.id === 'growth' ? "bg-primary text-white hover:bg-primary/90" : "bg-slate-50 text-foreground border border-slate-200 hover:bg-slate-100",
+                        plan.id === 'growth' ? "bg-primary text-foreground hover:bg-primary/90 hover:shadow-primary/30" : "bg-white text-foreground border border-border hover:bg-muted hover:border-primary/30",
                         "hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/60 disabled:opacity-50",
                     ].join(" ")}
                 >

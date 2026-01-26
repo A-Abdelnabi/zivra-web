@@ -35,7 +35,7 @@ export default {
                 sm: "calc(var(--radius) - 4px)",
             },
             boxShadow: {
-                "saas": "0 8px 24px rgba(15, 23, 42, 0.06)",
+                "saas": "0 8px 30px rgba(0, 0, 0, 0.04)",
             },
         },
     },

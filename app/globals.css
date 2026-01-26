@@ -3,74 +3,67 @@
 /* Base theme (shadcn-style) */
 @layer base {
     :root {
-        /* Base Background #F8FAFC -> HSL 210 40% 98% */
-        --background: 210 40% 98%;
-        /* Headings #0F172A -> HSL 222 47% 11% */
-        --foreground: 222 47% 11%;
-
-        /* Cards #FFFFFF -> HSL 0 0% 100% */
-        /* Light Green & Lavender Theme */
-        --background: 210 25% 98%;
-        /* #F7F9FB */
-        --foreground: 215 28% 17%;
-        /* #1F2937 */
+        /* Light Green Pastel Theme */
+        --background: 160 33% 98%;
+        /* #F8FBFA */
+        --foreground: 165 14% 16%;
+        /* #24302D */
         --card: 0 0% 100%;
         /* #FFFFFF */
-        --card-foreground: 215 28% 17%;
-        /* #1F2937 */
+        --card-foreground: 165 14% 16%;
         --popover: 0 0% 100%;
-        --popover-foreground: 215 28% 17%;
+        --popover-foreground: 165 14% 16%;
 
-        /* Primary: Mint Green #6FE3C1 */
-        --primary: 162 67% 66%;
-        --primary-foreground: 215 28% 17%;
-        /* Dark text on light mint for contrast */
+        /* Primary: Pastel Mint #8EEAD4 */
+        --primary: 166 73% 74%;
+        --primary-foreground: 165 14% 16%;
+        /* Dark text on light pastel */
 
-        /* Secondary: Lavender #8B7CF6 */
-        --secondary: 247 90% 72%;
-        --secondary-foreground: 0 0% 100%;
-        /* White text on lavender */
+        /* Secondary: Soft Lavender #B9B2FF */
+        --secondary: 245 100% 85%;
+        --secondary-foreground: 165 14% 16%;
 
-        /* Accent: Lavender for highlights */
-        --accent: 247 90% 72%;
-        /* #8B7CF6 */
-        --accent-foreground: 0 0% 100%;
+        /* Accent: Lavender */
+        --accent: 245 100% 85%;
+        --accent-foreground: 165 14% 16%;
 
-        /* Soft Section #EEF6F3 (Mint-ish White) mapped to Muted */
-        --muted: 156 33% 95%;
-        --muted-foreground: 220 9% 46%;
-        /* #6B7280 */
+        /* Soft Section #F0FAF6 mapped to Muted */
+        --muted: 156 50% 96%;
+        --muted-foreground: 155 8% 45%;
+        /* #6B7C75 */
 
         --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 210 40% 98%;
-        --border: 214.3 31.8% 91.4%;
-        --input: 214.3 31.8% 91.4%;
-        --ring: 162 67% 66%;
-        /* Mint Ring */
-        --radius: 0.75rem;
+        --destructive-foreground: 0 0% 100%;
+
+        /* Borders and Inputs: #E2F1EC -> HSL 160 33% 91% */
+        --border: 160 33% 91%;
+        --input: 160 33% 91%;
+        --ring: 166 73% 74%;
+        --radius: 1rem;
+        /* Softer radius */
     }
 
-    /* Force Light Theme in Dark Mode for consistency with goal */
+    /* Force Light Theme in Dark Mode */
     .dark {
-        --background: 210 25% 98%;
-        --foreground: 215 28% 17%;
+        --background: 160 33% 98%;
+        --foreground: 165 14% 16%;
         --card: 0 0% 100%;
-        --card-foreground: 215 28% 17%;
+        --card-foreground: 165 14% 16%;
         --popover: 0 0% 100%;
-        --popover-foreground: 215 28% 17%;
-        --primary: 162 67% 66%;
-        --primary-foreground: 215 28% 17%;
-        --secondary: 247 90% 72%;
-        --secondary-foreground: 0 0% 100%;
-        --accent: 247 90% 72%;
-        --accent-foreground: 0 0% 100%;
-        --muted: 156 33% 95%;
-        --muted-foreground: 220 9% 46%;
+        --popover-foreground: 165 14% 16%;
+        --primary: 166 73% 74%;
+        --primary-foreground: 165 14% 16%;
+        --secondary: 245 100% 85%;
+        --secondary-foreground: 165 14% 16%;
+        --accent: 245 100% 85%;
+        --accent-foreground: 165 14% 16%;
+        --muted: 156 50% 96%;
+        --muted-foreground: 155 8% 45%;
         --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 210 40% 98%;
-        --border: 214.3 31.8% 91.4%;
-        --input: 214.3 31.8% 91.4%;
-        --ring: 162 67% 66%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 160 33% 91%;
+        --input: 160 33% 91%;
+        --ring: 166 73% 74%;
     }
 
     * {
@@ -133,7 +126,7 @@
 
     .logo-bloom {
         filter: blur(80px);
-        background: radial-gradient(circle, rgba(111, 227, 193, 0.25) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(142, 234, 212, 0.4) 0%, transparent 70%);
         mix-blend-mode: normal;
         pointer-events: none;
     }

@@ -383,7 +383,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                             {messages.map((m) => (
                                 <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-500`}>
                                     {m.isContactCard ? (
-                                        <div className="w-full max-w-[95%] bg-primary/5 rounded-3xl p-6 border border-primary/20 backdrop-blur-md shadow-lg space-y-4">
+                                        <div className="w-full max-w-[95%] bg-primary/10 rounded-3xl p-6 border border-primary/20 backdrop-blur-md shadow-lg space-y-4">
                                             <p className="text-sm font-bold text-foreground mb-2 leading-relaxed">{m.content}</p>
 
                                             {(() => {
@@ -401,9 +401,9 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                                         {(!channel || channel === 'whatsapp') && (
                                                             <button
                                                                 onClick={() => handleCTA("whatsapp")}
-                                                                className="w-full flex items-center gap-4 bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 rounded-2xl p-4 transition-all group shadow-sm"
+                                                                className="w-full flex items-center gap-4 bg-white hover:bg-muted active:scale-[0.98] border border-border rounded-2xl p-4 transition-all group shadow-sm"
                                                             >
-                                                                <div className="h-11 w-11 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform">
+                                                                <div className="h-11 w-11 rounded-full bg-muted flex items-center justify-center border border-border group-hover:scale-110 transition-transform">
                                                                     <MessageCircle className="text-primary" size={20} />
                                                                 </div>
                                                                 <div className="flex-1 text-start">
@@ -416,9 +416,9 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                                         {channel === 'phone' && (
                                                             <button
                                                                 onClick={() => handleCTA("phone")}
-                                                                className="w-full flex items-center gap-4 bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 rounded-2xl p-4 transition-all group shadow-sm"
+                                                                className="w-full flex items-center gap-4 bg-white hover:bg-muted active:scale-[0.98] border border-border rounded-2xl p-4 transition-all group shadow-sm"
                                                             >
-                                                                <div className="h-11 w-11 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform">
+                                                                <div className="h-11 w-11 rounded-full bg-muted flex items-center justify-center border border-border group-hover:scale-110 transition-transform">
                                                                     <Phone className="text-primary" size={20} />
                                                                 </div>
                                                                 <div className="flex-1 text-start">
@@ -431,9 +431,9 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                                         {channel === 'email' && (
                                                             <button
                                                                 onClick={() => handleCTA("email")}
-                                                                className="w-full flex items-center gap-4 bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 rounded-2xl p-4 transition-all group shadow-sm"
+                                                                className="w-full flex items-center gap-4 bg-white hover:bg-muted active:scale-[0.98] border border-border rounded-2xl p-4 transition-all group shadow-sm"
                                                             >
-                                                                <div className="h-11 w-11 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform">
+                                                                <div className="h-11 w-11 rounded-full bg-muted flex items-center justify-center border border-border group-hover:scale-110 transition-transform">
                                                                     <Mail className="text-muted-foreground" size={20} />
                                                                 </div>
                                                                 <div className="flex-1 text-start">
@@ -448,8 +448,8 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                         </div>
                                     ) : (
                                         <div className={`max-w-[85%] rounded-2xl px-5 py-4 text-sm leading-relaxed shadow-sm ${m.role === "user"
-                                            ? "bg-primary text-white rounded-tr-none"
-                                            : "bg-slate-100 text-foreground border border-slate-200 rounded-tl-none"
+                                            ? "bg-primary text-foreground rounded-tr-none shadow-primary/20"
+                                            : "bg-white text-foreground border border-border rounded-tl-none"
                                             }`}>
                                             {m.content}
                                         </div>
@@ -489,12 +489,12 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                         onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                                         placeholder={dict.placeholder}
                                         disabled={step === 0}
-                                        className="flex-1 h-12 rounded-2xl border border-slate-200 bg-slate-50 px-5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 transition-colors"
+                                        className="flex-1 h-12 rounded-2xl border border-border bg-white px-5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 transition-colors"
                                     />
                                     <button
                                         onClick={sendMessage}
                                         disabled={loading || !input.trim() || step === 0}
-                                        className="h-12 w-12 flex items-center justify-center rounded-2xl bg-primary text-primary-foreground transition-all hover:scale-105 active:scale-95 disabled:opacity-0 shadow-lg"
+                                        className="h-12 w-12 flex items-center justify-center rounded-2xl bg-primary text-foreground transition-all hover:scale-105 active:scale-95 disabled:opacity-0 shadow-lg shadow-primary/20"
                                     >
                                         <Send size={18} className={isRtl ? 'rotate-180' : ''} />
                                     </button>
