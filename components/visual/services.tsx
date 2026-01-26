@@ -10,7 +10,7 @@ const iconMap = [Bot, MessageSquare, Code2, Share2, Megaphone, Database];
 
 export function Services({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     return (
-        <section id="services" className="py-24 bg-secondary">
+        <section id="services" className="py-24 bg-muted">
             <div className="container mx-auto px-4">
                 <Reveal>
                     <div className="text-center max-w-2xl mx-auto mb-16">

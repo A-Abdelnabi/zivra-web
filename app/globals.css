@@ -9,60 +9,68 @@
         --foreground: 222 47% 11%;
 
         /* Cards #FFFFFF -> HSL 0 0% 100% */
+        /* Light Green & Lavender Theme */
+        --background: 210 25% 98%;
+        /* #F7F9FB */
+        --foreground: 215 28% 17%;
+        /* #1F2937 */
         --card: 0 0% 100%;
-        --card-foreground: 222 47% 11%;
-
+        /* #FFFFFF */
+        --card-foreground: 215 28% 17%;
+        /* #1F2937 */
         --popover: 0 0% 100%;
-        --popover-foreground: 222 47% 11%;
+        --popover-foreground: 215 28% 17%;
 
-        /* Primary #6D5EF7 -> HSL 246 89% 67% */
-        --primary: 246 89% 67%;
-        --primary-foreground: 0 0% 100%;
+        /* Primary: Mint Green #6FE3C1 */
+        --primary: 162 67% 66%;
+        --primary-foreground: 215 28% 17%;
+        /* Dark text on light mint for contrast */
 
-        /* Secondary #F1F5F9 -> HSL 210 40% 96% */
-        --secondary: 210 40% 96%;
-        /* Body text #334155 -> HSL 215 25% 27% */
-        --secondary-foreground: 215 25% 27%;
+        /* Secondary: Lavender #8B7CF6 */
+        --secondary: 247 90% 72%;
+        --secondary-foreground: 0 0% 100%;
+        /* White text on lavender */
 
-        /* Muted #64748B -> HSL 215 16% 47% */
-        --muted: 215 16% 47%;
-        --muted-foreground: 215 16% 47%;
+        /* Accent: Lavender for highlights */
+        --accent: 247 90% 72%;
+        /* #8B7CF6 */
+        --accent-foreground: 0 0% 100%;
 
-        /* Soft Accent #EDEBFF -> HSL 249 100% 96% */
-        --accent: 249 100% 96%;
-        --accent-foreground: 246 89% 67%;
+        /* Soft Section #EEF6F3 (Mint-ish White) mapped to Muted */
+        --muted: 156 33% 95%;
+        --muted-foreground: 220 9% 46%;
+        /* #6B7280 */
 
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 210 40% 98%;
-
         --border: 214.3 31.8% 91.4%;
         --input: 214.3 31.8% 91.4%;
-        --ring: 246 89% 67%;
-
-        --radius: 16px;
+        --ring: 162 67% 66%;
+        /* Mint Ring */
+        --radius: 0.75rem;
     }
 
-    /* Force light theme even in dark mode for now, or just update dark to match light if user wants 'Remove dark/black global backgrounds' */
+    /* Force Light Theme in Dark Mode for consistency with goal */
     .dark {
-        --background: 210 40% 98%;
-        --foreground: 222 47% 11%;
+        --background: 210 25% 98%;
+        --foreground: 215 28% 17%;
         --card: 0 0% 100%;
-        --card-foreground: 222 47% 11%;
+        --card-foreground: 215 28% 17%;
         --popover: 0 0% 100%;
-        --popover-foreground: 222 47% 11%;
-        --primary: 246 89% 67%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 210 40% 96%;
-        --secondary-foreground: 215 25% 27%;
-        --muted: 215 16% 47%;
-        --muted-foreground: 215 16% 47%;
-        --accent: 249 100% 96%;
-        --accent-foreground: 246 89% 67%;
-        --destructive: 0 84.2% 60.2%;
+        --popover-foreground: 215 28% 17%;
+        --primary: 162 67% 66%;
+        --primary-foreground: 215 28% 17%;
+        --secondary: 247 90% 72%;
+        --secondary-foreground: 0 0% 100%;
+        --accent: 247 90% 72%;
+        --accent-foreground: 0 0% 100%;
+        --muted: 156 33% 95%;
+        --muted-foreground: 220 9% 46%;
+        --destructive: 0 62.8% 30.6%;
         --destructive-foreground: 210 40% 98%;
         --border: 214.3 31.8% 91.4%;
         --input: 214.3 31.8% 91.4%;
-        --ring: 246 89% 67%;
+        --ring: 162 67% 66%;
     }
 
     * {
@@ -125,7 +133,7 @@
 
     .logo-bloom {
         filter: blur(80px);
-        background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(111, 227, 193, 0.25) 0%, transparent 70%);
         mix-blend-mode: normal;
         pointer-events: none;
     }

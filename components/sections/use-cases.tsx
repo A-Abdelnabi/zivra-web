@@ -16,7 +16,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
     const cases = [
         {
             id: "leads",
-            icon: <Magnet className="text-blue-500" size={24} />,
+            icon: <Magnet className="text-secondary" size={24} />,
             title: t("Lead-Driven Businesses", "شركات تعتمد على العملاء المحتملين", "Liidivetoiset yritykset"),
             problem: t(
                 "Leads come from many channels, but nothing is organized.",
@@ -33,11 +33,11 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                 "تحويل أعلى، رد أسرع، وعدم ضياع أي فرصة.",
                 "Parempi konversio, nopeampi vastaus, nolla menetettyä mahdollisuutta."
             ),
-            color: "from-blue-500/10 to-transparent"
+            color: "from-secondary/10 to-transparent"
         },
         {
             id: "sales",
-            icon: <TrendingUp className="text-emerald-500" size={24} />,
+            icon: <TrendingUp className="text-primary" size={24} />,
             title: t("Sales Teams & Growth Companies", "فرق مبيعات وشركات في مرحلة نمو", "Myyntitiimit ja kasvuyritykset"),
             problem: t(
                 "Sales performance depends on people, not systems.",
@@ -54,11 +54,11 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                 "صفقات أكثر، دورة بيع أقصر، ورؤية كاملة للإدارة.",
                 "Enemmän kauppoja, lyhyemmät myyntisyklit, täysi näkyvyys myyntiin."
             ),
-            color: "from-emerald-500/10 to-transparent"
+            color: "from-primary/10 to-transparent"
         },
         {
             id: "marketing",
-            icon: <Megaphone className="text-purple-500" size={24} />,
+            icon: <Megaphone className="text-indigo-400" size={24} />,
             title: t("Marketing-Heavy Companies", "شركات تعتمد على التسويق والإعلانات", "Markkinointivetoiset yritykset"),
             problem: t(
                 "We spend on ads but don’t know what actually converts.",
@@ -75,11 +75,11 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                 "عائد أعلى، تتبع أوضح، ونمو قابل للتوسع.",
                 "Parempi ROI, selkeä attribuutio, skaalautuva kasvu."
             ),
-            color: "from-purple-500/10 to-transparent"
+            color: "from-indigo-400/10 to-transparent"
         },
         {
             id: "automation",
-            icon: <Zap className="text-orange-500" size={24} />,
+            icon: <Zap className="text-rose-400" size={24} />,
             title: t("Operationally Busy Businesses", "شركات تعاني من ضغط تشغيلي", "Operatiivisesti kiireiset yritykset"),
             problem: t(
                 "Too many messages, follow-ups, and manual tasks.",
@@ -96,7 +96,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                 "مجهود أقل، توظيف أقل، وتركيز أكبر على النمو.",
                 "Vähemmän työkuormaa, vähemmän rekrytointeja, enemmän fokusta kasvuun."
             ),
-            color: "from-orange-500/10 to-transparent"
+            color: "from-rose-400/10 to-transparent"
         }
     ];
 

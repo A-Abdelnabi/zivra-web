@@ -494,7 +494,7 @@ export default function ChatWidget({ locale }: { locale: Locale }) {
                                     <button
                                         onClick={sendMessage}
                                         disabled={loading || !input.trim() || step === 0}
-                                        className="h-12 w-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-0"
+                                        className="h-12 w-12 flex items-center justify-center rounded-2xl bg-primary text-primary-foreground transition-all hover:scale-105 active:scale-95 disabled:opacity-0 shadow-lg"
                                     >
                                         <Send size={18} className={isRtl ? 'rotate-180' : ''} />
                                     </button>

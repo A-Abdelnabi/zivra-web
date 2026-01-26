@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Bot, ChevronRight, MessageCircle } from 'lucide-react';
+import { Bot, ChevronRight, MessageCircle, ArrowRight, Play } from 'lucide-react';
 import { Locale, Dictionary } from '@/lib/i18n';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { EnergyField } from '@/components/motion/EnergyField';
@@ -12,6 +12,18 @@ import { useRef } from 'react';
 export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     const targetRef = useRef<HTMLDivElement>(null);
     const shouldReduceMotion = useReducedMotion();
+
+    const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+        if (href.startsWith('#')) {
+            e.preventDefault();
+            const id = href.substring(1);
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+                window.history.pushState(null, '', `/${locale}${href}`);
+            }
+        }
+    };
 
     // Scroll parallax setup
     const { scrollYProgress } = useScroll({
@@ -91,6 +103,12 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     {dict.hero.badge}
                 </motion.div>
 
+                <div className="relative mx-auto mt-8 flex max-w-[240px] items-center justify-center p-2 rounded-full border border-primary/20 bg-white/50 backdrop-blur-sm shadow-sm">
+                    <span className="mr-2 text-sm font-bold text-foreground">{locale === 'ar' ? 'شاهد الديمو' : 'Watch Demo'}</span>
+                    <button className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110">
+                        <Play size={14} fill="currentColor" />
+                    </button>
+                </div>
                 <motion.h1
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -105,8 +123,8 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                    className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-10"
+                    transition={{ delay: 0.2, duration: 0.8 }}
+                    className="mx-auto mt-6 max-w-2xl text-lg md:text-xl text-muted-foreground leading-relaxed font-medium"
                 >
                     {dict.hero.description}
                 </motion.p>
@@ -117,14 +135,19 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                    <Button size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] shadow-xl shadow-primary/20 bg-primary text-white hover:bg-primary/90" asChild>
-                        <Link href={`/${locale}/signup`}>
+                    <Button size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] shadow-xl shadow-primary/20 bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                        <a
+                            href={`/${locale}#contact`}
+                            onClick={(e) => handleScroll(e, '#contact')}
+                        >
                             {dict.hero.ctaPrimary}
-                            <ChevronRight className={`transition-transform duration-300 group-hover:translate-x-1 ${locale === 'ar' ? 'mr-2 rotate-180 group-hover:-translate-x-1' : 'ml-2'} h-5 w-5`} />
-                        </Link>
+                            <ArrowRight className={`ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 ${locale === 'ar' ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
+                        </a>
                     </Button>
                     <Button variant="outline" size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900" asChild>
-                        <Link href="/demo/restaurant">
+                        <a
+                            href={`/${locale}/demo`}
+                        >
                             <div className="relative w-5 h-5 mr-3 rounded-full overflow-hidden border border-slate-200">
                                 <Image
                                     src="/images/zivra-logo.jpg"
@@ -134,7 +157,7 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                                 />
                             </div>
                             {dict.hero.ctaSecondary}
-                        </Link>
+                        </a>
                     </Button>
                 </motion.div>
             </motion.div>

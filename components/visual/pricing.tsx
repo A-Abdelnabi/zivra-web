@@ -45,7 +45,7 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
             >
                 {/* Badge for featured/most popular */}
                 {plan.id === 'growth' && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border border-purple-500/40 bg-purple-500 px-4 py-1.5 text-xs font-bold text-white z-10 uppercase tracking-widest shadow-lg shadow-purple-500/50">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border border-primary/40 bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground z-10 uppercase tracking-widest shadow-lg shadow-primary/50">
                         {locale === 'ar' ? 'الأكثر شيوعاً' : 'Most Popular'}
                     </div>
                 )}
@@ -108,7 +108,7 @@ export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictio
     }, [locale]);
 
     return (
-        <section id="packages" className="w-full py-24 mb-12 bg-secondary">
+        <section id="packages" className="w-full py-24 mb-12 bg-muted">
             <div className="mx-auto max-w-7xl px-4">
                 <Reveal>
                     <div className="text-center mb-16">
