@@ -10,7 +10,7 @@ const iconMap = [Bot, MessageSquare, Code2, Share2, Megaphone, Database];
 
 export function Services({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     return (
-        <section id="services" className="py-24">
+        <section id="services" className="py-24 bg-secondary">
             <div className="container mx-auto px-4">
                 <Reveal>
                     <div className="text-center max-w-2xl mx-auto mb-16">
@@ -27,7 +27,7 @@ export function Services({ locale, dict }: { locale: Locale; dict: Dictionary })
                             const Icon = iconMap[index];
                             return (
                                 <RevealItem key={index}>
-                                    <Card className="glass-card group hover:bg-white/[0.05] transition-all duration-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.1)] h-full border-white/5 hover:border-white/20 active:scale-[0.98]">
+                                    <Card className="bg-white group hover:shadow-saas transition-all duration-500 h-full border-slate-100 hover:border-primary/20 hover:-translate-y-1 active:scale-[0.98]">
                                         <CardHeader>
                                             <motion.div
                                                 whileHover={{ scale: 1.1, y: -2 }}
@@ -36,13 +36,13 @@ export function Services({ locale, dict }: { locale: Locale; dict: Dictionary })
                                             >
                                                 {/* Breathing Icon Effect */}
                                                 <div className="icon-breathing">
-                                                    <Icon className="h-6 w-6 text-primary transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
+                                                    <Icon className="h-6 w-6 text-primary transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(139,92,246,0.3)]" />
                                                 </div>
 
                                                 {/* Subtle Glow Bloom on Hover */}
                                                 <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                             </motion.div>
-                                            <CardTitle className="text-xl group-hover:text-primary transition-colors duration-300">{service.title}</CardTitle>
+                                            <CardTitle className="text-xl text-foreground group-hover:text-primary transition-colors duration-300">{service.title}</CardTitle>
                                         </CardHeader>
                                         <CardContent>
                                             <p className="text-muted-foreground leading-relaxed">

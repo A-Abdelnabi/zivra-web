@@ -117,15 +117,15 @@ export function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                     transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                    <Button size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] shadow-lg shadow-purple-500/20 bg-primary text-white" asChild>
+                    <Button size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] shadow-xl shadow-primary/20 bg-primary text-white hover:bg-primary/90" asChild>
                         <Link href={`/${locale}/signup`}>
                             {dict.hero.ctaPrimary}
                             <ChevronRight className={`transition-transform duration-300 group-hover:translate-x-1 ${locale === 'ar' ? 'mr-2 rotate-180 group-hover:-translate-x-1' : 'ml-2'} h-5 w-5`} />
                         </Link>
                     </Button>
-                    <Button variant="ghost" size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] text-white/50 hover:text-white" asChild>
+                    <Button variant="outline" size="lg" className="h-14 px-10 text-xl font-bold rounded-full group transition-transform hover:scale-[1.05] active:scale-[0.95] text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900" asChild>
                         <Link href="/demo/restaurant">
-                            <div className="relative w-5 h-5 mr-3 rounded-full overflow-hidden border border-white/20">
+                            <div className="relative w-5 h-5 mr-3 rounded-full overflow-hidden border border-slate-200">
                                 <Image
                                     src="/images/zivra-logo.jpg"
                                     alt="ZIVRA"

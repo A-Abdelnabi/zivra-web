@@ -91,12 +91,12 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                 {/* Actions */}
                 <div className="hidden md:flex items-center gap-4">
                     {/* Language Switcher */}
-                    <div className="flex items-center gap-1 border border-white/10 rounded-full overflow-hidden">
+                    <div className="flex items-center gap-1 border border-slate-200 rounded-full overflow-hidden bg-white">
                         <a
                             href={switchLocale('en')}
                             onClick={(e) => handleLocaleSwitch(e, 'en')}
                             className={`flex items-center gap-1 text-xs font-medium px-3 py-1 transition-colors ${locale === 'en'
-                                ? 'bg-white/10 text-foreground'
+                                ? 'bg-slate-100 text-foreground'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
@@ -106,7 +106,7 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                             href={switchLocale('ar')}
                             onClick={(e) => handleLocaleSwitch(e, 'ar')}
                             className={`flex items-center gap-1 text-xs font-medium px-3 py-1 transition-colors ${locale === 'ar'
-                                ? 'bg-white/10 text-foreground'
+                                ? 'bg-slate-100 text-foreground'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
@@ -116,7 +116,7 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                             href={switchLocale('fi')}
                             onClick={(e) => handleLocaleSwitch(e, 'fi')}
                             className={`flex items-center gap-1 text-xs font-medium px-3 py-1 transition-colors ${locale === 'fi'
-                                ? 'bg-white/10 text-foreground'
+                                ? 'bg-slate-100 text-foreground'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
@@ -160,8 +160,8 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                                     href={switchLocale('en')}
                                     onClick={(e) => handleLocaleSwitch(e, 'en')}
                                     className={`flex-1 text-center py-2 px-4 rounded-lg border transition-colors ${locale === 'en'
-                                        ? 'bg-white/10 border-white/20'
-                                        : 'border-white/10 hover:border-white/20'
+                                        ? 'bg-slate-100 border-slate-200 text-foreground'
+                                        : 'border-slate-100 hover:border-slate-200 text-muted-foreground'
                                         }`}
                                 >
                                     English
@@ -170,8 +170,8 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                                     href={switchLocale('ar')}
                                     onClick={(e) => handleLocaleSwitch(e, 'ar')}
                                     className={`flex-1 text-center py-2 px-4 rounded-lg border transition-colors ${locale === 'ar'
-                                        ? 'bg-white/10 border-white/20'
-                                        : 'border-white/10 hover:border-white/20'
+                                        ? 'bg-slate-100 border-slate-200 text-foreground'
+                                        : 'border-slate-100 hover:border-slate-200 text-muted-foreground'
                                         }`}
                                 >
                                     العربية
@@ -180,8 +180,8 @@ export function Navbar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                                     href={switchLocale('fi')}
                                     onClick={(e) => handleLocaleSwitch(e, 'fi')}
                                     className={`flex-1 text-center py-2 px-4 rounded-lg border transition-colors ${locale === 'fi'
-                                        ? 'bg-white/10 border-white/20'
-                                        : 'border-white/10 hover:border-white/20'
+                                        ? 'bg-slate-100 border-slate-200 text-foreground'
+                                        : 'border-slate-100 hover:border-slate-200 text-muted-foreground'
                                         }`}
                                 >
                                     Suomi

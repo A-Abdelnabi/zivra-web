@@ -104,7 +104,7 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                 </Reveal>
 
                 <Reveal delay={0.2}>
-                    <div className="glass-card p-6 md:p-8 rounded-2xl border-white/5 shadow-xl">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-100 shadow-saas">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                                 <div className="grid md:grid-cols-2 gap-6">
@@ -117,7 +117,7 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                                                 <FormControl>
                                                     <Input
                                                         placeholder={locale === 'ar' ? 'اكتب اسمك هنا' : 'Your name here'}
-                                                        className={`transition-all focus:scale-[1.01] ${locale === 'ar' ? 'text-right' : ''}`}
+                                                        className={`transition-all focus:scale-[1.01] bg-slate-50 border-slate-200 focus:border-primary/30 text-foreground placeholder:text-muted-foreground ${locale === 'ar' ? 'text-right' : ''}`}
                                                         {...field}
                                                     />
                                                 </FormControl>
@@ -137,7 +137,7 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                                                         placeholder="email@example.com"
                                                         type="email"
                                                         dir="ltr"
-                                                        className="transition-all focus:scale-[1.01]"
+                                                        className="transition-all focus:scale-[1.01] bg-slate-50 border-slate-200 focus:border-primary/30 text-foreground placeholder:text-muted-foreground"
                                                         {...field}
                                                     />
                                                 </FormControl>
@@ -156,11 +156,11 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                                             <FormControl>
                                                 <select
                                                     {...field}
-                                                    className={`w-full h-10 px-3 rounded-md border border-white/10 bg-white/5 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none ${locale === 'ar' ? 'text-right' : ''}`}
+                                                    className={`w-full h-10 px-3 rounded-md border border-slate-200 bg-slate-50 text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none ${locale === 'ar' ? 'text-right' : ''}`}
                                                 >
-                                                    <option value="" disabled className="bg-[#0a0a0c]">{dict.contact.form.servicePlaceholder}</option>
+                                                    <option value="" disabled className="bg-white text-muted-foreground">{dict.contact.form.servicePlaceholder}</option>
                                                     {dict.contact.services.map((s: string) => (
-                                                        <option key={s} value={s} className="bg-[#0a0a0c]">{s}</option>
+                                                        <option key={s} value={s} className="bg-white text-foreground">{s}</option>
                                                     ))}
                                                 </select>
                                             </FormControl>
@@ -170,7 +170,7 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                                 />
 
                                 {(selectedService === "Social Media Growth" || selectedService === "نمو السوشيال ميديا") && (
-                                    <div className="space-y-3 p-4 rounded-xl border border-blue-500/20 bg-blue-500/5 animate-in slide-in-from-top-2 duration-300">
+                                    <div className="space-y-3 p-4 rounded-xl border border-primary/20 bg-primary/5 animate-in slide-in-from-top-2 duration-300">
                                         <p className={`text-sm font-medium ${locale === 'ar' ? 'text-right' : ''}`}>
                                             {locale === 'ar' ? 'اختار المنصات المستهدفة:' : 'Selected Platforms:'}
                                         </p>
@@ -189,8 +189,8 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                                                             form.setValue('platforms', newValue);
                                                         }}
                                                         className={`px-3 py-1.5 rounded-full text-xs transition-all border ${isSelected
-                                                            ? "bg-blue-600 border-blue-400 text-white"
-                                                            : "bg-white/5 border-white/10 text-white/60 hover:border-white/20"
+                                                            ? "bg-primary border-primary text-white"
+                                                            : "bg-white border-slate-200 text-muted-foreground hover:border-primary/30 hover:text-primary"
                                                             }`}
                                                     >
                                                         {plat.name}
@@ -212,7 +212,7 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                                                     placeholder={locale === 'ar'
                                                         ? 'فضفض لنا عن مشروعك...'
                                                         : 'Tell us about your project...'}
-                                                    className={`min-h-[120px] transition-all focus:scale-[1.01] ${locale === 'ar' ? 'text-right' : ''}`}
+                                                    className={`min-h-[120px] transition-all focus:scale-[1.01] bg-slate-50 border-slate-200 focus:border-primary/30 text-foreground placeholder:text-muted-foreground ${locale === 'ar' ? 'text-right' : ''}`}
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -224,7 +224,7 @@ export function ContactForm({ locale, dict }: { locale: Locale; dict: Dictionary
                                 <Button
                                     type="submit"
                                     size="lg"
-                                    className="w-full transition-transform active:scale-[0.98] h-12 text-lg font-bold"
+                                    className="w-full transition-transform active:scale-[0.98] h-12 text-lg font-bold bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20"
                                     disabled={isSubmitting}
                                 >
                                     {isSubmitting ? dict.contact.form.submitting : dict.contact.form.submit}

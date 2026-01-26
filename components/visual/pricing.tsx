@@ -38,10 +38,9 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
         <RevealItem>
             <div
                 className={[
-                    "relative mx-auto w-full rounded-3xl border border-white/10 bg-white/[0.04] p-8 transition-all duration-500 flex flex-col h-full",
-                    "shadow-[0_0_80px_rgba(139,92,246,0.1)] backdrop-blur-xl",
-                    "ring-1 ring-purple-500/40",
-                    "hover:bg-white/[0.06] hover:border-white/20"
+                    "relative mx-auto w-full rounded-3xl border border-slate-100 bg-white p-8 transition-all duration-500 flex flex-col h-full",
+                    "shadow-saas",
+                    "hover:border-primary/20 hover:-translate-y-1"
                 ].join(" ")}
             >
                 {/* Badge for featured/most popular */}
@@ -52,19 +51,19 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
                 )}
 
                 <div className={locale === 'ar' ? 'text-right' : ''}>
-                    <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
-                    <p className="mt-2 text-sm text-white/50">{plan.tagline}</p>
+                    <h3 className="text-2xl font-bold text-foreground">{plan.name}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">{plan.tagline}</p>
                 </div>
 
                 <div className={`mt-8 ${locale === 'ar' ? 'text-right' : ''}`}>
-                    <div className="text-4xl font-black text-white tracking-tight">{plan.price}</div>
-                    <div className="mt-2 text-sm font-medium text-purple-300/80">{plan.setup}</div>
+                    <div className="text-4xl font-black text-foreground tracking-tight">{plan.price}</div>
+                    <div className="mt-2 text-sm font-medium text-muted-foreground">{plan.setup}</div>
                 </div>
 
-                <ul className="mt-8 space-y-4 text-sm text-white/80 flex-1">
+                <ul className="mt-8 space-y-4 text-sm text-foreground/80 flex-1">
                     {plan.bullets.map((b: string) => (
                         <li key={b} className="flex items-start gap-3">
-                            <Check className={`mt-0.5 h-5 w-5 text-purple-400 shrink-0 ${locale === 'ar' ? 'order-2' : ''}`} />
+                            <Check className={`mt-0.5 h-5 w-5 text-primary shrink-0 ${locale === 'ar' ? 'order-2' : ''}`} />
                             <span className={locale === 'ar' ? 'text-right flex-1 font-medium' : 'font-medium'}>{b}</span>
                         </li>
                     ))}
@@ -77,9 +76,9 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
                     whileTap={{ scale: 0.98 }}
                     whileHover={{ scale: 1.02 }}
                     className={[
-                        "mt-10 inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-lg font-bold transition-all shadow-xl shadow-purple-500/20",
-                        plan.id === 'growth' ? "bg-purple-500 text-white" : "bg-white/10 text-white border border-white/10",
-                        "hover:shadow-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-400/60 disabled:opacity-50",
+                        "mt-10 inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-lg font-bold transition-all shadow-xl shadow-primary/10",
+                        plan.id === 'growth' ? "bg-primary text-white hover:bg-primary/90" : "bg-slate-50 text-foreground border border-slate-200 hover:bg-slate-100",
+                        "hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/60 disabled:opacity-50",
                     ].join(" ")}
                 >
                     {loading ? (
@@ -93,7 +92,7 @@ function PlanCard({ plan, locale }: { plan: any; locale: Locale }) {
                     <a
                         href={WHATSAPP_LINK}
                         target="_blank"
-                        className="text-sm text-white/40 hover:text-white transition-colors underline underline-offset-4"
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors underline underline-offset-4"
                     >
                         {locale === 'ar' ? 'أو تحدث معنا على واتساب' : 'Or talk on WhatsApp'}
                     </a>
@@ -109,35 +108,37 @@ export default function Pricing({ locale, dict }: { locale: Locale; dict: Dictio
     }, [locale]);
 
     return (
-        <section id="packages" className="mx-auto w-full max-w-7xl px-4 py-24 mb-12">
-            <Reveal>
-                <div className="text-center mb-16">
-                    <div className="mx-auto inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-bold text-white/50 backdrop-blur-sm uppercase tracking-widest">
-                        {dict.pricing.badge}
+        <section id="packages" className="w-full py-24 mb-12 bg-secondary">
+            <div className="mx-auto max-w-7xl px-4">
+                <Reveal>
+                    <div className="text-center mb-16">
+                        <div className="mx-auto inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-bold text-primary backdrop-blur-sm uppercase tracking-widest">
+                            {dict.pricing.badge}
+                        </div>
+
+                        <h2 className="mt-6 text-4xl md:text-6xl font-black text-foreground">
+                            {dict.pricing.title}
+                        </h2>
+                        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+                            {dict.pricing.subtitle}
+                        </p>
                     </div>
+                </Reveal>
 
-                    <h2 className="mt-6 text-4xl md:text-6xl font-black text-white">
-                        {dict.pricing.title}
-                    </h2>
-                    <p className="mx-auto mt-6 max-w-2xl text-lg text-white/50">
-                        {dict.pricing.subtitle}
-                    </p>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+                    {dict.pricing.plans.map((p: any) => (
+                        <PlanCard key={p.id} plan={p} locale={locale} />
+                    ))}
                 </div>
-            </Reveal>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-                {dict.pricing.plans.map((p: any) => (
-                    <PlanCard key={p.id} plan={p} locale={locale} />
-                ))}
+                <Reveal delay={0.5}>
+                    <div className="mt-16 text-center">
+                        <p className="text-xs text-muted-foreground/60 font-medium">
+                            {dict.pricing.disclaimer}
+                        </p>
+                    </div>
+                </Reveal>
             </div>
-
-            <Reveal delay={0.5}>
-                <div className="mt-16 text-center">
-                    <p className="text-xs text-white/20 font-medium">
-                        {dict.pricing.disclaimer}
-                    </p>
-                </div>
-            </Reveal>
         </section>
     );
 }

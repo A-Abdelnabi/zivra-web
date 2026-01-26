@@ -102,15 +102,15 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
 
     return (
         <section className="py-24 relative overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
             <div className="container mx-auto px-4 max-w-6xl">
                 <Reveal>
                     <div className="text-center mb-16 space-y-4">
-                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
+                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
                             {t("Who ZIVRA is built for", "لمن تم بناء ZIVRA", "Kenelle ZIVRA on tehty")}
                         </h2>
-                        <p className="text-white/50 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+                        <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
                             {t(
                                 "Companies that want predictable growth, automated sales, and full visibility — without chaos.",
                                 "للشركات التي تبحث عن نمو مستدام، مبيعات مؤتمتة، ورؤية كاملة بدون فوضى.",
@@ -124,40 +124,40 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                     <RevealList delay={0.2} staggerChildren={0.1}>
                         {cases.map((c) => (
                             <RevealItem key={c.id}>
-                                <div className={`relative group p-8 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-500 bg-gradient-to-b ${c.color} h-full`}>
-                                    <div className="mb-6 p-3 bg-white/5 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-500">
+                                <div className={`relative group p-8 rounded-3xl border border-slate-100 bg-white hover:shadow-saas transition-all duration-500 h-full`}>
+                                    <div className="mb-6 p-3 bg-slate-50 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-500">
                                         {c.icon}
                                     </div>
 
-                                    <h3 className="text-xl font-bold mb-6">{c.title}</h3>
+                                    <h3 className="text-xl font-bold mb-6 text-foreground">{c.title}</h3>
 
                                     <div className="space-y-6">
                                         <div className="space-y-2">
-                                            <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold">
+                                            <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
                                                 {t("Problem", "المشكلة", "Ongelma")}
                                             </span>
-                                            <p className="text-sm text-white/60 leading-relaxed italic">
+                                            <p className="text-sm text-muted-foreground leading-relaxed italic">
                                                 "{c.problem}"
                                             </p>
                                         </div>
 
                                         <div className="space-y-2">
-                                            <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold">
+                                            <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
                                                 {t("Solution", "الحل", "Ratkaisu")}
                                             </span>
-                                            <p className="text-sm text-white/80 leading-relaxed font-semibold">
+                                            <p className="text-sm text-foreground leading-relaxed font-semibold">
                                                 {c.solution}
                                             </p>
                                         </div>
 
-                                        <div className="pt-6 border-t border-white/5 mt-auto">
+                                        <div className="pt-6 border-t border-slate-100 mt-auto">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-8 w-1 bg-indigo-500 rounded-full" />
+                                                <div className="h-8 w-1 bg-primary rounded-full" />
                                                 <div>
-                                                    <span className="text-[10px] uppercase tracking-widest text-indigo-400 font-bold block">
+                                                    <span className="text-[10px] uppercase tracking-widest text-primary/80 font-bold block">
                                                         {t("Expected Result", "النتيجة المتوقعة", "Odotettu tulos")}
                                                     </span>
-                                                    <p className="text-base font-bold text-white">
+                                                    <p className="text-base font-bold text-foreground">
                                                         {c.result}
                                                     </p>
                                                 </div>
@@ -174,7 +174,7 @@ export default function UseCases({ locale }: { locale: Locale; dict: Dictionary 
                     <div className="mt-16 text-center">
                         <button
                             onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                            className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-white/90 transition-all"
+                            className="group inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-bold rounded-full hover:bg-primary/90 transition-all shadow-xl shadow-primary/20"
                         >
                             {t("Book Sales Strategy", "احجز استراتيجية مبيعات", "Varaa myyntistrategia")}
                             <ArrowRight size={18} className={`${isRtl ? 'rotate-180' : ''} group-hover:translate-x-1 transition-transform`} />
