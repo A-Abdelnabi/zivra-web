@@ -3,66 +3,70 @@
 /* Base theme (shadcn-style) */
 @layer base {
     :root {
-        /* Light Green Pastel Theme */
-        --background: 160 33% 98%;
-        /* #F8FBFA */
-        --foreground: 165 14% 16%;
-        /* #24302D */
+        /* Green-on-Green Theme (Modern Mint) */
+
+        /* Background: #F2FBF9 (Very Pale Mint) */
+        --background: 166 45% 97%;
+
+        /* Foreground: #16423C (Deep Pine Green) - Replaces Black */
+        --foreground: 172 50% 17%;
+
+        /* Card: #FFFFFF */
         --card: 0 0% 100%;
-        /* #FFFFFF */
-        --card-foreground: 165 14% 16%;
+        --card-foreground: 172 50% 17%;
+
         --popover: 0 0% 100%;
-        --popover-foreground: 165 14% 16%;
+        --popover-foreground: 172 50% 17%;
 
         /* Primary: Pastel Mint #8EEAD4 */
         --primary: 166 73% 74%;
-        --primary-foreground: 165 14% 16%;
-        /* Dark text on light pastel */
+        --primary-foreground: 172 50% 17%;
 
         /* Secondary: Soft Lavender #B9B2FF */
         --secondary: 245 100% 85%;
-        --secondary-foreground: 165 14% 16%;
+        --secondary-foreground: 172 50% 17%;
 
         /* Accent: Lavender */
         --accent: 245 100% 85%;
-        --accent-foreground: 165 14% 16%;
+        --accent-foreground: 172 50% 17%;
 
-        /* Soft Section #F0FAF6 mapped to Muted */
-        --muted: 156 50% 96%;
-        --muted-foreground: 155 8% 45%;
-        /* #6B7C75 */
+        /* Muted: Soft Minty Grey */
+        --muted: 163 45% 93%;
+        /* Muted Foreground: #4A7C6F (Medium Sage) */
+        --muted-foreground: 164 25% 39%;
 
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 100%;
 
-        /* Borders and Inputs: #E2F1EC -> HSL 160 33% 91% */
-        --border: 160 33% 91%;
-        --input: 160 33% 91%;
+        /* Borders: #CFEAD9 (Soft Green) */
+        --border: 142 41% 86%;
+        --input: 142 41% 86%;
         --ring: 166 73% 74%;
+
         --radius: 1rem;
-        /* Softer radius */
     }
 
     /* Force Light Theme in Dark Mode */
+    /* Force Light Theme in Dark Mode */
     .dark {
-        --background: 160 33% 98%;
-        --foreground: 165 14% 16%;
+        --background: 166 45% 97%;
+        --foreground: 172 50% 17%;
         --card: 0 0% 100%;
-        --card-foreground: 165 14% 16%;
+        --card-foreground: 172 50% 17%;
         --popover: 0 0% 100%;
-        --popover-foreground: 165 14% 16%;
+        --popover-foreground: 172 50% 17%;
         --primary: 166 73% 74%;
-        --primary-foreground: 165 14% 16%;
+        --primary-foreground: 172 50% 17%;
         --secondary: 245 100% 85%;
-        --secondary-foreground: 165 14% 16%;
+        --secondary-foreground: 172 50% 17%;
         --accent: 245 100% 85%;
-        --accent-foreground: 165 14% 16%;
-        --muted: 156 50% 96%;
-        --muted-foreground: 155 8% 45%;
+        --accent-foreground: 172 50% 17%;
+        --muted: 163 45% 93%;
+        --muted-foreground: 164 25% 39%;
         --destructive: 0 62.8% 30.6%;
         --destructive-foreground: 0 0% 100%;
-        --border: 160 33% 91%;
-        --input: 160 33% 91%;
+        --border: 142 41% 86%;
+        --input: 142 41% 86%;
         --ring: 166 73% 74%;
     }
 
